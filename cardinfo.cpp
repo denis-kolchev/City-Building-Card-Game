@@ -14,11 +14,6 @@ int CardInfo::buildPrice()
     return m_buildPrice;
 }
 
-bool CardInfo::canTrigger(uchar currentRoll)
-{
-    return m_triggerRolls.find(currentRoll) == m_triggerRolls.end();
-}
-
 CardType CardInfo::cardType()
 {
     return m_cardType;

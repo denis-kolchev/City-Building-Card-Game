@@ -11,11 +11,19 @@ class Card : public QObject, public AbstractCard
 public:
     explicit Card(CardInfo info, QObject *parent = nullptr);
 
-    int buildPrice() override;
+    uchar buildPrice() override;
+
+    bool canTrigger(uchar currentRoll) override;
 
     IncomeType incomeType() override;
 
+    QString name() override;
+
     void operate() override;
+
+    QString operation() override;
+
+    QSet<uchar> virtual triggerRolls() override;
 
     CardVariation variation() override;
 
