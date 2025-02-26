@@ -20,9 +20,15 @@ enum class IncomeType {
 enum class CardType {
     None,
     Shop,
-    Cafe,
+    Cafe, // Dining?
     Agricultiral,
     Landmark,
+    Farm,
+    Mining,
+    Production,
+    Fruit,
+    Ship,
+    Business
 };
 
 class CardInfo final
@@ -31,7 +37,7 @@ public:
     CardInfo() = delete;
 
     CardInfo(QString, QString, CardVariation, IncomeType, CardType,
-             int, uchar, bool);
+             int, uchar);
 
 public:
     int buildPrice();
