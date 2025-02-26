@@ -1,11 +1,72 @@
 #include "mainwindow.h"
 
+#include <QLabel>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QVBoxLayout>
 #include <QVector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     createCards();
+
+    // Main layout
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+
+    // Bank section
+    QLabel *bankLabel = new QLabel("Bank:");
+    QHBoxLayout *bankLayout = new QHBoxLayout();
+    for (int i = 1; i <= 10; ++i) {
+        bankLayout->addWidget(new QPushButton(QString("Build %1").arg(i)));
+    }
+
+    // Landmarks section
+    QLabel *landmarkLabel = new QLabel("Landmarks:");
+    QHBoxLayout *landmarkLayout = new QHBoxLayout();
+    for (int i = 1; i <= 5; ++i) {
+        landmarkLayout->addWidget(new QLabel(QString("Landmark %1").arg(i)));
+    }
+
+    // Builds section (inside a scroll area)
+    QLabel *buildsLabel = new QLabel("Builds:");
+    QWidget *scrollWidget = new QWidget();
+    QHBoxLayout *buildsLayout = new QHBoxLayout(scrollWidget);
+    for (int i = 1; i <= 10; ++i) {
+        buildsLayout->addWidget(new QPushButton(QString("Build %1").arg(i)));
+    }
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidget(scrollWidget);
+    scrollArea->setWidgetResizable(true);
+
+    // Right-side buttons
+    QVBoxLayout *rightLayout = new QVBoxLayout();
+    QPushButton *viewCardsBtn = new QPushButton("View another player's cards");
+    QPushButton *rollDice1Btn = new QPushButton("Roll 1 dice");
+    QPushButton *rollDice2Btn = new QPushButton("Roll 2 dice");
+    QLabel *moneyLabel = new QLabel("MyMoney: 3");
+
+    rightLayout->addWidget(viewCardsBtn);
+    rightLayout->addWidget(rollDice1Btn);
+    rightLayout->addWidget(rollDice2Btn);
+    rightLayout->addWidget(moneyLabel);
+    rightLayout->addStretch();
+
+    // Combine left and right layouts
+    QHBoxLayout *contentLayout = new QHBoxLayout();
+    contentLayout->addLayout(mainLayout);
+    contentLayout->addLayout(rightLayout);
+
+    // Add sections to main layout
+    mainLayout->addWidget(bankLabel);
+    mainLayout->addLayout(bankLayout);
+    mainLayout->addWidget(landmarkLabel);
+    mainLayout->addLayout(landmarkLayout);
+    mainLayout->addWidget(buildsLabel);
+    mainLayout->addWidget(scrollArea);
+
+    setLayout(contentLayout);
+    setWindowTitle("Card Game UI");
 }
 
 MainWindow::~MainWindow()
