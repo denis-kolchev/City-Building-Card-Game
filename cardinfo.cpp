@@ -2,16 +2,21 @@
 
 CardInfo::CardInfo(QString name, QString operation, CardVariation cardVariation,
                    IncomeType incomeType, CardType cardType, int buildPrice,
-                   uchar triggerRoll)
+                   QSet<uchar> triggerRolls)
     : m_name(name), m_operation(operation), m_cardVariation(cardVariation),
     m_incomeType(incomeType), m_cardType(cardType), m_buildPrice(buildPrice),
-    m_triggerRoll(triggerRoll)
+    m_triggerRolls(triggerRolls)
 {
 }
 
 int CardInfo::buildPrice()
 {
     return m_buildPrice;
+}
+
+bool CardInfo::canTrigger(uchar currentRoll)
+{
+    return m_triggerRolls.find(currentRoll) == m_triggerRolls.end();
 }
 
 CardType CardInfo::cardType()
@@ -39,7 +44,7 @@ QString CardInfo::operation()
     return m_operation;
 }
 
-uchar CardInfo::triggerRoll()
+QSet<uchar> CardInfo::triggerRolls()
 {
-    return m_triggerRoll;
+    return m_triggerRolls;
 }

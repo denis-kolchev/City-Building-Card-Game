@@ -1,6 +1,7 @@
 #ifndef CARDINFO_H
 #define CARDINFO_H
 
+#include <QSet>
 #include <QString>
 
 enum class CardVariation {
@@ -36,11 +37,13 @@ class CardInfo final
 public:
     CardInfo() = delete;
 
-    CardInfo(QString, QString, CardVariation, IncomeType, CardType,
-             int, uchar);
+    CardInfo(QString name, QString operation, CardVariation, IncomeType, CardType,
+             int buildPrice, QSet<uchar> triggerRolls);
 
 public:
     int buildPrice();
+
+    bool canTrigger(uchar currentRoll);
 
     CardType cardType();
 
@@ -52,7 +55,7 @@ public:
 
     QString operation();
 
-    uchar triggerRoll();
+    QSet<uchar> triggerRolls();
 
 private:
     QString m_name;
@@ -61,7 +64,7 @@ private:
     IncomeType m_incomeType;
     CardType m_cardType;
     int m_buildPrice;
-    uchar m_triggerRoll;
+    QSet<uchar> m_triggerRolls;
 
 };
 
