@@ -13,10 +13,20 @@ Player::Player(uchar id, QObject *parent)
 
 QString Player::name()
 {
-
+    return m_name;
 }
 
 void Player::setName(QString name)
+{
+    m_name = name;
+}
+
+void applyDiceEffect(uchar numDice)
+{
+
+}
+
+void buyCard(AbstractCard* card)
 {
 
 }

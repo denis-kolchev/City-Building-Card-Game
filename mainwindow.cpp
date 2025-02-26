@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *actionLayout = new QVBoxLayout();
 
-    auto *viewOpponentCardsButton = new QPushButton("View opponent\ncards");
+    auto *viewOpponentCardsButton = new QPushButton("View opponent cards");
     auto *rollOneDiceButton = new QPushButton("Roll 1 dice");
     auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
     auto *playerMoneyLabel = new QLabel("My money: 30");
