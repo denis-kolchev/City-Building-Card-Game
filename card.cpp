@@ -26,9 +26,19 @@ QString Card::name()
     return m_info.name();
 }
 
-void Card::operate()
+void Card::operate(GameState gameState)
 {
+    auto &current = gameState.m_currentPlayer;
+    auto &players = gameState.m_players;
+    auto &reserve = gameState.m_reserve;
 
+    if (m_info.cardVariation() == CardVariation::Build) {
+        if (m_info.incomeType() == IncomeType::Passive) {
+            // ... yeah... it doesnt' look great
+        }
+    } else {
+
+    }
 }
 
 QString Card::operation()

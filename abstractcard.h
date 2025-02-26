@@ -2,6 +2,7 @@
 #define ABSTRACTCARD_H
 
 #include "cardinfo.h"
+#include "gamestate.h"
 
 class AbstractCard
 {
@@ -13,7 +14,7 @@ class AbstractCard
 
     QString virtual name() = 0;
 
-    void virtual operate() = 0;
+    void virtual operate(GameState gameState) = 0;
 
     QString virtual operation() = 0;
 

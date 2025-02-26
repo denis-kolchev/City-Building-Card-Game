@@ -19,7 +19,7 @@ public:
 
     QString name() override;
 
-    void operate() override;
+    void operate(GameState gameState) override;
 
     QString operation() override;
 
