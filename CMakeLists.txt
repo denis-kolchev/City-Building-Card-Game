@@ -25,6 +25,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cardinfo.h cardinfo.cpp
         abstractcard.h
         diceroller.h diceroller.cpp
+        gamelogic.h gamelogic.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
