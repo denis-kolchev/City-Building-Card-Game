@@ -29,6 +29,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         player.h player.cpp
         cardreserve.h cardreserve.cpp
         card.h card.cpp
+        gamestate.h gamestate.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
