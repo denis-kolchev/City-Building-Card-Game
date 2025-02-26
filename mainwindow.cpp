@@ -11,61 +11,94 @@ MainWindow::MainWindow(QWidget *parent)
 {
     createCards();
 
-    // Main layout
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    auto *centralWidget = new QWidget(this);
 
-    // Bank section
-    QLabel *bankLabel = new QLabel("Bank:");
-    QHBoxLayout *bankLayout = new QHBoxLayout();
-    for (int i = 1; i <= 10; ++i) {
-        bankLayout->addWidget(new QPushButton(QString("Build %1").arg(i)));
+    auto *mainLayout = new QHBoxLayout(centralWidget);
+
+    auto *viewCardsLayout = new QVBoxLayout();
+
+    auto *bankLabel = new QLabel("Bank:");
+    auto *bankCardsArea = new QScrollArea();
+    auto *landmarksLabel = new QLabel("Landmarks:");
+    auto *landmarksScrollArea = new QScrollArea();
+    auto *playersBuilds = new QLabel("My builds:");
+    auto *playersBuildsArea = new QScrollArea();
+
+    auto *bankScrollWidget = new QWidget();
+    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget );
+
+    qsizetype nBankPlaceholders = 10;
+    for (int i = 1; i <= nBankPlaceholders; ++i) {
+        QLabel *label = new QLabel(QString("Card %1").arg(i));
+        label->setAlignment(Qt::AlignCenter);
+        bankScrolllayout->addWidget(label);
     }
 
-    // Landmarks section
-    QLabel *landmarkLabel = new QLabel("Landmarks:");
-    QHBoxLayout *landmarkLayout = new QHBoxLayout();
-    for (int i = 1; i <= 5; ++i) {
-        landmarkLayout->addWidget(new QLabel(QString("Landmark %1").arg(i)));
+    bankScrollWidget->setLayout(bankScrolllayout);
+    bankCardsArea->setWidget(bankScrollWidget);
+    bankCardsArea->setWidgetResizable(true);
+
+    auto *landmarksScrollWidget = new QWidget();
+    auto *landmarksScrollLayout = new QHBoxLayout(landmarksScrollWidget);
+
+    qsizetype nlandmarkPlaceholders = 10;
+    for (int i = 1; i <= nlandmarkPlaceholders; ++i) {
+        QLabel *label = new QLabel(QString("Card %1").arg(i));
+        label->setAlignment(Qt::AlignCenter);
+        landmarksScrollLayout->addWidget(label);
     }
 
-    // Builds section (inside a scroll area)
-    QLabel *buildsLabel = new QLabel("Builds:");
-    QWidget *scrollWidget = new QWidget();
-    QHBoxLayout *buildsLayout = new QHBoxLayout(scrollWidget);
-    for (int i = 1; i <= 10; ++i) {
-        buildsLayout->addWidget(new QPushButton(QString("Build %1").arg(i)));
+    landmarksScrollWidget->setLayout(landmarksScrollLayout);
+    landmarksScrollArea->setWidget(landmarksScrollWidget);
+    landmarksScrollArea->setWidgetResizable(true);
+
+    auto *playersBuildsScrollWidget = new QWidget();
+    auto *playersBuildsScrollLayout = new QHBoxLayout(landmarksScrollWidget);
+
+    qsizetype nplayerBuildsPlaceholders = 10;
+    for (int i = 1; i <= nplayerBuildsPlaceholders; ++i) {
+        QLabel *label = new QLabel(QString("Card %1").arg(i));
+        label->setAlignment(Qt::AlignCenter);
+        playersBuildsScrollLayout->addWidget(label);
     }
-    QScrollArea *scrollArea = new QScrollArea();
-    scrollArea->setWidget(scrollWidget);
-    scrollArea->setWidgetResizable(true);
 
-    // Right-side buttons
-    QVBoxLayout *rightLayout = new QVBoxLayout();
-    QPushButton *viewCardsBtn = new QPushButton("View another player's cards");
-    QPushButton *rollDice1Btn = new QPushButton("Roll 1 dice");
-    QPushButton *rollDice2Btn = new QPushButton("Roll 2 dice");
-    QLabel *moneyLabel = new QLabel("MyMoney: 3");
+    playersBuildsScrollWidget->setLayout(playersBuildsScrollLayout);
+    playersBuildsArea->setWidget(playersBuildsScrollWidget);
+    playersBuildsArea->setWidgetResizable(true);
 
-    rightLayout->addWidget(viewCardsBtn);
-    rightLayout->addWidget(rollDice1Btn);
-    rightLayout->addWidget(rollDice2Btn);
-    rightLayout->addWidget(moneyLabel);
-    rightLayout->addStretch();
+    viewCardsLayout->addWidget(bankLabel);
+    viewCardsLayout->addWidget(bankCardsArea);
+    viewCardsLayout->addWidget(landmarksLabel);
+    viewCardsLayout->addWidget(landmarksScrollArea);
+    viewCardsLayout->addWidget(playersBuilds);
+    viewCardsLayout->addWidget(playersBuildsArea);
 
-    // Combine left and right layouts
-    QHBoxLayout *contentLayout = new QHBoxLayout();
-    contentLayout->addLayout(mainLayout);
-    contentLayout->addLayout(rightLayout);
 
-    // Add sections to main layout
-    mainLayout->addWidget(bankLabel);
-    mainLayout->addLayout(bankLayout);
-    mainLayout->addWidget(landmarkLabel);
-    mainLayout->addLayout(landmarkLayout);
-    mainLayout->addWidget(buildsLabel);
-    mainLayout->addWidget(scrollArea);
+    auto *actionLayout = new QVBoxLayout();
 
-    setLayout(contentLayout);
+    auto *viewOpponentCardsButton = new QPushButton("View opponent\ncards");
+    auto *rollOneDiceButton = new QPushButton("Roll 1 dice");
+    auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
+    auto *playerMoneyLabel = new QLabel("My money: 30");
+    playerMoneyLabel->setAlignment(Qt::AlignCenter);
+    actionLayout->addStretch();
+    actionLayout->addWidget(viewOpponentCardsButton);
+    actionLayout->addWidget(rollOneDiceButton);
+    actionLayout->addWidget(rollTwoDiceButton);
+    actionLayout->addWidget(playerMoneyLabel);
+
+    auto *viewCardsWidget = new QWidget(centralWidget);
+    viewCardsWidget->setLayout(viewCardsLayout);
+
+    auto *actionWidget = new QWidget(centralWidget);
+    actionWidget->setLayout(actionLayout);
+
+    mainLayout->addWidget(viewCardsWidget);
+    mainLayout->addWidget(actionWidget);
+
+    centralWidget->setLayout(mainLayout);
+
+    setCentralWidget(centralWidget);
     setWindowTitle("Card Game UI");
 }
 
