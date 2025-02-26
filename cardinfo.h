@@ -25,13 +25,28 @@ enum class CardType {
     Landmark,
 };
 
-class CardInfo
+class CardInfo final
 {
 public:
     CardInfo() = delete;
 
     CardInfo(QString, QString, CardVariation, IncomeType, CardType,
              int, uchar, bool);
+
+public:
+    int buildPrice();
+
+    CardType cardType();
+
+    CardVariation cardVariation();
+
+    IncomeType incomeType();
+
+    QString name();
+
+    QString operation();
+
+    uchar triggerRoll();
 
 private:
     QString m_name;
