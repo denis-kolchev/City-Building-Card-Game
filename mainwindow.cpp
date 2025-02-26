@@ -1,15 +1,21 @@
 #include "mainwindow.h"
 
-#include "cardinfo.h"
-
 #include <QVector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    createCards();
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::createCards()
+{
     // ------- Base Game Cards -------
     // >> Landmarks <<
-    QVector<CardInfo*> baseGameCardsInfo(50);
     baseGameCardsInfo.push_back(new CardInfo("Railway Station",
                                              "You can roll 2 dice instead of 1.",
                                              CardVariation::Landmark,
@@ -149,28 +155,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     // ------- Game Extension Cards -------
     // >> Landmarks <<
-    QVector<CardInfo*> extensionCardsInfo(50);
     extensionCardsInfo.push_back(new CardInfo("Town Hall",
-                                             "If you have no coins, take 1 coin from the bank.",
-                                             CardVariation::Landmark,
-                                             IncomeType::None,
-                                             CardType::None,
-                                             0,
-                                             {0}));
+                                              "If you have no coins, take 1 coin from the bank.",
+                                              CardVariation::Landmark,
+                                              IncomeType::None,
+                                              CardType::None,
+                                              0,
+                                              {0}));
     extensionCardsInfo.push_back(new CardInfo("Sea Port",
-                                             "If the dice roll a \"10\" or higher, you may add \"2\" to the result of the roll.",
-                                             CardVariation::Landmark,
-                                             IncomeType::None,
-                                             CardType::None,
-                                             2,
-                                             {0}));
+                                              "If the dice roll a \"10\" or higher, you may add \"2\" to the result of the roll.",
+                                              CardVariation::Landmark,
+                                              IncomeType::None,
+                                              CardType::None,
+                                              2,
+                                              {0}));
     extensionCardsInfo.push_back(new CardInfo("Airport",
-                                             "If you haven't built anything this turn, take 10 coins from the bank.",
-                                             CardVariation::Landmark,
-                                             IncomeType::None,
-                                             CardType::None,
-                                             30,
-                                             {0}));
+                                              "If you haven't built anything this turn, take 10 coins from the bank.",
+                                              CardVariation::Landmark,
+                                              IncomeType::None,
+                                              CardType::None,
+                                              30,
+                                              {0}));
 
     // >> Builds <<
     extensionCardsInfo.push_back(new CardInfo("Sushi Bar",
@@ -248,9 +253,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // ------- Game Expansion Cards -------
     // >> Builds <<
-    QVector<CardInfo*> expansionCardsInfo(50);
-
-    expansionCardsInfo.push_back(new CardInfo("Supermarket",
+    extensionCardsInfo.push_back(new CardInfo("Supermarket",
                                               "Take 2 coins from the bank if you have no more than 1 landmark.",
                                               CardVariation::Build,
                                               IncomeType::Turn,
@@ -341,9 +344,4 @@ MainWindow::MainWindow(QWidget *parent)
                                               CardType::Cafe,
                                               4,
                                               {12, 13, 14}));
-
-}
-
-MainWindow::~MainWindow()
-{
 }
