@@ -1,10 +1,12 @@
 #ifndef CARDRESERVE_H
 #define CARDRESERVE_H
 
-#include "abstractcard.h"
+#include "card.h"
 
 #include <QMap>
 #include <QObject>
+
+class Player;
 
 class CardReserve : public QObject
 {
@@ -15,7 +17,8 @@ public:
 signals:
 
 private:
-    QMap<AbstractCard*, uchar> m_reserved;
+    QMap<Card*, uchar> m_builds;
+    QSet<Card*> m_landmark;
 };
 
 #endif // CARDRESERVE_H

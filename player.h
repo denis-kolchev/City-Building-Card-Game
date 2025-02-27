@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "abstractcard.h"
+#include "card.h"
 
 class Player : public QObject
 {
@@ -22,11 +22,10 @@ signals:
 public slots:
     void applyDiceEffect(uchar numDice);
 
-    void buyCard(AbstractCard* card);
-
+    void buyCard(Card* card);
 
 private:
-    QVector<AbstractCard*> cards;
+    QVector<Card*> cards;
     QString m_name;
     qsizetype m_money;
     uchar m_id;

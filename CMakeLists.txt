@@ -22,14 +22,18 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(CityBuildingCardGame
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        cardinfo.h cardinfo.cpp
-        abstractcard.h
+
+
         diceroller.h diceroller.cpp
         gamelogic.h gamelogic.cpp
         player.h player.cpp
         cardreserve.h cardreserve.cpp
         card.h card.cpp
         gamestate.h gamestate.cpp
+
+
+
+
 
     )
 # Define target properties for Android with Qt 6 as:

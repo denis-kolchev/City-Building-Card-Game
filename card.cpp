@@ -1,57 +1,52 @@
 #include "card.h"
 
-Card::Card(CardInfo info, QObject *parent)
-    : m_info(info), QObject(parent)
+Card::Card(QString name,
+           QString description,
+           IncomeType incomeType,
+           CardType cardType,
+           ActionSource actionSource,
+           uchar price,
+           QSet<uchar> triggerRolls,
+           QObject *parent)
+    : m_name(name)
+    , m_description(description)
+    , m_incomeType(incomeType)
+    , m_cardType(cardType)
+    , m_price(price)
+    , m_triggerRolls(triggerRolls)
+    , m_actionSource(actionSource)
+    , QObject(parent)
 {
 }
 
-uchar Card::buildPrice()
+Card::~Card()
 {
-    return m_info.buildPrice();
+}
+
+void Card::action(Player& activePlayer,
+                  QVector<Player*>& otherPlayers,
+                  QString actionName)
+{
+    emit applyAction(activePlayer, otherPlayers, actionName);
 }
 
 bool Card::canTrigger(uchar currentRoll)
 {
-    auto triggerRolls = this->triggerRolls();
+    auto triggerRolls = m_triggerRolls;
     return triggerRolls.find(currentRoll) == triggerRolls.end();
 }
 
-IncomeType Card::incomeType()
+QString Card::description()
 {
-    return m_info.incomeType();
+    return m_description;
 }
 
 QString Card::name()
 {
-    return m_info.name();
+    return m_name;
 }
 
-void Card::operate(GameState gameState)
+uchar Card::price()
 {
-    auto &current = gameState.m_currentPlayer;
-    auto &players = gameState.m_players;
-    auto &reserve = gameState.m_reserve;
-
-    if (m_info.cardVariation() == CardVariation::Build) {
-        if (m_info.incomeType() == IncomeType::Passive) {
-            // ... yeah... it doesnt' look great
-        }
-    } else {
-
-    }
-}
-
-QString Card::operation()
-{
-    return m_info.operation();
-}
-
-QSet<uchar> Card::triggerRolls()
-{
-    return m_info.triggerRolls();
-}
-
-CardVariation Card::variation()
-{
-    return m_info.cardVariation();
+    return m_price;
 }

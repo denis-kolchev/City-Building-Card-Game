@@ -26,7 +26,7 @@ void applyDiceEffect(uchar numDice)
 
 }
 
-void buyCard(AbstractCard* card)
+void buyCard(Card* card)
 {
 
 }

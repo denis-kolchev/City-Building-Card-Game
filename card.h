@@ -1,36 +1,122 @@
 #ifndef CARD_H
 #define CARD_H
 
-#include "abstractcard.h"
-
 #include <QObject>
+#include <QSet>
 
-class Card : public QObject, public AbstractCard
+enum class IncomeType
+{
+    Landmark,
+    Passive,
+    Turn,
+    Penalty,
+    Tribute,
+};
+
+enum class CardType
+{
+    Shop,
+    Dining, // Dining?
+    Agricultiral,
+    Landmark,
+    Farm,
+    Mining,
+    Production,
+    Fruit,
+    Ship,
+    Business
+};
+
+enum class ActionSource
+{
+    RailwayStation,
+    ShoppingMall,
+    AmusementPark,
+    RadioTower,
+    WheatField,
+    Farm,
+    Bakery,
+    Cafe,
+    Shop,
+    Forest,
+    Stadium,
+    TVCenter,
+    BusinessCenter,
+    CheeseFactory,
+    FurnitureFactory,
+    Mine,
+    Restaurant,
+    AppleOrchard,
+    FruitMarket,
+    TownHall,
+    SeaPort,
+    Airport,
+    SushiBar,
+    FlowerGarden,
+    FlowerShop,
+    Pizzeria,
+    PublishingHouse,
+    FishingBoat,
+    SnackBar,
+    TaxInspectorate,
+    FoodWarehouse,
+    Trawler,
+    Supermarket,
+    Cornfield,
+    DismantlingCompany,
+    PrestigiousRestaurant,
+    CreditBank,
+    Vineyard,
+    CleaningCompany,
+    TransportCompany,
+    VentureFund,
+    BeverageFactory,
+    Park,
+    PrivateBar,
+};
+
+class Player;
+
+class Card : public QObject
 {
     Q_OBJECT
 public:
-    explicit Card(CardInfo info, QObject *parent = nullptr);
+    explicit Card(QString name,
+                  QString description,
+                  IncomeType incomeType,
+                  CardType cardType,
+                  ActionSource actionSource,
+                  uchar price,
+                  QSet<uchar> triggerRolls,
+                  QObject *parent = nullptr);
 
-    uchar buildPrice() override;
+    virtual ~Card();
 
-    bool canTrigger(uchar currentRoll) override;
+    void virtual action(Player& activePlayer,
+                        QVector<Player*>& otherPlayers,
+                        QString actionName);
 
-    IncomeType incomeType() override;
+    bool canTrigger(uchar currentRoll);
 
-    QString name() override;
+    QString description();
 
-    void operate(GameState gameState) override;
+    QString name();
 
-    QString operation() override;
-
-    QSet<uchar> virtual triggerRolls() override;
-
-    CardVariation variation() override;
+    uchar price();
 
 signals:
+    void applyAction(Player& activePlayer,
+                     QVector<Player*>& otherPLayers,
+                     QString actionName);
 
 private:
-    CardInfo m_info;
+    QString m_description;
+    QString m_name;
+    QSet<uchar> m_triggerRolls;
+    int m_price;
+    ActionSource m_actionSource;
+    CardType m_cardType;
+    IncomeType m_incomeType;
 };
 
 #endif // CARD_H

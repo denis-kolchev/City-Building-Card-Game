@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "cardinfo.h"
+#include "cardreserve.h"
 
 #include <QMainWindow>
 
@@ -18,8 +18,6 @@ private:
     void createCards();
 
 private:
-    QVector<CardInfo*> baseGameCardsInfo;
-    QVector<CardInfo*> extensionCardsInfo;
-    QVector<CardInfo*> expansionCardsInfo;
+    CardReserve reserve;
 };
 #endif // MAINWINDOW_H
