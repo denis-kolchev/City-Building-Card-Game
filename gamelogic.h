@@ -24,6 +24,10 @@
 
 #include <QObject>
 
+#include "diceroller.h"
+#include "cardreserve.h"
+#include "player.h"
+
 enum class ActionType
 {
     RollDice,
@@ -39,7 +43,7 @@ class GameLogic final : public QObject
 public:
     GameLogic(QObject *parent = nullptr);
 
-    void endGame();
+
 
     //getPlayerStates(Player *player);
 
@@ -47,11 +51,26 @@ public:
 
     void updateGameState();
 
+    //bool isGameFinished();
+
+signals:
+    void endGame();
+
+public slots:
+    void handleCardEffect(Player *m_activePlayer, Player* m_players);
 
 private:
+    void setNextPlayer();
+
     void applyDiceResult(int result, Player *player = nullptr);
 
     void performPlayerAction(ActionType, Player *player = nullptr);
+
+private:
+    QVector<Player*> m_players;
+    Player* m_activePlayer;
+    CardReserve* m_reserve;
+    DiceRoller m_roller;
 };
 
 #endif // GAMELOGIC_H

@@ -17,15 +17,21 @@ public:
 
     void setName(QString name);
 
+    uchar giveMoney(uchar numToGive);
+
+    void applyPenalyIncome(Player& activePlayer);
+
+    QVector<Card*> getCards(IncomeType type);
+
 signals:
 
 public slots:
-    void applyDiceEffect(uchar numDice);
+    //void applyDiceEffect(uchar numDice);
 
-    void buyCard(Card* card);
+    //void buyCard(Card* card);
 
 private:
-    QVector<Card*> cards;
+    QVector<Card*> m_cards;
     QString m_name;
     qsizetype m_money;
     uchar m_id;

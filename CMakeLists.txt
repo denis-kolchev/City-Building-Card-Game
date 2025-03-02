@@ -31,6 +31,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         card.h card.cpp
         gamestate.h gamestate.cpp
 
+        README.md
+
 
 
 

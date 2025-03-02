@@ -24,10 +24,9 @@ Card::~Card()
 }
 
 void Card::action(Player& activePlayer,
-                  QVector<Player*>& otherPlayers,
-                  QString actionName)
+                  QVector<Player*>& otherPlayers)
 {
-    emit applyAction(activePlayer, otherPlayers, actionName);
+    emit applyAction(activePlayer, otherPlayers, m_actionSource);
 }
 
 bool Card::canTrigger(uchar currentRoll)

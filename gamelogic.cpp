@@ -1,9 +1,18 @@
 #include "gamelogic.h"
 
-#include "diceroller.h"
-
 GameLogic::GameLogic(QObject *parent)
 {
+    for (uchar id = 0; id < 2; ++id) {
+        m_players.push_back(new Player(id));
+        m_players.push_back(new Player(id));
+    }
+
+    m_activePlayer = m_players[0];
+    m_reserve = new CardReserve();
+
+    for (auto& build : m_reserve->getBuilds()) {
+        connect(build, CardReserve::checkLandmarkEffect, this, GameLogic::handleCardEffect());
+    }
 }
 
 void GameLogic::endGame()
@@ -14,8 +23,35 @@ void GameLogic::endGame()
     */
 }
 
+void GameLogic::handleCardEffect(Player *m_activePlayer, Player* m_players)
+{
+    switch()
+}
+
 void GameLogic::processTurn()
 {
+    if (isGameFinished()) {
+        emit endGame();
+    }
+
+    setNextPlayer();
+
+    uchar diceResult = m_roller.rollDice(1); // from a button
+
+    // Calculate penalty income for all players
+    for (auto& player : m_players) {
+        if (player != m_activePlayer) {
+            auto penaltyCards = player->getCards(IncomeType::Penalty);
+            uchar toGet = 0;
+            for (auto& card : penaltyCards) {
+                if (card->canTrigger(diceResult)) {
+                    card->action(*m_activePlayer, m_players);
+                }
+            }
+        }
+    }
+
+
     // Sets new active player
     // active player do two states in one turn
     // 1. income state
@@ -55,6 +91,11 @@ void GameLogic::applyDiceResult(int result, Player *player)
 }
 
 void GameLogic::performPlayerAction(ActionType, Player *player)
+{
+
+}
+
+void GameLogic::setNextPlayer()
 {
 
 }

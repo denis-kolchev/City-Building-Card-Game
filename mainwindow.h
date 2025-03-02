@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "cardreserve.h"
+#include "gamelogic.h"
 
 #include <QMainWindow>
 
@@ -18,6 +18,6 @@ private:
     void createCards();
 
 private:
-    CardReserve reserve;
+    GameLogic m_gameLogic;
 };
 #endif // MAINWINDOW_H

@@ -14,7 +14,16 @@ class CardReserve : public QObject
 public:
     explicit CardReserve(QObject *parent = nullptr);
 
+    QVector<Card*> getBuilds() {
+        QVector <Card*> result;
+        for (auto it = m_builds.begin(), ite = m_builds.end(); it != ite; ++it) {
+            result.push_back(it.key());
+        }
+        return result;
+    }
+
 signals:
+    void checkLandmarkEffect();
 
 private:
     QMap<Card*, uchar> m_builds;

@@ -93,8 +93,7 @@ public:
     virtual ~Card();
 
     void virtual action(Player& activePlayer,
-                        QVector<Player*>& otherPlayers,
-                        QString actionName);
+                        QVector<Player*>& otherPlayers);
 
     bool canTrigger(uchar currentRoll);
 
@@ -107,7 +106,7 @@ public:
 signals:
     void applyAction(Player& activePlayer,
                      QVector<Player*>& otherPLayers,
-                     QString actionName);
+                     ActionSource actionSource);
 
 private:
     QString m_description;
