@@ -22,55 +22,25 @@
  * checkWinCondition() → Determines if someone has won the game.
  */
 
-#include <QObject>
-
 #include "diceroller.h"
-#include "cardreserve.h"
 #include "player.h"
 
-enum class ActionType
-{
-    RollDice,
-    BuyCard,
-    // ...
-};
+#include <QVector>
+#include <QDebug>
 
-class Player;
-
-class GameLogic final : public QObject
-{
-    Q_OBJECT
+class GameLogic {
 public:
-    GameLogic(QObject *parent = nullptr);
+    GameLogic(const QVector<QString>& playerNames);
 
+    Player& getPlayer(int id);
 
-
-    //getPlayerStates(Player *player);
-
-    void processTurn();
-
-    void updateGameState();
-
-    //bool isGameFinished();
-
-signals:
-    void endGame();
-
-public slots:
-    void handleCardEffect(Player *m_activePlayer, Player* m_players);
+    void playTurn();
 
 private:
-    void setNextPlayer();
-
-    void applyDiceResult(int result, Player *player = nullptr);
-
-    void performPlayerAction(ActionType, Player *player = nullptr);
-
-private:
-    QVector<Player*> m_players;
-    Player* m_activePlayer;
-    CardReserve* m_reserve;
+    QVector<Player> m_players;
+    int m_currentPlayerId;
     DiceRoller m_roller;
+
 };
 
 #endif // GAMELOGIC_H

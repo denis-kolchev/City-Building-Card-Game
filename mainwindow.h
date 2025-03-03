@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "gamelogic.h"
 
 #include <QMainWindow>
 
@@ -18,6 +17,5 @@ private:
     void createCards();
 
 private:
-    GameLogic m_gameLogic;
 };
 #endif // MAINWINDOW_H

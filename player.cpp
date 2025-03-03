@@ -1,32 +1,54 @@
 #include "player.h"
 
-Player::Player(uchar id, QObject *parent)
-    : m_id(id), QObject(parent)
-{
-    // Init player
-    // Get some amount of landmark cards (depending on the GameSettings class
-    // Get start buildings
-    // Get start amount of money
-    // settings class also sets amount of players right now
+Player::Player(const QString& name) : m_name(name), m_coins(START_COINS_NUMBER) {}
 
+void Player::addCard(std::shared_ptr<Card> card) {
+    m_cards.push_back(card);
 }
 
-QString Player::name()
-{
+void Player::addCoins(int amount) {
+    m_coins += amount;
+}
+
+int Player::coins() const {
+    return m_coins;
+}
+
+void Player::deductMoney(int amount) {
+    m_coins -= amount;
+}
+
+std::vector<std::shared_ptr<Card>> Player::getCards() {
+    return m_cards;
+};
+
+QString Player::name() const {
     return m_name;
 }
 
-void Player::setName(QString name)
-{
-    m_name = name;
-}
+void Player::triggerCards(int diceRoll, Player& activePlayer) {
+    std::vector<std::shared_ptr<Card>> redCards, others;
+    for (auto& card : m_cards) {
+        if (card->type() == CardType::Dining) {
+            redCards.push_back(card);
+        }
+    }
 
-void applyDiceEffect(uchar numDice)
-{
+    for (auto& card : m_cards) {
+        if (card->type() != CardType::Dining) {
+            others.push_back(card);
+        }
+    }
 
-}
+    for (auto& card : redCards) {
+        if (diceRoll == card->activationValue()) {
+            card->activate(*this, activePlayer, diceRoll);
+        }
+    }
 
-void buyCard(Card* card)
-{
-
+    for (auto& card : others) {
+        if (diceRoll == card->activationValue()) {
+            card->activate(*this, activePlayer, diceRoll);
+        }
+    }
 }

@@ -1,43 +1,35 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <QObject>
+#include <QString>
 
-#include "card.h"
+#include "cards/card.h"
 
-class Player : public QObject
-{
-    Q_OBJECT
+const int START_COINS_NUMBER = 3;
+
+class Player {
 public:
-    explicit Player(uchar m_id, QObject *parent = nullptr);
+    Player(const QString& name);
 
-    bool canAfford(uchar cardPrice);
+    void addCard(std::shared_ptr<Card> card);
 
-    QString name();
+    void addCoins(int amount);
 
-    void setName(QString name);
+    int coins() const;
 
-    uchar giveMoney(uchar numToGive);
+    void deductMoney(int amount);
 
-    void applyPenalyIncome(Player& activePlayer);
+    std::vector<std::shared_ptr<Card>> getCards();
 
-    QVector<Card*> getCards(IncomeType type);
+    QString name() const;
 
-signals:
-
-public slots:
-    //void applyDiceEffect(uchar numDice);
-
-    //void buyCard(Card* card);
+    void triggerCards(int diceRoll, Player& activePlayer);
 
 private:
-    QVector<Card*> m_cards;
+    std::vector<std::shared_ptr<Card>> m_cards;
     QString m_name;
-    qsizetype m_money;
-    uchar m_id;
-    uchar curDiceResult = 0;
-    bool isAI;
-    bool hasTurn;
+    int m_coins;
 };
+
 
 #endif // PLAYER_H

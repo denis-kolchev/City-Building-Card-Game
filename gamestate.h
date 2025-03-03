@@ -1,9 +1,6 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 
-#include "cardreserve.h"
-#include "player.h"
-
 /**
  * @brief The GameState class
  * The Card needs to have some access to read info about all
@@ -17,17 +14,5 @@
  * From the CardReserve we should get info about ability to buy anything.
  */
 
-struct GameState
-{
-    explicit GameState(QVector<Player*>& players,
-                       Player& currentPlayer,
-                       CardReserve& reserve);
-
-    QVector<Player*>& m_players;
-
-    Player& m_currentPlayer;
-
-    CardReserve& m_reserve;
-};
 
 #endif // GAMESTATE_H

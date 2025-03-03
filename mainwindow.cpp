@@ -1,4 +1,10 @@
 #include "mainwindow.h"
+#include "gamelogic.h"
+
+#include "cards/bakery.h"
+#include "cards/cafe.h"
+#include "cards/shoppingmall.h"
+#include "cards/wheatfield.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -100,6 +106,39 @@ MainWindow::MainWindow(QWidget *parent)
 
     setCentralWidget(centralWidget);
     setWindowTitle("Card Game UI");
+
+    GameLogic game({"Alice", "Bob", "Carl"});
+
+    auto wheatField = std::make_shared<WheatField>("Wheat Field", CardType::Agricultiral, 1);
+    auto cafe = std::make_shared<Cafe>("Cafe", CardType::Dining, 3);
+    auto shop = std::make_shared<Bakery>("Bakey", CardType::Shop, 2);
+    auto lendmark = std::make_shared<ShoppingMall>("Mall", CardType::Landmark, 51);
+
+    // Add cards and landmarks to players
+    game.getPlayer(0).addCard(wheatField);
+    game.getPlayer(0).addCard(shop);
+    game.getPlayer(0).addCard(cafe);
+    game.getPlayer(0).addCard(lendmark);
+
+    game.getPlayer(1).addCard(wheatField);
+    game.getPlayer(1).addCard(shop);
+    game.getPlayer(1).addCard(cafe);
+
+    game.getPlayer(2).addCard(wheatField);
+    game.getPlayer(2).addCard(shop);
+    game.getPlayer(2).addCard(cafe);
+
+
+    // Play a few turns
+    for (int i = 0; i < 39; ++i) {
+        game.playTurn();
+
+        for (int i = 0; i < 3; ++i) {
+            qDebug() << game.getPlayer(i).name() << " has coin s" << game.getPlayer(i).coins();
+        }
+        qDebug() << "\n";
+    }
+
 }
 
 MainWindow::~MainWindow()

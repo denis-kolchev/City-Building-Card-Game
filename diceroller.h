@@ -8,7 +8,7 @@ class DiceRoller
 public:
     DiceRoller();
 
-    uchar rollDice(uchar diceNumber);
+    uchar rollDice(uchar diceNumber = 6);
 
 private:
     const uchar m_diceSidesNumber = 6;

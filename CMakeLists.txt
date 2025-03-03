@@ -28,10 +28,20 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         gamelogic.h gamelogic.cpp
         player.h player.cpp
         cardreserve.h cardreserve.cpp
-        card.h card.cpp
+
         gamestate.h gamestate.cpp
 
         README.md
+
+
+
+
+        cards/cafe.h cards/cafe.cpp
+        cards/card.h cards/card.cpp
+        cards/wheatfield.h cards/wheatfield.cpp
+        cards/bakery.h cards/bakery.cpp
+        cards/shoppingmall.h cards/shoppingmall.cpp
+
 
 
 
