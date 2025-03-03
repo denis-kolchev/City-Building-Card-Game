@@ -41,6 +41,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cards/wheatfield.h cards/wheatfield.cpp
         cards/bakery.h cards/bakery.cpp
         cards/shoppingmall.h cards/shoppingmall.cpp
+        cardImages.qrc
 
 
 
