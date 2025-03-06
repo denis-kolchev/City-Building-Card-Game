@@ -42,6 +42,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cards/bakery.h cards/bakery.cpp
         cards/shoppingmall.h cards/shoppingmall.cpp
         cardImages.qrc
+        cardwidget.h cardwidget.cpp
 
 
 

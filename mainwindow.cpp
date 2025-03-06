@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "cardwidget.h"
 #include "gamelogic.h"
 
 #include "cards/bakery.h"
@@ -33,11 +34,60 @@ MainWindow::MainWindow(QWidget *parent)
     auto *bankScrollWidget = new QWidget();
     auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget );
 
-    qsizetype nBankPlaceholders = 10;
-    for (int i = 1; i <= nBankPlaceholders; ++i) {
-        QLabel *label = new QLabel(QString("Card %1").arg(i));
-        label->setAlignment(Qt::AlignCenter);
-        bankScrolllayout->addWidget(label);
+    qsizetype nBankPlaceholders = 3;
+
+    int w = 100, h = 100;
+    QVector<QPixmap> cardImages = {
+        QPixmap(":/cardWheatField.jpeg"),
+        QPixmap(":/cardBakery.jpeg"),
+        QPixmap(":/cardCafe.jpeg")
+    };
+
+    QVector<QString> triggerNumbers = {
+        "1",
+        "2",
+        "3"
+    };
+
+    QVector<QString> titles = {
+        "Wheat Field",
+        "Bakery",
+        "Cafe"
+    };
+
+    QVector<QString> descriptions = {
+        "description",
+        "description",
+        "description"
+    };
+
+    QVector<QString> prices = {
+        "1",
+        "1",
+        "2"
+    };
+
+    QVector<QString> expensions = {
+        "%",
+        "%",
+        "%"
+    };
+
+    QVector<QColor> colors = {
+        QColor(111, 183, 214),
+        QColor(72, 181, 163),
+        QColor(252, 169, 133)
+    };
+
+    for (int i = 0; i < nBankPlaceholders; ++i) {
+        auto* customWidget = new CardWidget(cardImages[i],
+                                            triggerNumbers[i],
+                                            titles[i],
+                                            descriptions[i],
+                                            prices[i],
+                                            expensions[i],
+                                            colors[i]);
+        bankScrolllayout->addWidget(customWidget);
     }
 
     bankScrollWidget->setLayout(bankScrolllayout);
