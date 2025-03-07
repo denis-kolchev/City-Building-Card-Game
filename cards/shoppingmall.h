@@ -8,7 +8,7 @@
 
 class ShoppingMall : public Card {
 public:
-    ShoppingMall(const QString& name, CardType type, int activationValue);
+    ShoppingMall(const QString& name, const QString &description, CardType type, int activationValue);
 
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };

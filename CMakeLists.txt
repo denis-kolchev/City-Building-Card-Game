@@ -43,6 +43,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cards/shoppingmall.h cards/shoppingmall.cpp
         cardImages.qrc
         cardwidget.h cardwidget.cpp
+        gamecontroller.h gamecontroller.cpp
+        cardfactory.h cardfactory.cpp
+
 
 
 

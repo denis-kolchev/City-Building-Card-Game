@@ -13,8 +13,8 @@ public:
 
     ~MainWindow();
 
-private:
-    void createCards();
+private slots:
+    void handleCardClick();
 
 private:
 };

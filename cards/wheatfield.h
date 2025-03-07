@@ -8,7 +8,7 @@
 
 class WheatField : public Card {
 public:
-    WheatField(const QString& name, CardType type, int activationValue);
+    WheatField(const QString& name, const QString& description, CardType type, int activationValue);
 
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };

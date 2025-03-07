@@ -1,7 +1,9 @@
 #include "wheatfield.h"
 
-WheatField::WheatField(const QString& name, CardType type, int activationValue)
-    : Card(name, type, activationValue) {}
+WheatField::WheatField(const QString& name,
+                       const QString& description,
+                       CardType type, int activationValue)
+    : Card(name, description, type, activationValue) {}
 
 void WheatField::activate(Player& owner, Player& activePlayer, int diceRoll) {
     if (diceRoll == m_activationValue) {

@@ -1,11 +1,7 @@
 #include "mainwindow.h"
+#include "cardfactory.h"
 #include "cardwidget.h"
 #include "gamelogic.h"
-
-#include "cards/bakery.h"
-#include "cards/cafe.h"
-#include "cards/shoppingmall.h"
-#include "cards/wheatfield.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -16,7 +12,6 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    createCards();
 
     auto *centralWidget = new QWidget(this);
 
@@ -88,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
                                             expensions[i],
                                             colors[i]);
         bankScrolllayout->addWidget(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
 
     bankScrollWidget->setLayout(bankScrolllayout);
@@ -158,25 +154,34 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Card Game UI");
 
     GameLogic game({"Alice", "Bob", "Carl"});
+    CardFactory* cardFactory = new CardFactory();
 
-    auto wheatField = std::make_shared<WheatField>("Wheat Field", CardType::Agricultiral, 1);
-    auto cafe = std::make_shared<Cafe>("Cafe", CardType::Dining, 3);
-    auto shop = std::make_shared<Bakery>("Bakey", CardType::Shop, 2);
-    auto lendmark = std::make_shared<ShoppingMall>("Mall", CardType::Landmark, 51);
+    QVector<QString> cardNames = {
+        "Wheat Field",
+        "Bakery",
+        "Cafe"
+    };
+
+    QVector<CardType> cardTypes {
+        CardType::Agricultiral,
+        CardType::Shop,
+        CardType::Dining
+    };
+
+    QVector<std::shared_ptr<Card>> cards(cardNames.size());
+    for (int i = 0; i < cardNames.size(); ++i) {
+        cards[i] = cardFactory->createCard(titles[i],
+                                           descriptions[i],
+                                           cardTypes[i],
+                                           triggerNumbers[i].toInt());
+    }
 
     // Add cards and landmarks to players
-    game.getPlayer(0).addCard(wheatField);
-    game.getPlayer(0).addCard(shop);
-    game.getPlayer(0).addCard(cafe);
-    game.getPlayer(0).addCard(lendmark);
-
-    game.getPlayer(1).addCard(wheatField);
-    game.getPlayer(1).addCard(shop);
-    game.getPlayer(1).addCard(cafe);
-
-    game.getPlayer(2).addCard(wheatField);
-    game.getPlayer(2).addCard(shop);
-    game.getPlayer(2).addCard(cafe);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            game.getPlayer(i).addCard(cards[j]);
+        }
+    }
 
 
     // Play a few turns
@@ -195,7 +200,7 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::createCards()
+void MainWindow::handleCardClick()
 {
-
+    qDebug() << "card is clicked!";
 }

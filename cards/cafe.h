@@ -8,7 +8,7 @@
 
 class Cafe : public Card {
 public:
-    Cafe(const QString& name, CardType type, int activationValue);
+    Cafe(const QString& name, const QString& description, CardType type, int activationValue);
 
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };
