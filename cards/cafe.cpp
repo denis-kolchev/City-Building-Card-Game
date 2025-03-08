@@ -1,13 +1,25 @@
 #include "cafe.h"
 
-Cafe::Cafe(const QString& name,
+Cafe::Cafe(const QString& title,
            const QString& description,
+           const QString& imagePath,
+           const QSet<uchar>& activationValues,
            CardType type,
-           int activationValue)
-    : Card(name, description, type, activationValue) {}
+           uchar pack,
+           uchar price)
+    : Card(title,
+           description,
+           imagePath,
+           activationValues,
+           type,
+           pack,
+           price)
+{
+}
+
 
 void Cafe::activate(Player& owner, Player& activePlayer, int diceRoll) {
-    if (diceRoll == m_activationValue && &owner != &activePlayer) {
+    if (hasActivationValue(diceRoll) && &owner != &activePlayer) {
         int available = activePlayer.coins();
         if (available >= 1) {
             activePlayer.deductMoney(1);
@@ -17,6 +29,6 @@ void Cafe::activate(Player& owner, Player& activePlayer, int diceRoll) {
             owner.addCoins(available);
         }
 
-        qDebug() << m_name << " activated! " << activePlayer.name() << " pays " << owner.name() << ".\n";
+        qDebug() << m_title << " activated! " << activePlayer.name() << " pays " << owner.name() << ".\n";
     }
 }

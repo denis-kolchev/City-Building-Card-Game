@@ -1,6 +1,7 @@
 #ifndef CARD_H
 #define CARD_H
 
+#include <QSet>
 #include <QString>
 
 class Player;
@@ -20,26 +21,43 @@ enum class CardType {
 
 class Card {
 public:
-    Card(const QString& name, const QString& description, CardType type, int activationValue);
+    Card(const QString& title,
+         const QString& description,
+         const QString& imagePath,
+         const QSet<uchar> &activationValues,
+         CardType type,
+         uchar pack,
+         uchar price);
 
     virtual ~Card() = default;
 
     virtual void activate(Player& owner, Player& activePlayer, int diceRoll) = 0;
 
-    int activationValue() const;
+    QSet<uchar> activationValues() const;
 
     QString description() const;
 
-    QString name() const;
+    QString imagePath() const;
+
+    bool hasActivationValue(uchar diceRoll) const;
+
+    uchar pack() const;
+
+    uchar price() const;
+
+    QString title() const;
 
     CardType type() const;
 
 
 protected:
-    QString m_name;
+    QString m_title;
     QString m_description;
+    QString m_imagePath;
+    QSet<uchar> m_activationValues;
     CardType m_type;
-    int m_activationValue;
+    uchar m_pack;
+    uchar m_price;
 };
 
 #endif // CARD_H

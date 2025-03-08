@@ -1,6 +1,6 @@
-#include "bakery.h"
+#include "forest.h"
 
-Bakery::Bakery(const QString& title,
+Forest::Forest(const QString& title,
                const QString& description,
                const QString& imagePath,
                const QSet<uchar>& activationValues,
@@ -17,9 +17,8 @@ Bakery::Bakery(const QString& title,
 {
 }
 
-void Bakery::activate(Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
-        activePlayer.addCoins(1);
+void Forest::activate(Player& owner, Player& activePlayer, int diceRoll) {
+    if (hasActivationValue(diceRoll)) {
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

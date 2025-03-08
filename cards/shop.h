@@ -1,14 +1,14 @@
-#ifndef CAFE_H
-#define CAFE_H
+#ifndef SHOP_H
+#define SHOP_H
 
 #include "card.h"
 #include "../player.h"
 
 #include <QDebug>
 
-class Cafe : public Card {
+class Shop : public Card {
 public:
-    Cafe(const QString& title,
+    Shop(const QString& title,
          const QString& description,
          const QString& imagePath,
          const QSet<uchar>& activationValues,
@@ -19,4 +19,4 @@ public:
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };
 
-#endif // CAFE_H
+#endif // SHOP_H

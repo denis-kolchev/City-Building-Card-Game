@@ -1,14 +1,14 @@
-#ifndef SHOPPINGMALL_H
-#define SHOPPINGMALL_H
+#ifndef STADIUM_H
+#define STADIUM_H
 
 #include "card.h"
 #include "../player.h"
 
 #include <QDebug>
 
-class ShoppingMall : public Card {
+class Stadium : public Card {
 public:
-    ShoppingMall(const QString& title,
+    Stadium(const QString& title,
                   const QString& description,
                   const QString& imagePath,
                   const QSet<uchar>& activationValues,
@@ -19,4 +19,4 @@ public:
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };
 
-#endif // SHOPPINGMALL_H
+#endif // STADIUM_H

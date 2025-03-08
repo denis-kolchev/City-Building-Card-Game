@@ -1,14 +1,14 @@
-#ifndef WHEATFIELD_H
-#define WHEATFIELD_H
+#ifndef ANIMALFARM_H
+#define ANIMALFARM_H
 
 #include "card.h"
 #include "../player.h"
 
 #include <QDebug>
 
-class WheatField : public Card {
+class AnimalFarm : public Card {
 public:
-    WheatField(const QString& title,
+    AnimalFarm(const QString& title,
                const QString& description,
                const QString& imagePath,
                const QSet<uchar>& activationValues,
@@ -19,4 +19,4 @@ public:
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };
 
-#endif // WHEATFIELD_H
+#endif // ANIMALFARM_H

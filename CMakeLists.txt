@@ -47,6 +47,21 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cardfactory.h cardfactory.cpp
         CardsDataConfig.ini
         carddataconfigreader.h carddataconfigreader.cpp
+        cards/railwaystation.h cards/railwaystation.cpp
+        cards/amusementpark.h cards/amusementpark.cpp
+        cards/radiotower.h cards/radiotower.cpp
+        cards/animalfarm.h cards/animalfarm.cpp
+        cards/shop.h cards/shop.cpp
+        cards/forest.h cards/forest.cpp
+        cards/stadium.h cards/stadium.cpp
+        cards/businesscenter.h cards/businesscenter.cpp
+        cards/tvcenter.h cards/tvcenter.cpp
+        cards/cheesefactory.h cards/cheesefactory.cpp
+        cards/furniturefactory.h cards/furniturefactory.cpp
+        cards/mine.h cards/mine.cpp
+        cards/restaurant.h cards/restaurant.cpp
+        cards/appleorchard.h cards/appleorchard.cpp
+        cards/fruitmarket.h cards/fruitmarket.cpp
 
 
 

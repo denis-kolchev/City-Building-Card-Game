@@ -1,14 +1,15 @@
-#ifndef BAKERY_H
-#define BAKERY_H
+#ifndef FOREST_H
+#define FOREST_H
+
 
 #include "card.h"
 #include "../player.h"
 
 #include <QDebug>
 
-class Bakery : public Card {
+class Forest : public Card {
 public:
-    Bakery(const QString& title,
+    Forest(const QString& title,
            const QString& description,
            const QString& imagePath,
            const QSet<uchar>& activationValues,
@@ -19,4 +20,4 @@ public:
     void activate(Player& owner, Player& activePlayer, int diceRoll) override;
 };
 
-#endif // BAKERY_H
+#endif // FOREST_H

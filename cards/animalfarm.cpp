@@ -1,6 +1,6 @@
-#include "wheatfield.h"
+#include "animalfarm.h"
 
-WheatField::WheatField(const QString& title,
+AnimalFarm::AnimalFarm(const QString& title,
                        const QString& description,
                        const QString& imagePath,
                        const QSet<uchar>& activationValues,
@@ -17,10 +17,8 @@ WheatField::WheatField(const QString& title,
 {
 }
 
-void WheatField::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void AnimalFarm::activate(Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
-        owner.addCoins(1);
-        // Give money to the owner
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

@@ -1,10 +1,22 @@
 #include "shoppingmall.h"
 
-ShoppingMall::ShoppingMall(const QString& name,
+ShoppingMall::ShoppingMall(const QString& title,
                            const QString& description,
+                           const QString& imagePath,
+                           const QSet<uchar>& activationValues,
                            CardType type,
-                           int activationValue)
-    : Card(name, description, type, activationValue) {}
+                           uchar pack,
+                           uchar price)
+    : Card(title,
+           description,
+           imagePath,
+           activationValues,
+           type,
+           pack,
+           price)
+{
+}
+
 
 void ShoppingMall::activate(Player& owner, Player& activePlayer, int diceRoll) {
     // Landmark-specific logic
@@ -18,5 +30,5 @@ void ShoppingMall::activate(Player& owner, Player& activePlayer, int diceRoll) {
 
     owner.addCoins(count);
 
-    qDebug() << m_name << " activated! Landmark effect triggered.\n";
+    qDebug() << m_title << " activated! Landmark effect triggered.\n";
 }
