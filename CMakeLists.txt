@@ -90,6 +90,15 @@ endif()
 
 target_link_libraries(CityBuildingCardGame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
+# Add CardsDataConfig.ini into sources, to make Qt Creator see this file
+install(FILES CardsDataConfig.ini DESTINATION ${CMAKE_BINARY_DIR})
+
+# Copy CardsDataConfig.ini in the build folder
+configure_file(${CMAKE_SOURCE_DIR}/CardsDataConfig.ini ${CMAKE_BINARY_DIR}/CardsDataConfig.ini COPYONLY)
+
+# To install CardsDataConfig.ini together with app
+install(FILES ${CMAKE_SOURCE_DIR}/CardsDataConfig.ini DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
