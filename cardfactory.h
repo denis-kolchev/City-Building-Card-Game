@@ -10,10 +10,13 @@ class CardFactory
 public:
     CardFactory();
 
-    std::shared_ptr<Card> createCard(const QString& name,
+    std::shared_ptr<Card> createCard(const QString& title,
                                      const QString& description,
+                                     const QString& imagePath,
+                                     const QSet<uchar>& activationValues,
                                      CardType type,
-                                     int activationValue);
+                                     uchar pack,
+                                     uchar price);
 };
 
 #endif // CARDFACTORY_H
