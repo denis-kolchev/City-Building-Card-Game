@@ -11,7 +11,7 @@ void GameController::createCardWidget(const QString& name,
                                       const QPixmap& pixmap,
                                       const QColor& color)
 {
-    m_cardWidgets.insert(name, new CardWidget(pixmap, QString::number(activationValue), "", "", "", "", color));
+    //m_cardWidgets.insert(name, new CardWidget(pixmap, QString::number(activationValue), "", "", "", "", color));
 
 
 }

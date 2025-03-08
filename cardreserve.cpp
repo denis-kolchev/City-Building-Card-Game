@@ -2,7 +2,7 @@
 
 void CardReserve::addCard(std::shared_ptr<Card> card)
 {
-    m_cards.insert(card->name(), card);
+    m_cards.insert(card->title(), card);
 }
 
 void CardReserve::removeCard(const QString& cardName)

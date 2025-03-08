@@ -41,13 +41,13 @@ void Player::triggerCards(int diceRoll, Player& activePlayer) {
     }
 
     for (auto& card : redCards) {
-        if (diceRoll == card->activationValue()) {
+        if (card->hasActivationValue(diceRoll)) {
             card->activate(*this, activePlayer, diceRoll);
         }
     }
 
     for (auto& card : others) {
-        if (diceRoll == card->activationValue()) {
+        if (card->hasActivationValue(diceRoll)) {
             card->activate(*this, activePlayer, diceRoll);
         }
     }

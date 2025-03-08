@@ -1,8 +1,10 @@
 #include "mainwindow.h"
+#include "carddataconfigreader.h"
 #include "cardfactory.h"
 #include "cardwidget.h"
 #include "gamelogic.h"
 
+#include <QDir>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
@@ -31,57 +33,33 @@ MainWindow::MainWindow(QWidget *parent)
 
     qsizetype nBankPlaceholders = 3;
 
-    int w = 100, h = 100;
-    QVector<QPixmap> cardImages = {
-        QPixmap(":/cardWheatField.jpeg"),
-        QPixmap(":/cardBakery.jpeg"),
-        QPixmap(":/cardCafe.jpeg")
-    };
+    QString executablePath = QCoreApplication::applicationDirPath();
+    QDir sourceDir(executablePath);
+    sourceDir.cd("../../../"); // Move on 3 levels up
+    QString configPath = sourceDir.absolutePath() + "/CardsDataConfig.ini";
+    if (QFile::exists(configPath)) {
+        qDebug() << "Config file has found: " << configPath;
+    } else {
+        qDebug() << "File not found!";
+    }
 
-    QVector<QString> triggerNumbers = {
-        "1",
-        "2",
-        "3"
-    };
+    CardDataConfigReader cardReader("CardDataConfig.ini");
+    QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
 
-    QVector<QString> titles = {
-        "Wheat Field",
-        "Bakery",
-        "Cafe"
-    };
-
-    QVector<QString> descriptions = {
-        "description",
-        "description",
-        "description"
-    };
-
-    QVector<QString> prices = {
-        "1",
-        "1",
-        "2"
-    };
-
-    QVector<QString> expensions = {
-        "%",
-        "%",
-        "%"
-    };
-
-    QVector<QColor> colors = {
-        QColor(111, 183, 214),
-        QColor(72, 181, 163),
-        QColor(252, 169, 133)
-    };
-
-    for (int i = 0; i < nBankPlaceholders; ++i) {
-        auto* customWidget = new CardWidget(cardImages[i],
-                                            triggerNumbers[i],
-                                            titles[i],
-                                            descriptions[i],
-                                            prices[i],
-                                            expensions[i],
-                                            colors[i]);
+    for (int i = 0; i < cards.size(); ++i) {
+        const QString& imagePath = cards[i]->imagePath();
+        QSet<uchar> triggers = cards[i]->activationValues();
+        const QString& title = cards[i]->title();
+        const QString& description = cards[i]->description();
+        const QString& price = QString::number(cards[i]->price());
+        const QString& pack = QString::number(cards[i]->pack());
+        auto* customWidget = new CardWidget(imagePath,
+                                            triggers,
+                                            title,
+                                            description,
+                                            price,
+                                            pack,
+                                            cards[i]->type());
         bankScrolllayout->addWidget(customWidget);
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
@@ -168,17 +146,17 @@ MainWindow::MainWindow(QWidget *parent)
         CardType::Dining
     };
 
-    QVector<std::shared_ptr<Card>> cards(cardNames.size());
-    for (int i = 0; i < cardNames.size(); ++i) {
-        cards[i] = cardFactory->createCard(titles[i],
-                                           descriptions[i],
-                                           cardTypes[i],
-                                           triggerNumbers[i].toInt());
-    }
+    // QVector<std::shared_ptr<Card>> cards(cardNames.size());
+    // for (int i = 0; i < cardNames.size(); ++i) {
+    //     cards[i] = cardFactory->createCard(titles[i],
+    //                                        descriptions[i],
+    //                                        cardTypes[i],
+    //                                        triggerNumbers[i].toInt());
+    // }
 
     // Add cards and landmarks to players
     for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
+        for (int j = 0; j < cards.size(); ++j) {
             game.getPlayer(i).addCard(cards[j]);
         }
     }

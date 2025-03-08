@@ -1,6 +1,7 @@
 #ifndef CARDWIDGET_H
 #define CARDWIDGET_H
 
+#include "cards/card.h"
 #include <QWidget>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -14,12 +15,12 @@ class CardWidget : public QWidget
     Q_OBJECT
 public:
     explicit CardWidget(QPixmap imagePath,
-                        QString triggerNumber,
+                        QSet<uchar> triggerNumbers,
                         QString title,
                         QString description,
                         QString price,
                         QString expension,
-                        QColor backgroundColor,
+                        CardType cardType,
                         QWidget *parent = nullptr);
 
 protected:
@@ -39,7 +40,11 @@ private:
 
     QColor greyColor() const;
 
+    QColor purpleColor() const;
+
     QColor redColor() const;
+
+    QString transformQSetToRangeString(const QSet<uchar>& set);
 
 private:
     QPixmap m_imagePath;
@@ -49,6 +54,7 @@ private:
     QString m_price;
     QString m_expension;
     QColor m_backgroundColor;
+    CardType m_cardType;
 };
 
 #endif // CARDWIDGET_H

@@ -3,6 +3,9 @@
 CardDataConfigReader::CardDataConfigReader(const QString& configFilePath)
     : m_settings(configFilePath, QSettings::IniFormat)
 {
+    if (m_settings.status() != QSettings::NoError) {
+        qDebug() << "Error loading file!";
+    }
 }
 
 QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end) {
@@ -11,6 +14,8 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     for (uchar id = begin; id <= end; ++id) {
         // Construct the section name (e.g., "Card_04", "Card_05", etc.)
         QString sectionName = QString("Card_%1").arg(id, 2, 10, QChar('0'));
+
+        QStringList gr = m_settings.childGroups();
 
         if (!m_settings.childGroups().contains(sectionName)) {
             continue;

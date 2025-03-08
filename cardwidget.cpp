@@ -1,24 +1,57 @@
 #include "cardwidget.h"
+#include "cards/card.h"
 
 #include <QPainterPath>
 
 CardWidget::CardWidget(QPixmap imagePath,
-                       QString triggerNumber,
+                       QSet<uchar> triggerNumbers,
                        QString title,
                        QString description,
                        QString price,
                        QString expension,
-                       QColor backgroundColor,
+                       CardType cardType,
                        QWidget *parent)
     : m_imagePath(imagePath)
-    , m_triggerNumber(triggerNumber)
+    , m_triggerNumber(transformQSetToRangeString(triggerNumbers))
     , m_title(title)
     , m_description(description)
     , m_price(price)
     , m_expension(expension)
-    , m_backgroundColor(backgroundColor)
+    , m_cardType(cardType)
     , QWidget(parent)
 {
+    QSet<CardType> blueTypes = {
+        CardType::Agricultiral,
+        CardType::Farm,
+        CardType::Mining,
+        CardType::Ship
+    };
+
+    QSet<CardType> greenTypes = {
+        CardType::Fruit,
+        CardType::Production,
+        CardType::Shop
+    };
+
+    QSet<CardType> redTypes = {
+        CardType::Dining
+    };
+
+    QSet<CardType> purpleTypes = {
+        CardType::Landmark
+    };
+
+    if (blueTypes.find(cardType) != blueTypes.end()) {
+        m_backgroundColor = blueColor();
+    } else if (greenTypes.find(cardType) != greenTypes.end()) {
+        m_backgroundColor = greenColor();
+    } else if (redTypes.find(cardType) != redTypes.end()) {
+        m_backgroundColor = redColor();
+    } else if (purpleTypes.find(cardType) != purpleTypes.end() && triggerNumbers.find(0) != triggerNumbers.end()) {
+        m_backgroundColor = greyColor();
+    } else {
+        m_backgroundColor = purpleColor();
+    }
 
     int w = 200, h = 300;
     setFixedSize(w, h);
@@ -110,6 +143,46 @@ QColor CardWidget::greyColor() const {
     return QColor(192, 186, 153);
 }
 
+QColor CardWidget::purpleColor() const {
+    return QColor(165, 137, 193);
+}
+
 QColor CardWidget::redColor() const {
     return QColor(252, 169, 133);
+}
+
+QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set) {
+    if (set.isEmpty()) {
+        return QString();
+    }
+
+    // Convert QSet to QList and sort it
+    QList<uchar> sortedList = set.values();
+    std::sort(sortedList.begin(), sortedList.end());
+
+    QString result;
+    int start = sortedList.first();
+    int prev = start;
+
+    for (int i = 1; i < sortedList.size(); ++i) {
+        int current = sortedList[i];
+        if (current != prev + 1) {
+            if (start == prev) {
+                result += QString::number(start) + ", ";
+            } else {
+                result += QString::number(start) + "-" + QString::number(prev) + ", ";
+            }
+            start = current;
+        }
+        prev = current;
+    }
+
+    // Handle the last range or single number
+    if (start == prev) {
+        result += QString::number(start);
+    } else {
+        result += QString::number(start) + "-" + QString::number(prev);
+    }
+
+    return result;
 }
