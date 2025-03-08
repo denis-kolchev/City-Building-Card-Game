@@ -93,3 +93,23 @@ void CardWidget::paintEvent(QPaintEvent* event) {
     painter.setClipPath(path);
     painter.fillPath(path, m_backgroundColor); // Fill with color
 }
+
+QColor CardWidget::blueColor() const {
+    return QColor(111, 183, 214);
+}
+
+QColor CardWidget::goldColor() const {
+    return QColor(255, 250, 129);
+}
+
+QColor CardWidget::greenColor() const {
+    return QColor(72, 181, 163);
+}
+
+QColor CardWidget::greyColor() const {
+    return QColor(192, 186, 153);
+}
+
+QColor CardWidget::redColor() const {
+    return QColor(252, 169, 133);
+}

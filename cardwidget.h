@@ -31,6 +31,17 @@ signals:
     void clicked();
 
 private:
+    QColor blueColor() const;
+
+    QColor goldColor() const;
+
+    QColor greenColor() const;
+
+    QColor greyColor() const;
+
+    QColor redColor() const;
+
+private:
     QPixmap m_imagePath;
     QString m_triggerNumber;
     QString m_title;

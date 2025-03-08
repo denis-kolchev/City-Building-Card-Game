@@ -1,6 +1,6 @@
 #include "carddataconfigreader.h"
 
-CardDataConfigReader(const QString& configFilePath)
+CardDataConfigReader::CardDataConfigReader(const QString& configFilePath)
     : m_settings(configFilePath, QSettings::IniFormat)
 {
 }
