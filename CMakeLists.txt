@@ -46,6 +46,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         gamecontroller.h gamecontroller.cpp
         cardfactory.h cardfactory.cpp
         CardsDataConfig.ini
+        carddataconfigreader.h carddataconfigreader.cpp
 
 
 
