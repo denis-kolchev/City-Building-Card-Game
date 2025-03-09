@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
         qDebug() << "File not found!";
     }
 
-    CardDataConfigReader cardReader("CardDataConfig.ini");
+    CardDataConfigReader cardReader(configPath);
     QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
 
     for (int i = 0; i < cards.size(); ++i) {

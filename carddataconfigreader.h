@@ -17,6 +17,7 @@ public:
 private:
     CardFactory m_factory;
     QSettings m_settings;
+    QString m_configFilePath;
 };
 
 #endif // CARDDATACONFIGREADER_H
