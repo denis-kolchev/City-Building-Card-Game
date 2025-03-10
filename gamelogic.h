@@ -22,6 +22,7 @@
  * checkWinCondition() → Determines if someone has won the game.
  */
 
+#include "carddataconfigreader.h"
 #include "diceroller.h"
 #include "player.h"
 
@@ -32,6 +33,10 @@ class GameLogic {
 public:
     GameLogic(const QVector<QString>& playerNames);
 
+    GameLogic(int numPlayers);
+
+    bool isGameIsFinished();
+
     Player& getPlayer(int id);
 
     void playTurn();
@@ -40,7 +45,7 @@ private:
     QVector<Player> m_players;
     int m_currentPlayerId;
     DiceRoller m_roller;
-
+    QVector<std::shared_ptr<Card>> m_cardsToWin;
 };
 
 #endif // GAMELOGIC_H
