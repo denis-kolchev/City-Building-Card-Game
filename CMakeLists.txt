@@ -62,6 +62,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cards/restaurant.h cards/restaurant.cpp
         cards/appleorchard.h cards/appleorchard.cpp
         cards/fruitmarket.h cards/fruitmarket.cpp
+        startmenu.h startmenu.cpp
 
 
 

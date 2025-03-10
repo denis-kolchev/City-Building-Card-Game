@@ -9,8 +9,9 @@
 #include <QScrollArea>
 #include <QVector>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(int numPlayers, QWidget *parent)
+    : m_numPlayers(numPlayers)
+    , QMainWindow(parent)
 {
 
     auto *centralWidget = new QWidget(this);
@@ -107,19 +108,6 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Card Game UI");
 
     GameLogic game({"Alice", "Bob", "Carl"});
-    CardFactory* cardFactory = new CardFactory();
-
-    QVector<QString> cardNames = {
-        "Wheat Field",
-        "Bakery",
-        "Cafe"
-    };
-
-    QVector<CardType> cardTypes {
-        CardType::Agricultiral,
-        CardType::Shop,
-        CardType::Dining
-    };
 
     // Add cards and landmarks to players
     for (int i = 0; i < 3; ++i) {
@@ -127,7 +115,6 @@ MainWindow::MainWindow(QWidget *parent)
             game.getPlayer(i).addCard(cards[j]);
         }
     }
-
 
     // Play a few turns
     for (int i = 0; i < 39; ++i) {
