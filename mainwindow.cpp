@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     qsizetype nBankPlaceholders = 3;
 
+    // find a way to config file
     QString executablePath = QCoreApplication::applicationDirPath();
     QDir sourceDir(executablePath);
     sourceDir.cd("../../../"); // Move on 3 levels up
@@ -43,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
         qDebug() << "File not found!";
     }
 
+    // read card data from config
     CardDataConfigReader cardReader(configPath);
     QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
 
@@ -71,12 +73,25 @@ MainWindow::MainWindow(QWidget *parent)
     auto *landmarksScrollWidget = new QWidget();
     auto *landmarksScrollLayout = new QHBoxLayout(landmarksScrollWidget);
 
-    qsizetype nlandmarkPlaceholders = 10;
-    for (int i = 1; i <= nlandmarkPlaceholders; ++i) {
-        QLabel *label = new QLabel(QString("Card %1").arg(i));
-        label->setAlignment(Qt::AlignCenter);
-        landmarksScrollLayout->addWidget(label);
+    QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
+    for (int i = 0; i < landmarkCards.size(); ++i) {
+        const QString& imagePath = landmarkCards[i]->imagePath();
+        QSet<uchar> triggers = landmarkCards[i]->activationValues();
+        const QString& title = landmarkCards[i]->title();
+        const QString& description = landmarkCards[i]->description();
+        const QString& price = QString::number(landmarkCards[i]->price());
+        const QString& pack = QString::number(landmarkCards[i]->pack());
+        auto* customWidget = new CardWidget(imagePath,
+                                            triggers,
+                                            title,
+                                            description,
+                                            price,
+                                            pack,
+                                            landmarkCards[i]->type());
+        landmarksScrollLayout->addWidget(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
+
 
     landmarksScrollWidget->setLayout(landmarksScrollLayout);
     landmarksScrollArea->setWidget(landmarksScrollWidget);
@@ -85,11 +100,23 @@ MainWindow::MainWindow(QWidget *parent)
     auto *playersBuildsScrollWidget = new QWidget();
     auto *playersBuildsScrollLayout = new QHBoxLayout(landmarksScrollWidget);
 
-    qsizetype nplayerBuildsPlaceholders = 10;
-    for (int i = 1; i <= nplayerBuildsPlaceholders; ++i) {
-        QLabel *label = new QLabel(QString("Card %1").arg(i));
-        label->setAlignment(Qt::AlignCenter);
-        playersBuildsScrollLayout->addWidget(label);
+    QVector<std::shared_ptr<Card>> playerCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
+    for (int i = 0; i < playerCards.size(); ++i) {
+        const QString& imagePath = playerCards[i]->imagePath();
+        QSet<uchar> triggers = playerCards[i]->activationValues();
+        const QString& title = playerCards[i]->title();
+        const QString& description = playerCards[i]->description();
+        const QString& price = QString::number(playerCards[i]->price());
+        const QString& pack = QString::number(playerCards[i]->pack());
+        auto* customWidget = new CardWidget(imagePath,
+                                            triggers,
+                                            title,
+                                            description,
+                                            price,
+                                            pack,
+                                            playerCards[i]->type());
+        playersBuildsScrollLayout->addWidget(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
 
     playersBuildsScrollWidget->setLayout(playersBuildsScrollLayout);
