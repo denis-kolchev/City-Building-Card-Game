@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <QString>
+#include <QMap>
 
 #include "cards/card.h"
 
@@ -19,14 +20,16 @@ public:
 
     void deductMoney(int amount);
 
-    std::vector<std::shared_ptr<Card>> getCards();
+    QMap<std::shared_ptr<Card>, uchar> getCardsTable();
+
+    uchar howManyCardsOfType(std::shared_ptr<Card> card);
 
     QString name() const;
 
     void triggerCards(int diceRoll, Player& activePlayer);
 
 private:
-    std::vector<std::shared_ptr<Card>> m_cards;
+    QMap<std::shared_ptr<Card>, uchar> m_cardsTable;
     QString m_name;
     int m_coins;
 };

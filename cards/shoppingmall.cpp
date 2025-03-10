@@ -20,10 +20,10 @@ ShoppingMall::ShoppingMall(const QString& title,
 
 void ShoppingMall::activate(Player& owner, Player& activePlayer, int diceRoll) {
     // Landmark-specific logic
-    auto allCards = owner.getCards();
+    auto allCards = owner.getCardsTable();
     int count = 0;
-    for (auto& card : allCards) {
-        if (card->type() == CardType::Dining || card->type() == CardType::Shop) {
+    for (auto it = allCards.begin(), ite = allCards.end(); it != ite; ++it) {
+        if (it.key()->type() == CardType::Dining || it.key()->type() == CardType::Shop) {
             count++;
         }
     }
