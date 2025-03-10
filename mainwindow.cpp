@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "carddataconfigreader.h"
 #include "cardfactory.h"
 #include "cardwidget.h"
 #include "gamelogic.h"
@@ -8,7 +7,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QVBoxLayout>
 #include <QVector>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -29,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto *playersBuildsArea = new QScrollArea();
 
     auto *bankScrollWidget = new QWidget();
-    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget );
+    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
 
     qsizetype nBankPlaceholders = 3;
 
@@ -47,24 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     // read card data from config
     CardDataConfigReader cardReader(configPath);
     QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
-
-    for (int i = 0; i < cards.size(); ++i) {
-        const QString& imagePath = cards[i]->imagePath();
-        QSet<uchar> triggers = cards[i]->activationValues();
-        const QString& title = cards[i]->title();
-        const QString& description = cards[i]->description();
-        const QString& price = QString::number(cards[i]->price());
-        const QString& pack = QString::number(cards[i]->pack());
-        auto* customWidget = new CardWidget(imagePath,
-                                            triggers,
-                                            title,
-                                            description,
-                                            price,
-                                            pack,
-                                            cards[i]->type());
-        bankScrolllayout->addWidget(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-    }
+    placeCards(cards, *bankScrolllayout);
 
     bankScrollWidget->setLayout(bankScrolllayout);
     bankCardsArea->setWidget(bankScrollWidget);
@@ -74,24 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto *landmarksScrollLayout = new QHBoxLayout(landmarksScrollWidget);
 
     QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
-    for (int i = 0; i < landmarkCards.size(); ++i) {
-        const QString& imagePath = landmarkCards[i]->imagePath();
-        QSet<uchar> triggers = landmarkCards[i]->activationValues();
-        const QString& title = landmarkCards[i]->title();
-        const QString& description = landmarkCards[i]->description();
-        const QString& price = QString::number(landmarkCards[i]->price());
-        const QString& pack = QString::number(landmarkCards[i]->pack());
-        auto* customWidget = new CardWidget(imagePath,
-                                            triggers,
-                                            title,
-                                            description,
-                                            price,
-                                            pack,
-                                            landmarkCards[i]->type());
-        landmarksScrollLayout->addWidget(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-    }
-
+    placeCards(landmarkCards, *landmarksScrollLayout);
 
     landmarksScrollWidget->setLayout(landmarksScrollLayout);
     landmarksScrollArea->setWidget(landmarksScrollWidget);
@@ -101,23 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto *playersBuildsScrollLayout = new QHBoxLayout(landmarksScrollWidget);
 
     QVector<std::shared_ptr<Card>> playerCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
-    for (int i = 0; i < playerCards.size(); ++i) {
-        const QString& imagePath = playerCards[i]->imagePath();
-        QSet<uchar> triggers = playerCards[i]->activationValues();
-        const QString& title = playerCards[i]->title();
-        const QString& description = playerCards[i]->description();
-        const QString& price = QString::number(playerCards[i]->price());
-        const QString& pack = QString::number(playerCards[i]->pack());
-        auto* customWidget = new CardWidget(imagePath,
-                                            triggers,
-                                            title,
-                                            description,
-                                            price,
-                                            pack,
-                                            playerCards[i]->type());
-        playersBuildsScrollLayout->addWidget(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-    }
+    placeCards(playerCards, *playersBuildsScrollLayout);
 
     playersBuildsScrollWidget->setLayout(playersBuildsScrollLayout);
     playersBuildsArea->setWidget(playersBuildsScrollWidget);
@@ -173,14 +121,6 @@ MainWindow::MainWindow(QWidget *parent)
         CardType::Dining
     };
 
-    // QVector<std::shared_ptr<Card>> cards(cardNames.size());
-    // for (int i = 0; i < cardNames.size(); ++i) {
-    //     cards[i] = cardFactory->createCard(titles[i],
-    //                                        descriptions[i],
-    //                                        cardTypes[i],
-    //                                        triggerNumbers[i].toInt());
-    // }
-
     // Add cards and landmarks to players
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < cards.size(); ++j) {
@@ -208,4 +148,19 @@ MainWindow::~MainWindow()
 void MainWindow::handleCardClick()
 {
     qDebug() << "card is clicked!";
+}
+
+void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
+{
+    for (int i = 0; i < cards.size(); ++i) {
+        auto* customWidget = new CardWidget(cards[i]->imagePath(),
+                                            cards[i]->activationValues(),
+                                            cards[i]->title(),
+                                            cards[i]->description(),
+                                            QString::number(cards[i]->price()),
+                                            QString::number(cards[i]->pack()),
+                                            cards[i]->type());
+        layout.addWidget(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+    }
 }
