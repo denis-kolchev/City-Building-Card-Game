@@ -7,7 +7,7 @@ GameLogic::GameLogic(const QVector<QString>& playerNames)
     : m_currentPlayerId(0)
 {
     for (const auto& name : playerNames) {
-        m_players.emplace_back(name);
+        m_players.push_back(name);
     }
 
     // find a way to config file
@@ -29,7 +29,7 @@ GameLogic::GameLogic(const QVector<QString>& playerNames)
 GameLogic::GameLogic(int numPlayers) : m_currentPlayerId(0) {
     char playerName = 'A';
     for (int i = 0; i < numPlayers; ++i, ++playerName) {
-        m_players.emplaceBack(playerName);
+        m_players.push_back(QString(playerName));
     }
 }
 
