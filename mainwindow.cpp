@@ -113,6 +113,7 @@ QWidget* MainWindow::createPlayerView()
     CardDataConfigReader cardReader(configPath);
     QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
     placeCards(cards, *bankScrolllayout);
+    bankScrolllayout->addStretch();
 
     bankScrollWidget->setLayout(bankScrolllayout);
     bankCardsArea->setWidget(bankScrollWidget);
@@ -123,6 +124,7 @@ QWidget* MainWindow::createPlayerView()
 
     QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
     placeCards(landmarkCards, *landmarksScrollLayout);
+    landmarksScrollLayout->addStretch();
 
     landmarksScrollWidget->setLayout(landmarksScrollLayout);
     landmarksScrollArea->setWidget(landmarksScrollWidget);
@@ -133,6 +135,7 @@ QWidget* MainWindow::createPlayerView()
 
     QVector<std::shared_ptr<Card>> playerCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
     placeCards(playerCards, *playersBuildsScrollLayout);
+    playersBuildsScrollLayout->addStretch();
 
     playersBuildsScrollWidget->setLayout(playersBuildsScrollLayout);
     playersBuildsArea->setWidget(playersBuildsScrollWidget);
@@ -148,9 +151,11 @@ QWidget* MainWindow::createPlayerView()
     auto *actionLayout = new QVBoxLayout();
 
     auto *rollOneDiceButton = new QPushButton("Roll 1 dice");
+    rollOneDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
+    rollTwoDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     auto *playerMoneyLabel = new QLabel("Coins: 3");
-    playerMoneyLabel->setAlignment(Qt::AlignCenter);
+    playerMoneyLabel->setAlignment(Qt::AlignLeft);
     actionLayout->addStretch();
     actionLayout->addWidget(rollOneDiceButton);
     actionLayout->addWidget(rollTwoDiceButton);

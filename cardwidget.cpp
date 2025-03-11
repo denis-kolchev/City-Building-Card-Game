@@ -53,7 +53,8 @@ CardWidget::CardWidget(QPixmap imagePath,
         m_backgroundColor = purpleColor();
     }
 
-    int w = 200, h = 300;
+    //int w = 200, h = 300;
+    int w = 120, h = 228;
     setFixedSize(w, h);
 
     QLabel* centralImage = new QLabel(this);
