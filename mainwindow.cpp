@@ -9,16 +9,85 @@
 #include <QScrollArea>
 #include <QVector>
 
+#include <QTabWidget>
+
 MainWindow::MainWindow(int numPlayers, QWidget *parent)
     : m_numPlayers(numPlayers)
     , QMainWindow(parent)
 {
-
     auto *centralWidget = new QWidget(this);
-
     auto *mainLayout = new QHBoxLayout(centralWidget);
 
-    auto *viewCardsLayout = new QVBoxLayout();
+    // Create a QTabWidget to hold player views
+    auto *tabWidget = new QTabWidget(this);
+
+    char playerId = 'A';
+    // Create a view for each player and add it as a tab
+    QVector<QString> playerNames(m_numPlayers);
+    for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
+        auto *playerView = createPlayerView();
+        tabWidget->addTab(playerView, QString("Player %1").arg(playerId));
+        playerNames[i] = QString("Player %1").arg(playerId);
+    }
+
+    // Add the QTabWidget to the main layout
+    mainLayout->addWidget(tabWidget);
+
+    centralWidget->setLayout(mainLayout);
+    setCentralWidget(centralWidget);
+    setWindowTitle("Card Game UI");
+
+    // Initialize game logic
+    GameLogic game(playerNames);
+
+    // Add cards and landmarks to players
+    // for (int i = 0; i < playerNames.size(); ++i) {
+    //     for (int j = 0; j < cards.size(); ++j) {
+    //         game.getPlayer(i).addCard(cards[j]);
+    //     }
+    // }
+
+    // Play a few turns
+    for (int i = 0; i < 39; ++i) {
+        game.playTurn();
+
+        for (int j = 0; j < playerNames.size(); ++j) {
+            qDebug() << game.getPlayer(j).name() << " has coins " << game.getPlayer(j).coins();
+        }
+        qDebug() << "\n";
+    }
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::handleCardClick()
+{
+    qDebug() << "card is clicked!";
+}
+
+void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
+{
+    for (int i = 0; i < cards.size(); ++i) {
+        auto* customWidget = new CardWidget(cards[i]->imagePath(),
+                                            cards[i]->activationValues(),
+                                            cards[i]->title(),
+                                            cards[i]->description(),
+                                            QString::number(cards[i]->price()),
+                                            QString::number(cards[i]->pack()),
+                                            cards[i]->type());
+        layout.addWidget(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+    }
+}
+
+
+QWidget* MainWindow::createPlayerView()
+{
+    auto *playerView = new QWidget();
+
+    auto *viewCardsLayout = new QVBoxLayout(playerView);
 
     auto *bankLabel = new QLabel("Bank:");
     auto *bankCardsArea = new QScrollArea();
@@ -30,9 +99,7 @@ MainWindow::MainWindow(int numPlayers, QWidget *parent)
     auto *bankScrollWidget = new QWidget();
     auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
 
-    qsizetype nBankPlaceholders = 3;
-
-    // find a way to config file
+    // Read card data from config
     QString executablePath = QCoreApplication::applicationDirPath();
     QDir sourceDir(executablePath);
     sourceDir.cd("../../../"); // Move on 3 levels up
@@ -43,7 +110,6 @@ MainWindow::MainWindow(int numPlayers, QWidget *parent)
         qDebug() << "File not found!";
     }
 
-    // read card data from config
     CardDataConfigReader cardReader(configPath);
     QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
     placeCards(cards, *bankScrolllayout);
@@ -79,75 +145,23 @@ MainWindow::MainWindow(int numPlayers, QWidget *parent)
     viewCardsLayout->addWidget(playersBuilds);
     viewCardsLayout->addWidget(playersBuildsArea);
 
-
     auto *actionLayout = new QVBoxLayout();
 
-    auto *viewOpponentCardsButton = new QPushButton("View opponent cards");
     auto *rollOneDiceButton = new QPushButton("Roll 1 dice");
     auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
-    auto *playerMoneyLabel = new QLabel("My money: 30");
+    auto *playerMoneyLabel = new QLabel("Coins: 3");
     playerMoneyLabel->setAlignment(Qt::AlignCenter);
     actionLayout->addStretch();
-    actionLayout->addWidget(viewOpponentCardsButton);
     actionLayout->addWidget(rollOneDiceButton);
     actionLayout->addWidget(rollTwoDiceButton);
     actionLayout->addWidget(playerMoneyLabel);
 
-    auto *viewCardsWidget = new QWidget(centralWidget);
-    viewCardsWidget->setLayout(viewCardsLayout);
-
-    auto *actionWidget = new QWidget(centralWidget);
+    auto *actionWidget = new QWidget(playerView);
     actionWidget->setLayout(actionLayout);
 
-    mainLayout->addWidget(viewCardsWidget);
-    mainLayout->addWidget(actionWidget);
+    viewCardsLayout->addWidget(actionWidget);
 
-    centralWidget->setLayout(mainLayout);
+    playerView->setLayout(viewCardsLayout);
 
-    setCentralWidget(centralWidget);
-    setWindowTitle("Card Game UI");
-
-    GameLogic game({"Alice", "Bob", "Carl"});
-
-    // Add cards and landmarks to players
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < cards.size(); ++j) {
-            game.getPlayer(i).addCard(cards[j]);
-        }
-    }
-
-    // Play a few turns
-    for (int i = 0; i < 39; ++i) {
-        game.playTurn();
-
-        for (int i = 0; i < 3; ++i) {
-            qDebug() << game.getPlayer(i).name() << " has coin s" << game.getPlayer(i).coins();
-        }
-        qDebug() << "\n";
-    }
-
-}
-
-MainWindow::~MainWindow()
-{
-}
-
-void MainWindow::handleCardClick()
-{
-    qDebug() << "card is clicked!";
-}
-
-void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
-{
-    for (int i = 0; i < cards.size(); ++i) {
-        auto* customWidget = new CardWidget(cards[i]->imagePath(),
-                                            cards[i]->activationValues(),
-                                            cards[i]->title(),
-                                            cards[i]->description(),
-                                            QString::number(cards[i]->price()),
-                                            QString::number(cards[i]->pack()),
-                                            cards[i]->type());
-        layout.addWidget(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-    }
+    return playerView;
 }

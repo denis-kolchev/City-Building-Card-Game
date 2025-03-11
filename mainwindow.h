@@ -23,6 +23,8 @@ private slots:
     void handleCardClick();
 
 private:
+    QWidget* createPlayerView();
+
     void placeCards(CardsList &cards, CardsLayout &layout);
 
 private:
