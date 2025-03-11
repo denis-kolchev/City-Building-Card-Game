@@ -15,12 +15,17 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(int numPlayers, QWidget *parent = nullptr);
+    explicit MainWindow(QMainWindow *parent = nullptr);
 
     ~MainWindow();
 
+public slots:
+    void handleShowMainWindow(uchar numPlayers);
+
 signals:
     void buyButtonClicked();
+
+    void createPlayers(QList<QString> playerNames);
 
     void rollButtonClicked(uchar dice);
 

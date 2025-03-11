@@ -1,7 +1,6 @@
 #include "mainwindow.h"
-#include "cardfactory.h"
 #include "cardwidget.h"
-#include "gamelogic.h"
+#include "diceroller.h"
 
 #include <QDir>
 #include <QLabel>
@@ -11,10 +10,38 @@
 
 #include <QTabWidget>
 
-MainWindow::MainWindow(int numPlayers, QWidget *parent)
-    : m_numPlayers(numPlayers)
-    , QMainWindow(parent)
+MainWindow::MainWindow(QMainWindow *parent)
+    : QMainWindow(parent)
 {
+
+    // // Initialize game logic
+    // GameLogic game(playerNames);
+
+    // // Add cards and landmarks to players
+    // for (int i = 0; i < playerNames.size(); ++i) {
+    //     for (int j = 0; j < cards.size(); ++j) {
+    //         game.getPlayer(i).addCard(cards[j]);
+    //     }
+    // }
+
+    // // Play a few turns
+    // for (int i = 0; i < 39; ++i) {
+    //     game.playTurn();
+
+    //     for (int j = 0; j < playerNames.size(); ++j) {
+    //         qDebug() << game.getPlayer(j).name() << " has coins " << game.getPlayer(j).coins();
+    //     }
+    //     qDebug() << "\n";
+    // }
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::handleShowMainWindow(uchar numPlayers)
+{
+    m_numPlayers = numPlayers;
     auto *centralWidget = new QWidget(this);
     auto *mainLayout = new QHBoxLayout(centralWidget);
 
@@ -30,36 +57,15 @@ MainWindow::MainWindow(int numPlayers, QWidget *parent)
         playerNames[i] = QString("Player %1").arg(playerId);
     }
 
+    emit createPlayers(playerNames.toList());
+
     // Add the QTabWidget to the main layout
     mainLayout->addWidget(tabWidget);
 
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
     setWindowTitle("Card Game UI");
-
-    // Initialize game logic
-    GameLogic game(playerNames);
-
-    // Add cards and landmarks to players
-    // for (int i = 0; i < playerNames.size(); ++i) {
-    //     for (int j = 0; j < cards.size(); ++j) {
-    //         game.getPlayer(i).addCard(cards[j]);
-    //     }
-    // }
-
-    // Play a few turns
-    for (int i = 0; i < 39; ++i) {
-        game.playTurn();
-
-        for (int j = 0; j < playerNames.size(); ++j) {
-            qDebug() << game.getPlayer(j).name() << " has coins " << game.getPlayer(j).coins();
-        }
-        qDebug() << "\n";
-    }
-}
-
-MainWindow::~MainWindow()
-{
+    show();
 }
 
 void MainWindow::handleCardClick()

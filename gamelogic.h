@@ -26,20 +26,26 @@
 #include "diceroller.h"
 #include "player.h"
 
+#include <QObject>
 #include <QVector>
 #include <QDebug>
 
-class GameLogic {
-public:
-    GameLogic(const QVector<QString>& playerNames);
+class GameLogic : public QObject {
+    Q_OBJECT
 
-    GameLogic(int numPlayers);
+public:
+    explicit GameLogic(QObject *parent = nullptr);
+
+    ~GameLogic();
 
     bool isGameIsFinished();
 
     Player& getPlayer(int id);
 
     void playTurn();
+
+public slots:
+    void handleCreatePlayers(QList<QString> playerNames);
 
 private:
     QVector<Player> m_players;

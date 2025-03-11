@@ -9,6 +9,9 @@ class StartMenu : public QWidget {
 public:
     StartMenu(QWidget *parent = nullptr);
 
+signals:
+    void showMainWindow(uchar numPlayers);
+
 };
 
 #endif // STARTMENU_H

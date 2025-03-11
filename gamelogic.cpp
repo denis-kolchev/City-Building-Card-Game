@@ -3,13 +3,9 @@
 #include <QCoreApplication>
 #include <QDir>
 
-GameLogic::GameLogic(const QVector<QString>& playerNames)
-    : m_currentPlayerId(0)
+GameLogic::GameLogic(QObject *parent)
+    : m_currentPlayerId(0), QObject(parent)
 {
-    for (const auto& name : playerNames) {
-        m_players.push_back(name);
-    }
-
     // find a way to config file
     QString executablePath = QCoreApplication::applicationDirPath();
     QDir sourceDir(executablePath);
@@ -26,11 +22,8 @@ GameLogic::GameLogic(const QVector<QString>& playerNames)
     m_cardsToWin = cardReader.readFromRange(0, 3);
 }
 
-GameLogic::GameLogic(int numPlayers) : m_currentPlayerId(0) {
-    char playerName = 'A';
-    for (int i = 0; i < numPlayers; ++i, ++playerName) {
-        m_players.push_back(QString(playerName));
-    }
+GameLogic::~GameLogic()
+{
 }
 
 bool GameLogic::isGameIsFinished() {
@@ -67,4 +60,11 @@ void GameLogic::playTurn() {
 
     // Move to the next player
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
+}
+
+void GameLogic::handleCreatePlayers(QList<QString> playerNames)
+{
+    for (int i = 0; i < playerNames.size(); ++i) {
+        m_players.push_back(Player(playerNames.at(i)));
+    }
 }

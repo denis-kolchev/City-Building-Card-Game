@@ -1,7 +1,5 @@
 #include "startmenu.h"
 
-#include "mainwindow.h"
-
 #include <QVBoxLayout>
 #include <QSpinBox>
 #include <QPushButton>
@@ -10,7 +8,6 @@
 StartMenu::StartMenu(QWidget *parent)
     : QWidget(parent) {
     setWindowTitle("Start Menu");
-    setGeometry(200, 200, 300, 200);
 
     // Layout
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -30,10 +27,9 @@ StartMenu::StartMenu(QWidget *parent)
 
     // Connect the button to the slot
     connect(startButton, &QPushButton::clicked, this, [this, numPlayersSpinBox]() {
-        int numPlayers = numPlayersSpinBox->value();
-        MainWindow *mainWindow = new MainWindow(numPlayers);
-        mainWindow->show();
-        this->close(); // Close the start menu
+        uchar numPlayers = static_cast<uchar>(numPlayersSpinBox->value());
+        emit showMainWindow(numPlayers);
+        close(); // Close the start menu
     });
 
     setLayout(layout);
