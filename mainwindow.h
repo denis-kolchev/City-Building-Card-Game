@@ -19,8 +19,23 @@ public:
 
     ~MainWindow();
 
+signals:
+    void buyButtonClicked();
+
+    void rollButtonClicked(uchar dice);
+
+    void skipClicked();
+
 private slots:
     void handleCardClick();
+
+    void onBuyClicked();
+
+    void onRollOneDiceClicked();
+
+    void onRollTwoDiceClicked();
+
+    void onSkipClicked();
 
 private:
     QWidget* createPlayerView();

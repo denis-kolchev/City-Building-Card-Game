@@ -67,6 +67,33 @@ void MainWindow::handleCardClick()
     qDebug() << "card is clicked!";
 }
 
+void MainWindow::onBuyClicked()
+{
+    // sets the state of buing
+    qDebug() << "Buy button Clicked!";
+    emit buyButtonClicked();
+}
+
+void MainWindow::onRollOneDiceClicked()
+{
+    uchar dice = DiceRoller{}.rollDice(1);
+    qDebug() << "Roll One Dice button Clicked!";
+    emit rollButtonClicked(dice);
+}
+
+void MainWindow::onRollTwoDiceClicked()
+{
+    uchar dice = DiceRoller{}.rollDice(2);
+    qDebug() << "Roll Two Dice button Clicked!";
+    emit rollButtonClicked(dice);
+}
+
+void MainWindow::onSkipClicked()
+{
+    qDebug() << "Skip button Clicked!";
+    emit skipClicked();
+}
+
 void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
 {
     for (int i = 0; i < cards.size(); ++i) {
@@ -81,7 +108,6 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
 }
-
 
 QWidget* MainWindow::createPlayerView()
 {
@@ -148,18 +174,44 @@ QWidget* MainWindow::createPlayerView()
     viewCardsLayout->addWidget(playersBuilds);
     viewCardsLayout->addWidget(playersBuildsArea);
 
-    auto *actionLayout = new QVBoxLayout();
-
+    // Create a horizontal layout for buttons
+    auto *buttonLayout = new QHBoxLayout();
     auto *rollOneDiceButton = new QPushButton("Roll 1 dice");
     rollOneDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
     rollTwoDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    auto *buyButton = new QPushButton("Buy");
+    buyButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    auto *skipButton = new QPushButton("Skip");
+    skipButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    connect(rollOneDiceButton, &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
+    connect(rollTwoDiceButton, &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
+    connect(buyButton, &QPushButton::clicked, this, &MainWindow::onBuyClicked);
+    connect(skipButton, &QPushButton::clicked, this, &MainWindow::onSkipClicked);
+
+    buttonLayout->addWidget(rollOneDiceButton);
+    buttonLayout->addWidget(rollTwoDiceButton);
+    buttonLayout->addWidget(buyButton);
+    buttonLayout->addWidget(skipButton);
+
+    // Create a horizontal layout for labels
+    auto *labelLayout = new QHBoxLayout();
     auto *playerMoneyLabel = new QLabel("Coins: 3");
     playerMoneyLabel->setAlignment(Qt::AlignLeft);
+    auto *diceResultLabel = new QLabel("Dice result: 0");
+    diceResultLabel->setAlignment(Qt::AlignLeft);
+
+    labelLayout->addWidget(playerMoneyLabel);
+    labelLayout->addWidget(diceResultLabel);
+    labelLayout->setAlignment(Qt::AlignLeft);
+
+    // Add both horizontal layouts to the actionLayout
+    auto *actionLayout = new QVBoxLayout();
     actionLayout->addStretch();
-    actionLayout->addWidget(rollOneDiceButton);
-    actionLayout->addWidget(rollTwoDiceButton);
-    actionLayout->addWidget(playerMoneyLabel);
+    actionLayout->addLayout(buttonLayout); // Add button layout
+    actionLayout->addLayout(labelLayout); // Add label layout
+    actionLayout->setAlignment(Qt::AlignLeft);
 
     auto *actionWidget = new QWidget(playerView);
     actionWidget->setLayout(actionLayout);
