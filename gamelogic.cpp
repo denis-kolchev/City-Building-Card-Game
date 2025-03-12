@@ -19,8 +19,8 @@ GameLogic::GameLogic(QObject *parent)
     }
 
     // read card data from config
-    CardDataConfigReader cardReader(configPath);
-    m_cardsToWin = cardReader.readFromRange(0, 3);
+    m_cardReader = new CardDataConfigReader(configPath);
+    m_cardsToWin = m_cardReader->readFromRange(0, 3);
 }
 
 GameLogic::~GameLogic()
@@ -52,9 +52,8 @@ Player&GameLogic::getPlayer(int id) {
     return m_players[id];
 }
 
-void GameLogic::playTurn() {
+void GameLogic::playTurn(uchar diceRoll) {
     Player& activePlayer = m_players[m_currentPlayerId];
-    int diceRoll = m_roller.rollDice(1);
 
     qDebug() << activePlayer.name() << " rolled a " << diceRoll << ".\n";
 
@@ -65,8 +64,8 @@ void GameLogic::playTurn() {
     }
 
     // Now, build time!
+    emit playerBalanceChanged(m_players[m_currentPlayerId].coins());
     emit incomeStageFinished();
-    return;
 }
 
 void GameLogic::checkCoinBalanceForCard(QString cardTitle)
@@ -89,14 +88,17 @@ void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 {
     for (int i = 0; i < playerNames.size(); ++i) {
-        m_players.push_back(Player(playerNames.at(i)));
+        Player* player = new Player(playerNames.at(i));
+        player->addCard(m_cardReader->readFromRange(4, 4).at(0));
+        player->addCard(m_cardReader->readFromRange(6, 6).at(0));
+        m_players.push_back(*player);
     }
 }
 
 
 void GameLogic::handleRollButtonClicked(uchar diceRoll)
 {
-    playTurn();
+    playTurn(diceRoll);
     //emit waitForBuyOrSkip();
 }
 

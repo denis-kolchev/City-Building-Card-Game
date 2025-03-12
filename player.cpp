@@ -65,4 +65,6 @@ void Player::triggerCards(int diceRoll, Player& activePlayer) {
             }
         }
     }
+
+    //emit playerBalanceChanged(m_coins);
 }

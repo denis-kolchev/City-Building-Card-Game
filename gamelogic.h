@@ -23,6 +23,7 @@
  */
 
 #include "cardreserve.h"
+#include "carddataconfigreader.h"
 #include "diceroller.h"
 #include "player.h"
 
@@ -44,7 +45,7 @@ public:
 
     Player& getPlayer(int id);
 
-    void playTurn();
+    void playTurn(uchar diceRoll);
 
 signals:
     void buildStageFinished(int currentPlayerId);
@@ -75,6 +76,7 @@ private:
     QVector<std::shared_ptr<Card>> m_cardsToWin;
     QVector<Player> m_players;
     DiceRoller m_roller;
+    CardDataConfigReader* m_cardReader;
     int m_currentPlayerId;
 };
 

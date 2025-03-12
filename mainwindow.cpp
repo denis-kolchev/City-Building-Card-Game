@@ -4,7 +4,6 @@
 
 #include <QDir>
 #include <QLabel>
-#include <QPushButton>
 #include <QScrollArea>
 #include <QVector>
 
@@ -94,6 +93,8 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_diceResultLabels.resize(m_numPlayers);
     m_buildsLayout.resize(m_numPlayers);
     m_landmarksLayout.resize(m_numPlayers);
+    m_rollOneDiceButtons.resize(m_numPlayers);
+    m_rollTwoDiceButtons.resize(m_numPlayers);
 
     // Create a view for each player and add it as a tab
     char playerId = 'A';
@@ -222,19 +223,19 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
 
     // Create a horizontal layout for buttons
     auto *buttonLayout = new QHBoxLayout();
-    auto *rollOneDiceButton = new QPushButton("Roll 1 dice");
-    rollOneDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
-    rollTwoDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_rollOneDiceButtons[playerId] = new QPushButton("Roll 1 dice");
+    m_rollOneDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_rollTwoDiceButtons[playerId] = new QPushButton("Roll 2 dice");
+    m_rollTwoDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     auto *skipButton = new QPushButton("Skip Build");
     skipButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    connect(rollOneDiceButton, &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
-    connect(rollTwoDiceButton, &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
+    connect(m_rollOneDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
+    connect(m_rollTwoDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
     connect(skipButton, &QPushButton::clicked, this, &MainWindow::onSkipClicked);
 
-    buttonLayout->addWidget(rollOneDiceButton);
-    buttonLayout->addWidget(rollTwoDiceButton);
+    buttonLayout->addWidget(m_rollOneDiceButtons[playerId]);
+    buttonLayout->addWidget(m_rollTwoDiceButtons[playerId]);
     buttonLayout->addWidget(skipButton);
 
     // Create a horizontal layout for labels

@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include <QMainWindow>
+#include <QPushButton>
 #include <QVBoxLayout>
 
 #include "carddataconfigreader.h"
@@ -64,6 +65,8 @@ private:
     QVector<QLabel*> m_diceResultLabels;
     QVector<QHBoxLayout*> m_buildsLayout;
     QVector<QHBoxLayout*> m_landmarksLayout;
+    QVector<QPushButton*> m_rollOneDiceButtons;
+    QVector<QPushButton*> m_rollTwoDiceButtons;
     int m_numPlayers;
     int m_currentPlayerId;
 };
