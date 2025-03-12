@@ -22,7 +22,7 @@
  * checkWinCondition() → Determines if someone has won the game.
  */
 
-#include "carddataconfigreader.h"
+#include "cardreserve.h"
 #include "diceroller.h"
 #include "player.h"
 
@@ -64,11 +64,16 @@ public slots:
 
     void handleRollButtonClicked(uchar diceRoll);
 
+    void handleTryToBuyCard(QString cardTitle);
+
+    void prepateNextTurn();
+
 private:
-    QVector<Player> m_players;
-    int m_currentPlayerId;
-    DiceRoller m_roller;
+    CardReserve* m_cardReserve;
     QVector<std::shared_ptr<Card>> m_cardsToWin;
+    QVector<Player> m_players;
+    DiceRoller m_roller;
+    int m_currentPlayerId;
 };
 
 #endif // GAMELOGIC_H

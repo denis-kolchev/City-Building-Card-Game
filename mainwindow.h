@@ -41,6 +41,8 @@ signals:
 
     void skipClicked();
 
+    void updatedPlayersPanel();
+
 private slots:
     void handleCardClick(QString cardTitle);
 
@@ -57,6 +59,8 @@ private:
 
 private:
     QVector<QLabel*> m_diceResultLabels;
+    QVector<QHBoxLayout*> m_buildsLayout;
+    QVector<QHBoxLayout*> m_landmarksLayout;
     int m_numPlayers;
     int m_currentPlayerId;
 };

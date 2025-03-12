@@ -46,6 +46,11 @@ MainWindow::~MainWindow()
 void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
     // m_currentPlayerId .. let's do stuff here of displaying it
+    CardsList cards;
+    cards.push_back(card);
+    placeCards(cards, *m_buildsLayout[m_currentPlayerId]);
+    update();
+    emit updatedPlayersPanel();
 }
 
 void MainWindow::handleShowMainWindow(uchar numPlayers)
@@ -86,6 +91,8 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     auto *tabWidget = new QTabWidget(this);
 
     m_diceResultLabels.resize(m_numPlayers);
+    m_buildsLayout.resize(m_numPlayers);
+    m_landmarksLayout.resize(m_numPlayers);
 
     // Create a view for each player and add it as a tab
     char playerId = 'A';
@@ -183,24 +190,22 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
 
 
     auto *landmarksScrollWidget = new QWidget();
-    auto *landmarksScrollLayout = new QHBoxLayout(landmarksScrollWidget);
+    m_landmarksLayout[playerId] = new QHBoxLayout(landmarksScrollWidget);
 
     QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
-    placeCards(landmarkCards, *landmarksScrollLayout);
-    landmarksScrollLayout->addStretch();
+    placeCards(landmarkCards, *m_landmarksLayout[playerId]);
 
-    landmarksScrollWidget->setLayout(landmarksScrollLayout);
+    landmarksScrollWidget->setLayout(m_landmarksLayout[playerId]);
     landmarksScrollArea->setWidget(landmarksScrollWidget);
     landmarksScrollArea->setWidgetResizable(true);
 
     auto *playersBuildsScrollWidget = new QWidget();
-    auto *playersBuildsScrollLayout = new QHBoxLayout(landmarksScrollWidget);
+    m_buildsLayout[playerId] = new QHBoxLayout(landmarksScrollWidget);
 
     QVector<std::shared_ptr<Card>> playerCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
-    placeCards(playerCards, *playersBuildsScrollLayout);
-    playersBuildsScrollLayout->addStretch();
+    placeCards(playerCards, *m_buildsLayout[playerId]);
 
-    playersBuildsScrollWidget->setLayout(playersBuildsScrollLayout);
+    playersBuildsScrollWidget->setLayout(m_buildsLayout[playerId]);
     playersBuildsArea->setWidget(playersBuildsScrollWidget);
     playersBuildsArea->setWidgetResizable(true);
 
@@ -239,7 +244,6 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
 
     // Add both horizontal layouts to the actionLayout
     auto *actionLayout = new QVBoxLayout();
-    actionLayout->addStretch();
     actionLayout->addLayout(buttonLayout); // Add button layout
     actionLayout->addLayout(labelLayout); // Add label layout
     actionLayout->setAlignment(Qt::AlignLeft);

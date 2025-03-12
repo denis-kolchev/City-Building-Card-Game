@@ -1,10 +1,11 @@
 #include "gamelogic.h"
+#include "carddataconfigreader.h"
 
 #include <QCoreApplication>
 #include <QDir>
 
 GameLogic::GameLogic(QObject *parent)
-    : m_currentPlayerId(0), QObject(parent)
+    : m_cardReserve(new CardReserve()), m_currentPlayerId(0), QObject(parent)
 {
     // find a way to config file
     QString executablePath = QCoreApplication::applicationDirPath();
@@ -97,4 +98,32 @@ void GameLogic::handleRollButtonClicked(uchar diceRoll)
 {
     playTurn();
     //emit waitForBuyOrSkip();
+}
+
+void GameLogic::handleTryToBuyCard(QString cardTitle)
+{
+    auto card = m_cardReserve->findCardByTitle(cardTitle);
+    if (!card) {
+        // need an emit somewhere to rewdraw reserve without a card
+        return; // no more cards of this type!
+    }
+
+    uchar cardPrice = card->price();
+    uchar playerBalance = m_players[m_currentPlayerId].coins();
+    if (cardPrice <= playerBalance) {
+        m_players[m_currentPlayerId].deductMoney(cardPrice);
+        m_players[m_currentPlayerId].addCard(card);
+        m_cardReserve->removeCard(card);
+        emit playerBuildNewBuilding(card);
+    } else {
+        // Maybe it should be displayed as a worning somewhere
+        qDebug() << "Card is Too expensive!";
+    }
+}
+
+void GameLogic::prepateNextTurn()
+{
+    // Move to the next player
+    m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
+    buildStageFinished(m_currentPlayerId);
 }

@@ -1,4 +1,3 @@
-#include "cardreserve.h"
 #include "gamelogic.h"
 #include "mainwindow.h"
 #include "startmenu.h"
@@ -11,7 +10,6 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    CardReserve* cardReserve = new CardReserve();
     GameLogic* gameLogic = new GameLogic();
     MainWindow* mainWindow = new MainWindow();
     StartMenu* startMenu = new StartMenu();
@@ -32,16 +30,13 @@ int main(int argc, char *argv[])
                      mainWindow, &MainWindow::startBuildStage);
 
     QObject::connect(mainWindow, &MainWindow::cardWidgetClicked,
-                     gameLogic, &GameLogic::checkCoinBalanceForCard);
-
-    QObject::connect(gameLogic, &GameLogic::tryToBuyCard,
-                     cardReserve, &CardReserve::handleTryToBuyCard);
-
-    QObject::connect(cardReserve, &CardReserve::sellCardToPlayer,
-                     gameLogic, &GameLogic::giveCardToPlayer);
+                     gameLogic, &GameLogic::handleTryToBuyCard);
 
     QObject::connect(gameLogic, &GameLogic::playerBuildNewBuilding,
                      mainWindow, &MainWindow::displayPlayerNewCard);
+
+    QObject::connect(mainWindow, &MainWindow::updatedPlayersPanel,
+                     gameLogic, &GameLogic::prepateNextTurn);
 
     startMenu->show();
 

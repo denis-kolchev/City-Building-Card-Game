@@ -50,6 +50,17 @@ uchar CardReserve::coundCards(std::shared_ptr<Card> card)
     return m_cards.find(card).value();
 }
 
+std::shared_ptr<Card> CardReserve::findCardByTitle(QString cardTitle)
+{
+    std::shared_ptr<Card> card = nullptr;
+    for (auto it = m_cards.begin(), ite = m_cards.end(); it != ite; ++it) {
+        if (it.key()->title() == cardTitle) {
+            card = it.key();
+        }
+    }
+    return card;
+}
+
 void CardReserve::removeCard(std::shared_ptr<Card> card)
 {
     auto it = m_cards.find(card);
@@ -78,15 +89,4 @@ void CardReserve::handleTryToBuyCard(QString title, uchar playerBalance)
         removeCard(cardClicked);
         emit sellCardToPlayer(cardClicked);
     }
-}
-
-std::shared_ptr<Card> CardReserve::findCardByTitle(QString cardTitle)
-{
-    std::shared_ptr<Card> card = nullptr;
-    for (auto it = m_cards.begin(), ite = m_cards.end(); it != ite; ++it) {
-        if (it.key()->title() == cardTitle) {
-            card = it.key();
-        }
-    }
-    return card;
 }
