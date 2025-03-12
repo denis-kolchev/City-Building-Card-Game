@@ -18,7 +18,8 @@ Shop::Shop(const QString& title,
 }
 
 void Shop::activate(Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll)) {
+    if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
+        activePlayer.addCoins(3);
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

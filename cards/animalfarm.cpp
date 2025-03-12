@@ -19,6 +19,8 @@ AnimalFarm::AnimalFarm(const QString& title,
 
 void AnimalFarm::activate(Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
+        owner.addCoins(1);
+        // Give money to the owner
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

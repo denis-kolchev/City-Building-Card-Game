@@ -18,7 +18,17 @@ Restaurant::Restaurant(const QString& title,
 }
 
 void Restaurant::activate(Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll)) {
-        qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
+    if (hasActivationValue(diceRoll) && &owner != &activePlayer) {
+        int available = activePlayer.coins();
+        uchar nCoinsToTake = 2;
+        if (available >= nCoinsToTake) {
+            activePlayer.deductMoney(nCoinsToTake);
+            owner.addCoins(nCoinsToTake);
+        } else {
+            activePlayer.deductMoney(available);
+            owner.addCoins(available);
+        }
+
+        qDebug() << m_title << " activated! " << activePlayer.name() << " pays " << owner.name() << ".\n";
     }
 }

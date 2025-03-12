@@ -18,7 +18,14 @@ CheeseFactory::CheeseFactory(const QString& title,
 }
 
 void CheeseFactory::activate(Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll)) {
+    if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
+        auto cards = owner.getCardsTable();
+        for (auto it = cards.begin(), ite = cards.end(); it != ite; ++it) {
+            uchar times = it.value();
+            if (it.key()->type() == CardType::Farm) {
+                activePlayer.addCoins(3 * times);
+            }
+        }
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

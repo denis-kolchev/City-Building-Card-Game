@@ -19,6 +19,8 @@ Mine::Mine(const QString& title,
 
 void Mine::activate(Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
+        owner.addCoins(5);
+        // Give money to the owner
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }
