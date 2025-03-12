@@ -25,8 +25,23 @@ int main(int argc, char *argv[])
     QObject::connect(mainWindow, &MainWindow::rollButtonClicked,
                      gameLogic, &GameLogic::handleRollButtonClicked);
 
-    QObject::connect(gameLogic, &GameLogic::currentPlayerChanged,
+    QObject::connect(gameLogic, &GameLogic::buildStageFinished,
                      mainWindow, &MainWindow::updateCurrentPlayer);
+
+    QObject::connect(gameLogic, &GameLogic::incomeStageFinished,
+                     mainWindow, &MainWindow::startBuildStage);
+
+    QObject::connect(mainWindow, &MainWindow::cardWidgetClicked,
+                     gameLogic, &GameLogic::checkCoinBalanceForCard);
+
+    QObject::connect(gameLogic, &GameLogic::tryToBuyCard,
+                     cardReserve, &CardReserve::handleTryToBuyCard);
+
+    QObject::connect(cardReserve, &CardReserve::sellCardToPlayer,
+                     gameLogic, &GameLogic::giveCardToPlayer);
+
+    QObject::connect(gameLogic, &GameLogic::playerBuildNewBuilding,
+                     mainWindow, &MainWindow::displayPlayerNewCard);
 
     startMenu->show();
 

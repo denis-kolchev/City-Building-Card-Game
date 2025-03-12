@@ -20,7 +20,11 @@ public:
     ~MainWindow();
 
 public slots:
+    void displayPlayerNewCard(std::shared_ptr<Card> card);
+
     void handleShowMainWindow(uchar numPlayers);
+
+    void startBuildStage();
 
     void updateCurrentPlayer(int currentPlayerId);
 
@@ -29,6 +33,8 @@ public slots:
 signals:
     void buyButtonClicked();
 
+    void cardWidgetClicked(QString cardTitle);
+
     void createPlayers(QList<QString> playerNames);
 
     void rollButtonClicked(uchar dice);
@@ -36,7 +42,7 @@ signals:
     void skipClicked();
 
 private slots:
-    void handleCardClick();
+    void handleCardClick(QString cardTitle);
 
     void onRollOneDiceClicked();
 

@@ -43,6 +43,11 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
+{
+    // m_currentPlayerId .. let's do stuff here of displaying it
+}
+
 void MainWindow::handleShowMainWindow(uchar numPlayers)
 {
     m_numPlayers = numPlayers;
@@ -105,21 +110,26 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     show();
 }
 
+void MainWindow::startBuildStage()
+{
+    // unblock ability to click on cards and skip button
+}
+
 void MainWindow::updateCurrentPlayer(int currentPlayerId)
 {
     m_currentPlayerId = currentPlayerId;
-}
-
-void MainWindow::handleCardClick()
-{
-    qDebug() << "card is clicked!";
-    // check if this is the state of buying card
-    //emit
+    // redraw menu making it available for the next player
 }
 
 void MainWindow::updateDiceResultLabel(uchar dice)
 {
 
+}
+
+void MainWindow::handleCardClick(QString cardTitle)
+{
+    qDebug() << "card is clicked!";
+    emit cardWidgetClicked(cardTitle);
 }
 
 void MainWindow::onRollOneDiceClicked()
@@ -142,21 +152,6 @@ void MainWindow::onSkipClicked()
 {
     qDebug() << "Skip button Clicked!";
     emit skipClicked();
-}
-
-void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
-{
-    for (int i = 0; i < cards.size(); ++i) {
-        auto* customWidget = new CardWidget(cards[i]->imagePath(),
-                                            cards[i]->activationValues(),
-                                            cards[i]->title(),
-                                            cards[i]->description(),
-                                            QString::number(cards[i]->price()),
-                                            QString::number(cards[i]->pack()),
-                                            cards[i]->type());
-        layout.addWidget(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-    }
 }
 
 QWidget* MainWindow::createPlayerView(uchar playerId)
@@ -257,4 +252,19 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     playerView->setLayout(viewCardsLayout);
 
     return playerView;
+}
+
+void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
+{
+    for (int i = 0; i < cards.size(); ++i) {
+        auto* customWidget = new CardWidget(cards[i]->imagePath(),
+                                            cards[i]->activationValues(),
+                                            cards[i]->title(),
+                                            cards[i]->description(),
+                                            QString::number(cards[i]->price()),
+                                            QString::number(cards[i]->pack()),
+                                            cards[i]->type());
+        layout.addWidget(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+    }
 }

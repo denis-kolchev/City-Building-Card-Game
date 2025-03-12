@@ -7,6 +7,7 @@
 CardReserve::CardReserve(QObject* parent)
     : QObject(parent)
 {
+    // TO DO this code isn't universal for other platforms
     // find a way to config file
     QString executablePath = QCoreApplication::applicationDirPath();
     QDir sourceDir(executablePath);
@@ -59,8 +60,33 @@ void CardReserve::removeCard(std::shared_ptr<Card> card)
     }
 }
 
-
 void activateCard(const QString& cardName, Player& owner, Player& activePlayer, int diceRoll)
 {
 
+}
+
+void CardReserve::handleTryToBuyCard(QString title, uchar playerBalance)
+{
+    std::shared_ptr<Card> cardClicked = findCardByTitle(title);
+    if (!cardClicked) {
+        qDebug() << "Eror, card isn't found!";
+        std::abort();
+    }
+
+    uchar cardPrice = cardClicked->price();
+    if (cardPrice <= playerBalance) {
+        removeCard(cardClicked);
+        emit sellCardToPlayer(cardClicked);
+    }
+}
+
+std::shared_ptr<Card> CardReserve::findCardByTitle(QString cardTitle)
+{
+    std::shared_ptr<Card> card = nullptr;
+    for (auto it = m_cards.begin(), ite = m_cards.end(); it != ite; ++it) {
+        if (it.key()->title() == cardTitle) {
+            card = it.key();
+        }
+    }
+    return card;
 }

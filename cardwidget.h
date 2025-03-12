@@ -29,7 +29,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 
 signals:
-    void clicked();
+    void clicked(QString cardTitle);
 
 private:
     QColor blueColor() const;

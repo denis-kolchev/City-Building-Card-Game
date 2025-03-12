@@ -58,13 +58,31 @@ void GameLogic::playTurn() {
     qDebug() << activePlayer.name() << " rolled a " << diceRoll << ".\n";
 
     // Trigger cards for all players
+    // Active player loss money, get money from other players
     for (auto& player : m_players) {
         player.triggerCards(diceRoll, activePlayer);
     }
 
+    // Now, build time!
+    emit incomeStageFinished();
+    return;
+}
+
+void GameLogic::checkCoinBalanceForCard(QString cardTitle)
+{
+    uchar coins = m_players[m_currentPlayerId].coins();
+    emit tryToBuyCard(cardTitle, coins);
+}
+
+void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
+{
+    m_players[m_currentPlayerId].deductMoney(card->price());
+    m_players[m_currentPlayerId].addCard(card);
+
     // Move to the next player
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
-    emit currentPlayerChanged(m_currentPlayerId);
+    emit playerBuildNewBuilding(card);
+    emit buildStageFinished(m_currentPlayerId);
 }
 
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)

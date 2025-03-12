@@ -46,6 +46,15 @@ public:
 
     void activateCard(const QString& cardName, Player& owner, Player& activePlayer, int diceRoll);
 
+signals:
+    void sellCardToPlayer(std::shared_ptr<Card> card);
+
+public slots:
+    void handleTryToBuyCard(QString title, uchar playerBalance);
+
+private:
+    std::shared_ptr<Card> findCardByTitle(QString cardTitle);
+
 private:
     QMap<std::shared_ptr<Card>, uchar> m_cards;
 };

@@ -47,9 +47,19 @@ public:
     void playTurn();
 
 signals:
-    void currentPlayerChanged(int currentPlayerId);
+    void buildStageFinished(int currentPlayerId);
+
+    void incomeStageFinished();
+
+    void playerBuildNewBuilding(std::shared_ptr<Card> card);
+
+    void tryToBuyCard(QString cardTitle, uchar playerBalance);
 
 public slots:
+    void checkCoinBalanceForCard(QString cardTitle);
+
+    void giveCardToPlayer(std::shared_ptr<Card> card);
+
     void handleCreatePlayers(QList<QString> playerNames);
 
     void handleRollButtonClicked(uchar diceRoll);
