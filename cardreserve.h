@@ -3,6 +3,7 @@
 
 #include "cards/card.h"
 
+#include <QObject>
 #include <QMap>
 
 /*
@@ -29,9 +30,11 @@ Feels like there is should be file called Game Rools
 
 */
 
-class CardReserve {
+class CardReserve : public QObject {
+    Q_OBJECT
+
 public:
-    CardReserve();
+    explicit CardReserve(QObject* parent = nullptr);
 
     ~CardReserve();
 

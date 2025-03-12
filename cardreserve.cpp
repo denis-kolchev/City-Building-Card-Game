@@ -4,7 +4,8 @@
 #include <QDir>
 #include <QCoreApplication>
 
-CardReserve::CardReserve()
+CardReserve::CardReserve(QObject* parent)
+    : QObject(parent)
 {
     // find a way to config file
     QString executablePath = QCoreApplication::applicationDirPath();

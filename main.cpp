@@ -1,3 +1,4 @@
+#include "cardreserve.h"
 #include "gamelogic.h"
 #include "mainwindow.h"
 #include "startmenu.h"
@@ -10,6 +11,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    CardReserve* cardReserve = new CardReserve();
     GameLogic* gameLogic = new GameLogic();
     MainWindow* mainWindow = new MainWindow();
     StartMenu* startMenu = new StartMenu();
@@ -19,6 +21,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(mainWindow, &MainWindow::createPlayers,
                      gameLogic, &GameLogic::handleCreatePlayers);
+
+    QObject::connect(mainWindow, &MainWindow::rollButtonClicked,
+                     gameLogic, &GameLogic::handleRollButtonClicked);
 
     startMenu->show();
 
