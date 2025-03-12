@@ -90,6 +90,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     // Create a QTabWidget to hold player views
     auto *tabWidget = new QTabWidget(this);
 
+    m_playerBalanceLabels.resize(m_numPlayers);
     m_diceResultLabels.resize(m_numPlayers);
     m_buildsLayout.resize(m_numPlayers);
     m_landmarksLayout.resize(m_numPlayers);
@@ -131,6 +132,11 @@ void MainWindow::updateCurrentPlayer(int currentPlayerId)
 void MainWindow::updateDiceResultLabel(uchar dice)
 {
 
+}
+
+void MainWindow::updatePlayerBalanceLabel(uchar balance)
+{
+    m_playerBalanceLabels[m_currentPlayerId]->setText(QString("Coins: %1").arg(balance));
 }
 
 void MainWindow::handleCardClick(QString cardTitle)
@@ -233,12 +239,12 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
 
     // Create a horizontal layout for labels
     auto *labelLayout = new QHBoxLayout();
-    auto *playerMoneyLabel = new QLabel("Coins: 3");
-    playerMoneyLabel->setAlignment(Qt::AlignLeft);
+    m_playerBalanceLabels[playerId] = new QLabel("Coins: 3");
+    m_playerBalanceLabels[playerId]->setAlignment(Qt::AlignLeft);
     m_diceResultLabels[playerId] = new QLabel("Dice result: 0");
     m_diceResultLabels[playerId]->setAlignment(Qt::AlignLeft);
 
-    labelLayout->addWidget(playerMoneyLabel);
+    labelLayout->addWidget(m_playerBalanceLabels[playerId]);
     labelLayout->addWidget(m_diceResultLabels[playerId]);
     labelLayout->setAlignment(Qt::AlignLeft);
 

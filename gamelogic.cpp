@@ -112,6 +112,7 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
     uchar playerBalance = m_players[m_currentPlayerId].coins();
     if (cardPrice <= playerBalance) {
         m_players[m_currentPlayerId].deductMoney(cardPrice);
+        emit playerBalanceChanged(m_players[m_currentPlayerId].coins());
         m_players[m_currentPlayerId].addCard(card);
         m_cardReserve->removeCard(card);
         emit playerBuildNewBuilding(card);

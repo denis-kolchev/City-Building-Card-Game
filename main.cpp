@@ -38,6 +38,9 @@ int main(int argc, char *argv[])
     QObject::connect(mainWindow, &MainWindow::updatedPlayersPanel,
                      gameLogic, &GameLogic::prepateNextTurn);
 
+    QObject::connect(gameLogic, &GameLogic::playerBalanceChanged,
+                     mainWindow, &MainWindow::updatePlayerBalanceLabel);
+
     startMenu->show();
 
     return app.exec();

@@ -30,6 +30,8 @@ public slots:
 
     void updateDiceResultLabel(uchar dice);
 
+    void updatePlayerBalanceLabel(uchar balance);
+
 signals:
     void buyButtonClicked();
 
@@ -58,6 +60,7 @@ private:
     void placeCards(CardsList &cards, CardsLayout &layout);
 
 private:
+    QVector<QLabel*> m_playerBalanceLabels;
     QVector<QLabel*> m_diceResultLabels;
     QVector<QHBoxLayout*> m_buildsLayout;
     QVector<QHBoxLayout*> m_landmarksLayout;

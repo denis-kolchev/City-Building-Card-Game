@@ -51,6 +51,8 @@ signals:
 
     void incomeStageFinished();
 
+    void playerBalanceChanged(uchar balance);
+
     void playerBuildNewBuilding(std::shared_ptr<Card> card);
 
     void tryToBuyCard(QString cardTitle, uchar playerBalance);
