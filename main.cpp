@@ -25,6 +25,9 @@ int main(int argc, char *argv[])
     QObject::connect(mainWindow, &MainWindow::rollButtonClicked,
                      gameLogic, &GameLogic::handleRollButtonClicked);
 
+    QObject::connect(gameLogic, &GameLogic::currentPlayerChanged,
+                     mainWindow, &MainWindow::updateCurrentPlayer);
+
     startMenu->show();
 
     return app.exec();

@@ -38,11 +38,16 @@ public:
 
     ~GameLogic();
 
+    int currentPlayerId() const;
+
     bool isGameIsFinished();
 
     Player& getPlayer(int id);
 
     void playTurn();
+
+signals:
+    void currentPlayerChanged(int currentPlayerId);
 
 public slots:
     void handleCreatePlayers(QList<QString> playerNames);

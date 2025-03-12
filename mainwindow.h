@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-
+#include <QLabel>
 #include <QMainWindow>
 #include <QVBoxLayout>
 
@@ -21,6 +21,8 @@ public:
 
 public slots:
     void handleShowMainWindow(uchar numPlayers);
+
+    void updateCurrentPlayer(int currentPlayerId);
 
     void updateDiceResultLabel(uchar dice);
 
@@ -43,12 +45,13 @@ private slots:
     void onSkipClicked();
 
 private:
-    QWidget* createPlayerView();
+    QWidget* createPlayerView(uchar playerId);
 
     void placeCards(CardsList &cards, CardsLayout &layout);
 
 private:
+    QVector<QLabel*> m_diceResultLabels;
     int m_numPlayers;
-
+    int m_currentPlayerId;
 };
 #endif // MAINWINDOW_H

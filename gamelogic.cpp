@@ -26,6 +26,10 @@ GameLogic::~GameLogic()
 {
 }
 
+int GameLogic::currentPlayerId() const {
+    return m_currentPlayerId;
+}
+
 bool GameLogic::isGameIsFinished() {
     for (auto& player : m_players) {
         auto cardsTable = player.getCardsTable();
@@ -60,6 +64,7 @@ void GameLogic::playTurn() {
 
     // Move to the next player
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
+    emit currentPlayerChanged(m_currentPlayerId);
 }
 
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)

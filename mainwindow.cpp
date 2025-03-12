@@ -80,11 +80,13 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     // Create a QTabWidget to hold player views
     auto *tabWidget = new QTabWidget(this);
 
+    m_diceResultLabels.resize(m_numPlayers);
+
     // Create a view for each player and add it as a tab
     char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
-        auto *playerView = createPlayerView();
+        auto *playerView = createPlayerView(i);
         tabWidget->addTab(playerView, QString("Player %1").arg(playerId));
         playerNames[i] = QString("Player %1").arg(playerId);
     }
@@ -103,6 +105,11 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     show();
 }
 
+void MainWindow::updateCurrentPlayer(int currentPlayerId)
+{
+    m_currentPlayerId = currentPlayerId;
+}
+
 void MainWindow::handleCardClick()
 {
     qDebug() << "card is clicked!";
@@ -119,6 +126,7 @@ void MainWindow::onRollOneDiceClicked()
 {
     uchar dice = DiceRoller{}.rollDice(1);
     qDebug() << "Roll One Dice button Clicked!";
+    m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
     emit rollButtonClicked(dice);
 }
 
@@ -126,6 +134,7 @@ void MainWindow::onRollTwoDiceClicked()
 {
     uchar dice = DiceRoller{}.rollDice(2);
     qDebug() << "Roll Two Dice button Clicked!";
+    m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
     emit rollButtonClicked(dice);
 }
 
@@ -150,15 +159,15 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
     }
 }
 
-QWidget* MainWindow::createPlayerView()
+QWidget* MainWindow::createPlayerView(uchar playerId)
 {
     auto *playerView = new QWidget();
 
     auto *viewCardsLayout = new QVBoxLayout(playerView);
 
-    auto *landmarksLabel = new QLabel("Landmarks:");
+    auto *landmarksLabel = new QLabel("Landmarks");
     auto *landmarksScrollArea = new QScrollArea();
-    auto *playersBuilds = new QLabel("My builds:");
+    auto *playersBuilds = new QLabel("Builds");
     auto *playersBuildsArea = new QScrollArea();
 
     auto *bankScrollWidget = new QWidget();
@@ -226,11 +235,11 @@ QWidget* MainWindow::createPlayerView()
     auto *labelLayout = new QHBoxLayout();
     auto *playerMoneyLabel = new QLabel("Coins: 3");
     playerMoneyLabel->setAlignment(Qt::AlignLeft);
-    auto *diceResultLabel = new QLabel("Dice result: 0");
-    diceResultLabel->setAlignment(Qt::AlignLeft);
+    m_diceResultLabels[playerId] = new QLabel("Dice result: 0");
+    m_diceResultLabels[playerId]->setAlignment(Qt::AlignLeft);
 
     labelLayout->addWidget(playerMoneyLabel);
-    labelLayout->addWidget(diceResultLabel);
+    labelLayout->addWidget(m_diceResultLabels[playerId]);
     labelLayout->setAlignment(Qt::AlignLeft);
 
     // Add both horizontal layouts to the actionLayout
