@@ -68,3 +68,10 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
         m_players.push_back(Player(playerNames.at(i)));
     }
 }
+
+
+void GameLogic::handleRollButtonClicked(uchar diceRoll)
+{
+    playTurn();
+    //emit waitForBuyOrSkip();
+}

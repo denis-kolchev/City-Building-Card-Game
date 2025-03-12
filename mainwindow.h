@@ -22,6 +22,8 @@ public:
 public slots:
     void handleShowMainWindow(uchar numPlayers);
 
+    void updateDiceResultLabel(uchar dice);
+
 signals:
     void buyButtonClicked();
 
@@ -33,8 +35,6 @@ signals:
 
 private slots:
     void handleCardClick();
-
-    void onBuyClicked();
 
     void onRollOneDiceClicked();
 

@@ -13,6 +13,10 @@
 MainWindow::MainWindow(QMainWindow *parent)
     : QMainWindow(parent)
 {
+    connect(this, &MainWindow::rollButtonClicked,
+            this, &MainWindow::updateDiceResultLabel);
+
+    //connect(this, &MainWindow::buyButtonClicked);
 
     // // Initialize game logic
     // GameLogic game(playerNames);
@@ -45,11 +49,39 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     auto *centralWidget = new QWidget(this);
     auto *mainLayout = new QHBoxLayout(centralWidget);
 
+    // Create a view for Card Reserve
+    auto *bankCardsArea = new QScrollArea();
+
+    auto *bankScrollWidget = new QWidget();
+    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
+
+    // Read card data from config
+    QString executablePath = QCoreApplication::applicationDirPath();
+    QDir sourceDir(executablePath);
+    sourceDir.cd("../../../"); // Move on 3 levels up
+    QString configPath = sourceDir.absolutePath() + "/CardsDataConfig.ini";
+    if (QFile::exists(configPath)) {
+        qDebug() << "Config file has found: " << configPath;
+    } else {
+        qDebug() << "File not found!";
+    }
+
+    CardDataConfigReader cardReader(configPath);
+    QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
+    placeCards(cards, *bankScrolllayout);
+    bankScrolllayout->addStretch();
+
+    bankScrollWidget->setLayout(bankScrolllayout);
+    bankCardsArea->setWidget(bankScrollWidget);
+    bankCardsArea->setWidgetResizable(true);
+
+
+
     // Create a QTabWidget to hold player views
     auto *tabWidget = new QTabWidget(this);
 
-    char playerId = 'A';
     // Create a view for each player and add it as a tab
+    char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
         auto *playerView = createPlayerView();
@@ -58,6 +90,9 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     }
 
     emit createPlayers(playerNames.toList());
+
+    // Add the QTabWidget to the main layout
+    mainLayout->addWidget(bankCardsArea);
 
     // Add the QTabWidget to the main layout
     mainLayout->addWidget(tabWidget);
@@ -71,13 +106,13 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 void MainWindow::handleCardClick()
 {
     qDebug() << "card is clicked!";
+    // check if this is the state of buying card
+    //emit
 }
 
-void MainWindow::onBuyClicked()
+void MainWindow::updateDiceResultLabel(uchar dice)
 {
-    // sets the state of buing
-    qDebug() << "Buy button Clicked!";
-    emit buyButtonClicked();
+
 }
 
 void MainWindow::onRollOneDiceClicked()
@@ -121,8 +156,6 @@ QWidget* MainWindow::createPlayerView()
 
     auto *viewCardsLayout = new QVBoxLayout(playerView);
 
-    auto *bankLabel = new QLabel("Bank:");
-    auto *bankCardsArea = new QScrollArea();
     auto *landmarksLabel = new QLabel("Landmarks:");
     auto *landmarksScrollArea = new QScrollArea();
     auto *playersBuilds = new QLabel("My builds:");
@@ -143,13 +176,7 @@ QWidget* MainWindow::createPlayerView()
     }
 
     CardDataConfigReader cardReader(configPath);
-    QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
-    placeCards(cards, *bankScrolllayout);
-    bankScrolllayout->addStretch();
 
-    bankScrollWidget->setLayout(bankScrolllayout);
-    bankCardsArea->setWidget(bankScrollWidget);
-    bankCardsArea->setWidgetResizable(true);
 
     auto *landmarksScrollWidget = new QWidget();
     auto *landmarksScrollLayout = new QHBoxLayout(landmarksScrollWidget);
@@ -173,8 +200,6 @@ QWidget* MainWindow::createPlayerView()
     playersBuildsArea->setWidget(playersBuildsScrollWidget);
     playersBuildsArea->setWidgetResizable(true);
 
-    viewCardsLayout->addWidget(bankLabel);
-    viewCardsLayout->addWidget(bankCardsArea);
     viewCardsLayout->addWidget(landmarksLabel);
     viewCardsLayout->addWidget(landmarksScrollArea);
     viewCardsLayout->addWidget(playersBuilds);
@@ -186,19 +211,15 @@ QWidget* MainWindow::createPlayerView()
     rollOneDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     auto *rollTwoDiceButton = new QPushButton("Roll 2 dice");
     rollTwoDiceButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    auto *buyButton = new QPushButton("Buy");
-    buyButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    auto *skipButton = new QPushButton("Skip");
+    auto *skipButton = new QPushButton("Skip Build");
     skipButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     connect(rollOneDiceButton, &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
     connect(rollTwoDiceButton, &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
-    connect(buyButton, &QPushButton::clicked, this, &MainWindow::onBuyClicked);
     connect(skipButton, &QPushButton::clicked, this, &MainWindow::onSkipClicked);
 
     buttonLayout->addWidget(rollOneDiceButton);
     buttonLayout->addWidget(rollTwoDiceButton);
-    buttonLayout->addWidget(buyButton);
     buttonLayout->addWidget(skipButton);
 
     // Create a horizontal layout for labels

@@ -47,6 +47,8 @@ public:
 public slots:
     void handleCreatePlayers(QList<QString> playerNames);
 
+    void handleRollButtonClicked(uchar diceRoll);
+
 private:
     QVector<Player> m_players;
     int m_currentPlayerId;
