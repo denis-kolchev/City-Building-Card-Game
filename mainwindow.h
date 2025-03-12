@@ -67,6 +67,7 @@ private:
     QVector<QHBoxLayout*> m_landmarksLayout;
     QVector<QPushButton*> m_rollOneDiceButtons;
     QVector<QPushButton*> m_rollTwoDiceButtons;
+    QVector<QPushButton*> m_skipButtons;
     int m_numPlayers;
     int m_currentPlayerId;
 };

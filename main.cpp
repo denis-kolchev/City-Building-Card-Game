@@ -41,6 +41,9 @@ int main(int argc, char *argv[])
     QObject::connect(gameLogic, &GameLogic::playerBalanceChanged,
                      mainWindow, &MainWindow::updatePlayerBalanceLabel);
 
+    QObject::connect(mainWindow, &MainWindow::skipClicked,
+                     gameLogic, &GameLogic::moveToNextPlaer);
+
     startMenu->show();
 
     return app.exec();

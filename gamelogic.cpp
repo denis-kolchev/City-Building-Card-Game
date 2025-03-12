@@ -124,6 +124,13 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
     }
 }
 
+void GameLogic::moveToNextPlaer()
+{
+    // Move to the next player
+    m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
+    emit buildStageFinished(m_currentPlayerId);
+}
+
 void GameLogic::prepateNextTurn()
 {
     // Move to the next player

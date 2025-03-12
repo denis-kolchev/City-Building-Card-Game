@@ -69,6 +69,8 @@ public slots:
 
     void handleTryToBuyCard(QString cardTitle);
 
+    void moveToNextPlaer();
+
     void prepateNextTurn();
 
 private:

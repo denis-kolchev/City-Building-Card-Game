@@ -95,6 +95,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_landmarksLayout.resize(m_numPlayers);
     m_rollOneDiceButtons.resize(m_numPlayers);
     m_rollTwoDiceButtons.resize(m_numPlayers);
+    m_skipButtons.resize(m_numPlayers);
 
     // Create a view for each player and add it as a tab
     char playerId = 'A';
@@ -227,16 +228,16 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     m_rollOneDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_rollTwoDiceButtons[playerId] = new QPushButton("Roll 2 dice");
     m_rollTwoDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    auto *skipButton = new QPushButton("Skip Build");
-    skipButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_skipButtons[playerId] = new QPushButton("Skip Build");
+    m_skipButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     connect(m_rollOneDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
     connect(m_rollTwoDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
-    connect(skipButton, &QPushButton::clicked, this, &MainWindow::onSkipClicked);
+    connect(m_skipButtons[playerId], &QPushButton::clicked, this, &MainWindow::onSkipClicked);
 
     buttonLayout->addWidget(m_rollOneDiceButtons[playerId]);
     buttonLayout->addWidget(m_rollTwoDiceButtons[playerId]);
-    buttonLayout->addWidget(skipButton);
+    buttonLayout->addWidget(m_skipButtons[playerId]);
 
     // Create a horizontal layout for labels
     auto *labelLayout = new QHBoxLayout();
