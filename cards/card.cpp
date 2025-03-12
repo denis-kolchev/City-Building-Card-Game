@@ -30,7 +30,7 @@ QString Card::imagePath() const {
 }
 
 bool Card::hasActivationValue(uchar diceRoll) const {
-    return m_activationValues.find(diceRoll) == m_activationValues.end();
+    return m_activationValues.find(diceRoll) != m_activationValues.end();
 }
 
 uchar Card::pack() const {
