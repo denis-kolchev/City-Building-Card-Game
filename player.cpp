@@ -4,7 +4,7 @@ Player::Player(const QString& name) : m_name(name), m_coins(START_COINS_NUMBER) 
 
 void Player::addCard(std::shared_ptr<Card> card) {
     if (howManyCardsOfType(card) == 0) {
-        m_cardsTable.insert(card, 0);
+        m_cardsTable.insert(card, 1);
         return;
     }
 
