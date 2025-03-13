@@ -11,9 +11,12 @@
 
 MainWindow::MainWindow(QMainWindow *parent)
     : QMainWindow(parent)
+    , m_stateMachine(new QStateMachine(this))
 {
     connect(this, &MainWindow::rollButtonClicked,
             this, &MainWindow::updateDiceResultLabel);
+
+    setupStateMachine();
 
     //connect(this, &MainWindow::buyButtonClicked);
 
@@ -108,6 +111,9 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 
     emit createPlayers(playerNames.toList());
 
+    m_currentPlayerId = 0;
+    updateButtonStates();
+
     // Add the QTabWidget to the main layout
     mainLayout->addWidget(bankCardsArea);
 
@@ -128,6 +134,7 @@ void MainWindow::startBuildStage()
 void MainWindow::updateCurrentPlayer(int currentPlayerId)
 {
     m_currentPlayerId = currentPlayerId;
+    updateButtonStates();
     // redraw menu making it available for the next player
 }
 
@@ -226,10 +233,13 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     auto *buttonLayout = new QHBoxLayout();
     m_rollOneDiceButtons[playerId] = new QPushButton("Roll 1 dice");
     m_rollOneDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_rollOneDiceButtons[playerId]->setEnabled(false);
     m_rollTwoDiceButtons[playerId] = new QPushButton("Roll 2 dice");
     m_rollTwoDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_rollTwoDiceButtons[playerId]->setEnabled(false);
     m_skipButtons[playerId] = new QPushButton("Skip Build");
     m_skipButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_skipButtons[playerId]->setEnabled(false);
 
     connect(m_rollOneDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
     connect(m_rollTwoDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
@@ -278,5 +288,46 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
                                             cards[i]->type());
         layout.addWidget(customWidget);
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+    }
+}
+
+void MainWindow::setupStateMachine()
+{
+    m_incomeState = new QState();
+    m_buyingState = new QState();
+    m_finalState = new QFinalState();
+
+    // Define transitions
+    m_incomeState->addTransition(this, &MainWindow::rollButtonClicked, m_buyingState);
+    m_buyingState->addTransition(this, &MainWindow::skipClicked, m_incomeState);
+    m_buyingState->addTransition(this, &MainWindow::cardWidgetClicked, m_incomeState);
+
+    // Add states to the state machine
+    m_stateMachine->addState(m_incomeState);
+    m_stateMachine->addState(m_buyingState);
+    m_stateMachine->addState(m_finalState);
+
+    // Set the initial state
+    m_stateMachine->setInitialState(m_incomeState);
+
+    // Connect state entered signals to update button states
+    connect(m_incomeState, &QState::entered, this, &MainWindow::updateButtonStates);
+    connect(m_buyingState, &QState::entered, this, &MainWindow::updateButtonStates);
+
+    // Start the state machine
+    m_stateMachine->start();
+}
+
+void MainWindow::updateButtonStates()
+{
+    bool isIncomeState = m_stateMachine->configuration().contains(m_incomeState);
+    bool isBuyingState = m_stateMachine->configuration().contains(m_buyingState);
+
+    for (int i = 0; i < m_numPlayers; ++i) {
+        bool isActivePlayer = (i == m_currentPlayerId);
+
+        m_rollOneDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer);
+        m_rollTwoDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer);
+        m_skipButtons[i]->setEnabled(isBuyingState && isActivePlayer);
     }
 }

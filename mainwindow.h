@@ -1,9 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QFinalState>
 #include <QLabel>
 #include <QMainWindow>
 #include <QPushButton>
+#include <QStateMachine>
 #include <QVBoxLayout>
 
 #include "carddataconfigreader.h"
@@ -60,7 +62,16 @@ private:
 
     void placeCards(CardsList &cards, CardsLayout &layout);
 
+    void setupStateMachine();
+
+    void updateButtonStates();
+
 private:
+    QStateMachine *m_stateMachine;
+    QState *m_incomeState;
+    QState *m_buyingState;
+    QFinalState *m_finalState;
+
     QVector<QLabel*> m_playerBalanceLabels;
     QVector<QLabel*> m_diceResultLabels;
     QVector<QHBoxLayout*> m_buildsLayout;
