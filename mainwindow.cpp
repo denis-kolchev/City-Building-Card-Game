@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "cardstackwidget.h"
 #include "cardwidget.h"
 #include "diceroller.h"
 
@@ -81,7 +82,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     CardDataConfigReader cardReader(configPath);
     QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
     placeCards(cards, *bankScrolllayout);
-    bankScrolllayout->addStretch();
+    //bankScrolllayout->addStretch();
 
     bankScrollWidget->setLayout(bankScrolllayout);
     bankCardsArea->setWidget(bankScrollWidget);
@@ -208,6 +209,7 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     m_landmarksLayout[playerId] = new QHBoxLayout(landmarksScrollWidget);
 
     QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
+    //QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 18);
     placeCards(landmarkCards, *m_landmarksLayout[playerId]);
 
     landmarksScrollWidget->setLayout(m_landmarksLayout[playerId]);
@@ -290,6 +292,34 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
 }
+
+#ifdef false
+void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
+{
+    QMap<QString, CardStackWidget*> piles; // Map to store piles by card type
+
+    for (int i = 0; i < cards.size(); ++i) {
+        auto *customWidget = new CardWidget(cards[i]->imagePath(),
+                                            cards[i]->activationValues(),
+                                            cards[i]->title(),
+                                            cards[i]->description(),
+                                            QString::number(cards[i]->price()),
+                                            QString::number(cards[i]->pack()),
+                                            cards[i]->type());
+
+        // Find or create a pile for this card type
+        QString cardTitle = cards[i]->title();
+        if (!piles.contains(cardTitle)) {
+            piles[cardTitle] = new CardStackWidget();
+            layout.addWidget(piles[cardTitle]); // Add the pile to the layout
+        }
+
+        // Add the card to the appropriate pile
+        piles[cardTitle]->addCard(customWidget);
+        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+    }
+}
+#endif
 
 void MainWindow::setupStateMachine()
 {

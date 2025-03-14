@@ -2,6 +2,7 @@
 #include "cards/card.h"
 
 #include <QPainterPath>
+#include <QGraphicsDropShadowEffect>
 
 CardWidget::CardWidget(QPixmap imagePath,
                        QSet<uchar> triggerNumbers,
@@ -20,6 +21,13 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_cardType(cardType)
     , QWidget(parent)
 {
+    // Add shadow effect
+    auto *shadowEffect = new QGraphicsDropShadowEffect(this);
+    shadowEffect->setBlurRadius(20); // Adjust blur radius for the shadow
+    shadowEffect->setColor(QColor(0, 0, 0, 160)); // Shadow color and opacity
+    shadowEffect->setOffset(3, 3); // Shadow offset
+    setGraphicsEffect(shadowEffect);
+
     QSet<CardType> blueTypes = {
         CardType::Agricultiral,
         CardType::Farm,
