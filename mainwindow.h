@@ -9,9 +9,11 @@
 #include <QVBoxLayout>
 
 #include "carddataconfigreader.h"
+#include "cardstackwidget.h"
 
-using CardsList = QVector<std::shared_ptr<Card>>;
 using CardsLayout = QHBoxLayout;
+using CardsList = QVector<std::shared_ptr<Card>>;
+using CardsStack = QMap<QString, CardStackWidget*>;
 
 class MainWindow : public QMainWindow
 {
@@ -60,7 +62,7 @@ private slots:
 private:
     QWidget* createPlayerView(uchar playerId);
 
-    void placeCards(CardsList &cards, CardsLayout &layout);
+    void placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack);
 
     void setupStateMachine();
 
@@ -72,6 +74,9 @@ private:
     QState *m_buyingState;
     QFinalState *m_finalState;
 
+    CardsStack m_reserveCardsStack;
+    QVector<CardsStack> m_landmarkCardStacks;
+    QVector<CardsStack> m_playerCardStacks;
     QVector<QLabel*> m_playerBalanceLabels;
     QVector<QLabel*> m_diceResultLabels;
     QVector<QHBoxLayout*> m_buildsLayout;

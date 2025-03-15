@@ -19,6 +19,8 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     setupStateMachine();
 
+    setWindowTitle("City Building Card Game");
+
     //connect(this, &MainWindow::buyButtonClicked);
 
     // // Initialize game logic
@@ -51,7 +53,7 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
     // m_currentPlayerId .. let's do stuff here of displaying it
     CardsList cards;
     cards.push_back(card);
-    placeCards(cards, *m_buildsLayout[m_currentPlayerId]);
+    placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
     update();
     emit updatedPlayersPanel();
 }
@@ -59,14 +61,19 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 void MainWindow::handleShowMainWindow(uchar numPlayers)
 {
     m_numPlayers = numPlayers;
-    auto *centralWidget = new QWidget(this);
-    auto *mainLayout = new QHBoxLayout(centralWidget);
+    m_currentPlayerId = 0;
 
-    // Create a view for Card Reserve
-    auto *bankCardsArea = new QScrollArea();
-
-    auto *bankScrollWidget = new QWidget();
-    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
+    // Create several copies of player panel based on number of players
+    // ToDo: make it a sepate function or a class
+    m_playerBalanceLabels.resize(m_numPlayers);
+    m_diceResultLabels.resize(m_numPlayers);
+    m_buildsLayout.resize(m_numPlayers);
+    m_landmarksLayout.resize(m_numPlayers);
+    m_rollOneDiceButtons.resize(m_numPlayers);
+    m_rollTwoDiceButtons.resize(m_numPlayers);
+    m_skipButtons.resize(m_numPlayers);
+    m_playerCardStacks.resize(m_numPlayers);
+    m_landmarkCardStacks.resize(m_numPlayers);
 
     // Read card data from config
     QString executablePath = QCoreApplication::applicationDirPath();
@@ -80,26 +87,41 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     }
 
     CardDataConfigReader cardReader(configPath);
-    QVector<std::shared_ptr<Card>> cards = cardReader.readFromRange(4, 18);
-    placeCards(cards, *bankScrolllayout);
+
+    // Creating persistent part of game - card reserve and landmarks
+    // ToDo: create it before the numer of players known
+    auto *centralWidget = new QWidget(this);
+    auto *mainLayout = new QHBoxLayout(centralWidget);
+
+    // Create a view for Card Reserve
+    auto *bankCardsArea = new QScrollArea();
+
+    auto *bankScrollWidget = new QWidget();
+    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
+
+    // define what card should go suppose to do the logic
+
+    CardsList reserveCards;
+    for (uchar i = 0; i < m_numPlayers; ++i) {
+        reserveCards += cardReader.readFromRange(10, 12);
+    }
+    for (uchar i = 0; i < 6; ++i) {
+        reserveCards += cardReader.readFromRange(4, 9);
+        reserveCards += cardReader.readFromRange(13, 18);
+    }
+    std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
+        return a->activationValues().values().at(0) < b->activationValues().values().at(0);
+    });
+
+    placeCards(reserveCards, *bankScrolllayout, m_reserveCardsStack);
     //bankScrolllayout->addStretch();
 
     bankScrollWidget->setLayout(bankScrolllayout);
     bankCardsArea->setWidget(bankScrollWidget);
     bankCardsArea->setWidgetResizable(true);
 
-
-
     // Create a QTabWidget to hold player views
     auto *tabWidget = new QTabWidget(this);
-
-    m_playerBalanceLabels.resize(m_numPlayers);
-    m_diceResultLabels.resize(m_numPlayers);
-    m_buildsLayout.resize(m_numPlayers);
-    m_landmarksLayout.resize(m_numPlayers);
-    m_rollOneDiceButtons.resize(m_numPlayers);
-    m_rollTwoDiceButtons.resize(m_numPlayers);
-    m_skipButtons.resize(m_numPlayers);
 
     // Create a view for each player and add it as a tab
     char playerId = 'A';
@@ -112,18 +134,20 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 
     emit createPlayers(playerNames.toList());
 
-    m_currentPlayerId = 0;
-    updateButtonStates();
-
     // Add the QTabWidget to the main layout
     mainLayout->addWidget(bankCardsArea);
+
+    // Add the Landmarks to the main layout
+    //mainLayout->addWidget(landmarksCardsArea);
 
     // Add the QTabWidget to the main layout
     mainLayout->addWidget(tabWidget);
 
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
-    setWindowTitle("Card Game UI");
+
+    updateButtonStates();
+
     show();
 }
 
@@ -188,9 +212,6 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     auto *playersBuilds = new QLabel("Builds");
     auto *playersBuildsArea = new QScrollArea();
 
-    auto *bankScrollWidget = new QWidget();
-    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
-
     // Read card data from config
     QString executablePath = QCoreApplication::applicationDirPath();
     QDir sourceDir(executablePath);
@@ -210,7 +231,7 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
 
     QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
     //QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 18);
-    placeCards(landmarkCards, *m_landmarksLayout[playerId]);
+    placeCards(landmarkCards, *m_landmarksLayout[playerId], m_landmarkCardStacks[playerId]);
 
     landmarksScrollWidget->setLayout(m_landmarksLayout[playerId]);
     landmarksScrollArea->setWidget(landmarksScrollWidget);
@@ -220,7 +241,7 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     m_buildsLayout[playerId] = new QHBoxLayout(landmarksScrollWidget);
 
     QVector<std::shared_ptr<Card>> playerCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
-    placeCards(playerCards, *m_buildsLayout[playerId]);
+    placeCards(playerCards, *m_buildsLayout[playerId], m_playerCardStacks[playerId]);
 
     playersBuildsScrollWidget->setLayout(m_buildsLayout[playerId]);
     playersBuildsArea->setWidget(playersBuildsScrollWidget);
@@ -278,6 +299,7 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     return playerView;
 }
 
+#ifdef false
 void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
 {
     for (int i = 0; i < cards.size(); ++i) {
@@ -292,12 +314,9 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
 }
-
-#ifdef false
-void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
+#endif
+void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack)
 {
-    QMap<QString, CardStackWidget*> piles; // Map to store piles by card type
-
     for (int i = 0; i < cards.size(); ++i) {
         auto *customWidget = new CardWidget(cards[i]->imagePath(),
                                             cards[i]->activationValues(),
@@ -309,17 +328,16 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
 
         // Find or create a pile for this card type
         QString cardTitle = cards[i]->title();
-        if (!piles.contains(cardTitle)) {
-            piles[cardTitle] = new CardStackWidget();
-            layout.addWidget(piles[cardTitle]); // Add the pile to the layout
+        if (!cardStack.contains(cardTitle)) {
+            cardStack[cardTitle] = new CardStackWidget();
+            layout.addWidget(cardStack[cardTitle]); // Add the pile to the layout
         }
 
         // Add the card to the appropriate pile
-        piles[cardTitle]->addCard(customWidget);
+        cardStack[cardTitle]->addCard(customWidget);
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     }
 }
-#endif
 
 void MainWindow::setupStateMachine()
 {

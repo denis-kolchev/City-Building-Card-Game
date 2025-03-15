@@ -64,6 +64,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cards/appleorchard.h cards/appleorchard.cpp
         cards/fruitmarket.h cards/fruitmarket.cpp
         startmenu.h startmenu.cpp
+        cardstackwidget.h cardstackwidget.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CityBuildingCardGame APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
