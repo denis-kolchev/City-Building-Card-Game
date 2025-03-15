@@ -1,4 +1,5 @@
 #include "player.h"
+#include <QtCore/qdebug.h>
 
 Player::Player(const QString& name, QObject *parent)
     : m_name(name)
@@ -40,6 +41,10 @@ QMap<std::shared_ptr<Card>, uchar> Player::getCardsTable() {
     return m_cardsTable;
 }
 
+QVector<std::shared_ptr<Card>> Player::getLandmarks() {
+    return m_landmarks;
+}
+
 uchar Player::howManyCardsOfType(std::shared_ptr<Card> card) {
     if (m_cardsTable.find(card) == m_cardsTable.end()) {
         return 0;
@@ -53,7 +58,9 @@ QString Player::name() const {
 }
 
 void Player::triggerCards(int diceRoll, Player& activePlayer) {
+    qDebug() << "------ TRIGGERED " << diceRoll << " CARDS ------";
     for (auto it = m_landmarks.begin(), ite = m_landmarks.end(); it != ite; ++it) {
+        qDebug() << "--- activated: " << it->get()->title();
         it->get()->activate(*this, activePlayer, diceRoll);
     }
 
@@ -69,6 +76,11 @@ void Player::triggerCards(int diceRoll, Player& activePlayer) {
     for (auto it = redCardsTable.begin(), ite = redCardsTable.end(); it != ite; ++it) {
         for (uchar i = 0; i < it.value(); ++i) {
             if (it.key()->hasActivationValue(diceRoll)) {
+                QString str;
+                for (uchar value : it.key()->activationValues()) {
+                    str += QString::number(value) + " ";
+                }
+                qDebug() << "--- activated: " << it.key()->title() << " " << str;
                 it.key()->activate(*this, activePlayer, diceRoll);
             }
         }
@@ -77,10 +89,12 @@ void Player::triggerCards(int diceRoll, Player& activePlayer) {
     for (auto it = othersTable.begin(), ite = othersTable.end(); it != ite; ++it) {
         for (uchar i = 0; i < it.value(); ++i) {
             if (it.key()->hasActivationValue(diceRoll)) {
+                qDebug() << "--- activated: " << it.key()->title();
                 it.key()->activate(*this, activePlayer, diceRoll);
             }
         }
     }
+    qDebug() << "---------------------------------";
 
     //emit playerBalanceChanged(m_coins);
 }

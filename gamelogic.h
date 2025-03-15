@@ -52,7 +52,7 @@ signals:
 
     void playerHasRailwayStation();
 
-    void playerBalanceChanged(uchar balance);
+    void playerBalanceChanged(uchar balance, int playerId);
 
     void playerBuildLandmark(std::shared_ptr<Card> card);
 

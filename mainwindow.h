@@ -37,7 +37,7 @@ public slots:
 
     void updateDiceResultLabel(uchar dice);
 
-    void updatePlayerBalanceLabel(uchar balance);
+    void updatePlayerBalanceLabel(uchar balance, int playerId);
 
 signals:
     void buyButtonClicked();

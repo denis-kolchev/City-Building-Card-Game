@@ -29,6 +29,8 @@ public:
 
     QMap<std::shared_ptr<Card>, uchar> getCardsTable();
 
+    QVector<std::shared_ptr<Card>> getLandmarks();
+
     uchar howManyCardsOfType(std::shared_ptr<Card> card);
 
     QString name() const;

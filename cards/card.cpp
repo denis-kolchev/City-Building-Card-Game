@@ -1,4 +1,5 @@
 #include "card.h"
+#include <QtCore/qdebug.h>
 
 Card::Card(const QString& title,
            const QString& description,

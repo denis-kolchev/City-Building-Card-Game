@@ -165,9 +165,9 @@ void MainWindow::updateDiceResultLabel(uchar dice)
 
 }
 
-void MainWindow::updatePlayerBalanceLabel(uchar balance)
+void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
 {
-    m_playerBalanceLabels[m_currentPlayerId]->setText(QString("Coins: %1").arg(balance));
+    m_playerBalanceLabels[playerId]->setText(QString("Coins: %1").arg(balance));
 }
 
 void MainWindow::handleCardClick(QString cardTitle)

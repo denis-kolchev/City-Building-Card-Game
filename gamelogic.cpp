@@ -32,12 +32,14 @@ int GameLogic::currentPlayerId() const {
 }
 
 bool GameLogic::isGameIsFinished() {
+    int countMax = 0;
     for (auto& player : m_players) {
-        auto cardsTable = player->getCardsTable();
+        auto cardsTable = player->getLandmarks();
         int count = 0;
         for (auto& card : m_cardsToWin) {
-            if (cardsTable.find(card) != cardsTable.end()) {
+            if (cardsTable.contains(card)) {
                 count++;
+                countMax = fmax<int>(countMax, count);
             }
         }
 
@@ -45,6 +47,7 @@ bool GameLogic::isGameIsFinished() {
             return true;
         }
     }
+    qDebug() << "------->cards to win: " << countMax;
     return false;
 }
 
@@ -59,12 +62,12 @@ void GameLogic::playTurn(uchar diceRoll) {
 
     // Trigger cards for all players
     // Active player loss money, get money from other players
+    int i = 0;
     for (auto& player : m_players) {
         player->triggerCards(diceRoll, *activePlayer);
+        // Now, build time!
+        emit playerBalanceChanged(player->coins(), i++);
     }
-
-    // Now, build time!
-    emit playerBalanceChanged(m_players[m_currentPlayerId]->coins());
 }
 
 void GameLogic::checkCoinBalanceForCard(QString cardTitle)
@@ -119,7 +122,7 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
     uchar playerBalance = m_players[m_currentPlayerId]->coins();
     if (cardPrice <= playerBalance) {
         m_players[m_currentPlayerId]->deductMoney(cardPrice);
-        emit playerBalanceChanged(m_players[m_currentPlayerId]->coins());
+        emit playerBalanceChanged(m_players[m_currentPlayerId]->coins(), m_currentPlayerId);
 
         if (!card->hasActivationValue(0)) { // player buying from Reserve
             m_players[m_currentPlayerId]->addCard(card);
@@ -128,6 +131,11 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
         } else { // player buing Landmark
             m_players[m_currentPlayerId]->addLandmark(card);
             m_cardReserve->removeLandmark(card);
+            if (isGameIsFinished()) {
+                qDebug() << "Game is not finished";
+            } else {
+                qDebug() << "Game is finished!";
+            }
             emit playerBuildLandmark(card);
         }
 
