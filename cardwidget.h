@@ -23,6 +23,8 @@ public:
                         CardType cardType,
                         QWidget *parent = nullptr);
 
+    QString title();
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 

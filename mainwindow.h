@@ -64,6 +64,8 @@ private:
 
     void placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack);
 
+    void removeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack);
+
     void setupStateMachine();
 
     void updateButtonStates();
@@ -79,11 +81,13 @@ private:
     QVector<CardsStack> m_playerCardStacks;
     QVector<QLabel*> m_playerBalanceLabels;
     QVector<QLabel*> m_diceResultLabels;
+    QHBoxLayout* m_reserveLayout;
     QVector<QHBoxLayout*> m_buildsLayout;
     QVector<QHBoxLayout*> m_landmarksLayout;
     QVector<QPushButton*> m_rollOneDiceButtons;
     QVector<QPushButton*> m_rollTwoDiceButtons;
     QVector<QPushButton*> m_skipButtons;
+    QTabWidget *m_tabWidget;
     int m_numPlayers;
     int m_currentPlayerId;
 };

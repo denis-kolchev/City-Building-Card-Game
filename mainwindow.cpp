@@ -52,8 +52,9 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
     // m_currentPlayerId .. let's do stuff here of displaying it
     CardsList cards;
-    cards.push_back(card);
+    cards.push_back(card);    
     placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
+    removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
     update();
     emit updatedPlayersPanel();
 }
@@ -94,10 +95,10 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     auto *mainLayout = new QHBoxLayout(centralWidget);
 
     // Create a view for Card Reserve
-    auto *bankCardsArea = new QScrollArea();
+    auto *reserveCardsArea = new QScrollArea();
 
-    auto *bankScrollWidget = new QWidget();
-    auto *bankScrolllayout = new QHBoxLayout(bankScrollWidget);
+    auto *reserveScrollWidget = new QWidget();
+    auto *m_reserveLayout = new QHBoxLayout(reserveScrollWidget);
 
     // define what card should go suppose to do the logic
 
@@ -113,35 +114,35 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
         return a->activationValues().values().at(0) < b->activationValues().values().at(0);
     });
 
-    placeCards(reserveCards, *bankScrolllayout, m_reserveCardsStack);
-    //bankScrolllayout->addStretch();
+    placeCards(reserveCards, *m_reserveLayout, m_reserveCardsStack);
+    //m_reserveLayout->addStretch();
 
-    bankScrollWidget->setLayout(bankScrolllayout);
-    bankCardsArea->setWidget(bankScrollWidget);
-    bankCardsArea->setWidgetResizable(true);
+    reserveScrollWidget->setLayout(m_reserveLayout);
+    reserveCardsArea->setWidget(reserveScrollWidget);
+    reserveCardsArea->setWidgetResizable(true);
 
     // Create a QTabWidget to hold player views
-    auto *tabWidget = new QTabWidget(this);
+    m_tabWidget = new QTabWidget(this);
 
     // Create a view for each player and add it as a tab
     char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
         auto *playerView = createPlayerView(i);
-        tabWidget->addTab(playerView, QString("Player %1").arg(playerId));
+        m_tabWidget->addTab(playerView, QString("Player %1").arg(playerId));
         playerNames[i] = QString("Player %1").arg(playerId);
     }
 
     emit createPlayers(playerNames.toList());
 
     // Add the QTabWidget to the main layout
-    mainLayout->addWidget(bankCardsArea);
+    mainLayout->addWidget(reserveCardsArea);
 
     // Add the Landmarks to the main layout
     //mainLayout->addWidget(landmarksCardsArea);
 
     // Add the QTabWidget to the main layout
-    mainLayout->addWidget(tabWidget);
+    mainLayout->addWidget(m_tabWidget);
 
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
@@ -159,6 +160,10 @@ void MainWindow::startBuildStage()
 void MainWindow::updateCurrentPlayer(int currentPlayerId)
 {
     m_currentPlayerId = currentPlayerId;
+    if (m_tabWidget && currentPlayerId >= 0 && currentPlayerId < m_tabWidget->count()) {
+        m_tabWidget->setCurrentIndex(currentPlayerId);
+    }
+    // Todo: add checking of QTabWidget to the new currentPlayer
     updateButtonStates();
     // redraw menu making it available for the next player
 }
@@ -336,7 +341,32 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &c
         // Add the card to the appropriate pile
         cardStack[cardTitle]->addCard(customWidget);
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+        update();
     }
+}
+
+void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack)
+{
+    for (int i = 0; i < cards.size(); ++i) {
+        QString cardTitle = cards[i]->title();
+
+        // Check if the stack exists
+        if (cardStack.contains(cardTitle)) {
+            CardStackWidget *stackWidget = cardStack[cardTitle];
+
+            if (!stackWidget->isEmpty()) {
+                stackWidget->removeCard(); // Remove a card from the stack
+            }
+
+            // If the stack becomes empty, remove it from the layout and delete it
+            if (stackWidget->isEmpty()) {
+                layout.removeWidget(stackWidget);
+                delete stackWidget;
+                cardStack.remove(cardTitle);
+            }
+        }
+    }
+    update();
 }
 
 void MainWindow::setupStateMachine()

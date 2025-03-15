@@ -121,6 +121,10 @@ CardWidget::CardWidget(QPixmap imagePath,
     setLayout(mainLayout);
 }
 
+QString CardWidget::title() {
+    return m_title;
+}
+
 void CardWidget::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         emit clicked(m_title); // Emit a signal when clicked

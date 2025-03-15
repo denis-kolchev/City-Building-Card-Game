@@ -12,11 +12,20 @@ public:
     explicit CardStackWidget(QWidget *parent = nullptr);
 
     void addCard(CardWidget *card);
+
+    bool isEmpty();
+
     void removeCard();
+
     int cardCount() const;
 
 protected:
+    void mousePressEvent(QMouseEvent* event) override;
+
     void paintEvent(QPaintEvent *event) override;
+
+signals:
+    void clicked(QString cardTitle);
 
 private:
     QList<CardWidget*> m_cards;

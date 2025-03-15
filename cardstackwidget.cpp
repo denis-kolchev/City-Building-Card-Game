@@ -1,9 +1,9 @@
 #include "cardstackwidget.h"
+#include <QtGui/qpainterpath.h>
 
 CardStackWidget::CardStackWidget(QWidget *parent)
     : QWidget(parent)
 {
-    setAttribute(Qt::WA_TranslucentBackground); // Allow transparency for shadows
     // These calculations should be fixed in the future and made binamic
     int w = 120, h = 228;
     w += 10; // outline
@@ -16,14 +16,25 @@ void CardStackWidget::addCard(CardWidget *card)
 {
     m_cards.append(card);
     card->setParent(this); // Set this widget as the parent
+    card->show();
+    qDebug() << "Card added. Total cards:" << m_cards.size();
+    updateGeometry();
     update(); // Trigger a repaint
+}
+
+bool CardStackWidget::isEmpty()
+{
+    return m_cards.empty();
 }
 
 void CardStackWidget::removeCard()
 {
     if (!m_cards.isEmpty()) {
         CardWidget *card = m_cards.takeLast();
+        card->hide();
         card->deleteLater();
+        qDebug() << "Card removed. Total cards:" << m_cards.size();
+        updateGeometry();
         update(); // Trigger a repaint
     }
 }
@@ -31,6 +42,14 @@ void CardStackWidget::removeCard()
 int CardStackWidget::cardCount() const
 {
     return m_cards.size();
+}
+
+void CardStackWidget::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton && !m_cards.empty()) {
+        qDebug() << "mousepressEvent from CardStackWidget, send a tilte of card";
+        emit clicked(m_cards.at(0)->title()); // Emit a signal when clicked
+    }
 }
 
 void CardStackWidget::paintEvent(QPaintEvent *event)
@@ -46,6 +65,7 @@ void CardStackWidget::paintEvent(QPaintEvent *event)
         // Draw the card with an offset
         card->move(0, xOffset);
         card->raise(); // Bring the card to the front
+        card->updateGeometry();
         xOffset += m_cardOverlap; // Increment the offset for the next card
     }
 }
