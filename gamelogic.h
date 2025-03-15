@@ -50,8 +50,6 @@ public:
 signals:
     void buildStageFinished(int currentPlayerId);
 
-    void incomeStageFinished();
-
     void playerHasRailwayStation();
 
     void playerBalanceChanged(uchar balance);

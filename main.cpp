@@ -10,45 +10,42 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    GameLogic* gameLogic = new GameLogic();
-    MainWindow* mainWindow = new MainWindow();
-    StartMenu* startMenu = new StartMenu();
+    auto gameLogic = std::make_shared<GameLogic>();
+    auto mainWindow = std::make_shared<MainWindow>();
+    auto startMenu = std::make_shared<StartMenu>();
 
-    QObject::connect(startMenu, &StartMenu::showMainWindow,
-                     mainWindow, &MainWindow::handleShowMainWindow);
+    QObject::connect(startMenu.get(), &StartMenu::showMainWindow,
+                     mainWindow.get(), &MainWindow::handleShowMainWindow);
 
-    QObject::connect(mainWindow, &MainWindow::createPlayers,
-                     gameLogic, &GameLogic::handleCreatePlayers);
+    QObject::connect(mainWindow.get(), &MainWindow::createPlayers,
+                     gameLogic.get(), &GameLogic::handleCreatePlayers);
 
-    QObject::connect(mainWindow, &MainWindow::rollButtonClicked,
-                     gameLogic, &GameLogic::handleRollButtonClicked);
+    QObject::connect(mainWindow.get(), &MainWindow::rollButtonClicked,
+                     gameLogic.get(), &GameLogic::handleRollButtonClicked);
 
-    QObject::connect(gameLogic, &GameLogic::buildStageFinished,
-                     mainWindow, &MainWindow::updateCurrentPlayer);
+    QObject::connect(gameLogic.get(), &GameLogic::buildStageFinished,
+                     mainWindow.get(), &MainWindow::repaintPlayerPanel);
 
-    QObject::connect(gameLogic, &GameLogic::incomeStageFinished,
-                     mainWindow, &MainWindow::startBuildStage);
+    QObject::connect(mainWindow.get(), &MainWindow::cardWidgetClicked,
+                     gameLogic.get(), &GameLogic::handleTryToBuyCard);
 
-    QObject::connect(mainWindow, &MainWindow::cardWidgetClicked,
-                     gameLogic, &GameLogic::handleTryToBuyCard);
+    QObject::connect(gameLogic.get(), &GameLogic::playerBuildNewBuilding,
+                     mainWindow.get(), &MainWindow::displayPlayerNewCard);
 
-    QObject::connect(gameLogic, &GameLogic::playerBuildNewBuilding,
-                     mainWindow, &MainWindow::displayPlayerNewCard);
+    QObject::connect(mainWindow.get(), &MainWindow::updatedPlayersPanel,
+                     gameLogic.get(), &GameLogic::prepateNextTurn);
 
-    QObject::connect(mainWindow, &MainWindow::updatedPlayersPanel,
-                     gameLogic, &GameLogic::prepateNextTurn);
+    QObject::connect(gameLogic.get(), &GameLogic::playerBalanceChanged,
+                     mainWindow.get(), &MainWindow::updatePlayerBalanceLabel);
 
-    QObject::connect(gameLogic, &GameLogic::playerBalanceChanged,
-                     mainWindow, &MainWindow::updatePlayerBalanceLabel);
+    QObject::connect(mainWindow.get(), &MainWindow::skipClicked,
+                     gameLogic.get(), &GameLogic::moveToNextPlaer);
 
-    QObject::connect(mainWindow, &MainWindow::skipClicked,
-                     gameLogic, &GameLogic::moveToNextPlaer);
+    QObject::connect(gameLogic.get(), &GameLogic::playerHasRailwayStation,
+                     mainWindow.get(), &MainWindow::unlockRollTwoDiceButton);
 
-    QObject::connect(gameLogic, &GameLogic::playerHasRailwayStation,
-                     mainWindow, &MainWindow::unlockRollTwoDiceButton);
-
-    QObject::connect(gameLogic, &GameLogic::playerBuildLandmark,
-                     mainWindow, &MainWindow::unlockPlayerLandmark);
+    QObject::connect(gameLogic.get(), &GameLogic::playerBuildLandmark,
+                     mainWindow.get(), &MainWindow::unlockPlayerLandmark);
 
     startMenu->show();
 

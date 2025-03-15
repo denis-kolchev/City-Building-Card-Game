@@ -1,17 +1,19 @@
-## Signal slot queue
-### The build purchase by Player
+## Signal slot paths
+### Player buys a new Building | Landmark
+1. CardWidget::clicked -> MainWindow::handleCardClick
+2. MainWindow::cardWidgetClicked -> GameLogic::handleTryToBuyCard
+3.1. GameLogic::playerBuildNewBuilding -> MainWindpw::displayPlayerNewCard
+3.2. GameLogic::playerBuildLandmark -> MainWindow::unlockPlayerLandmark
+4. MainWindow::updatedPlayersPanel -> GameLogic::prepateNextTurn
 
-It seems like making a CardReserve as a 4th class was a bed Idea. It's still a part of gameLogic.\n
-Nothing desters it to get back. It makes communication between UI and logic too complicated.
+### User starts a new game & create players
+1. CardWidget::showMainWindow -> MainWindow::handleShowMainWindow
+2. MainWindow::createPlayers -> GameLogic::handleCreatePlayers
 
-1. CardWidget::clicked(QString cardTitle) -> MainWindow::handleCardClick(QString cardTitle)
-2. MainWindow::cardWidgetClicked(QString cardTitle) -> GameLogic::checkCoinBalanceForCard(QString cardTitle)
-3. GameLogic::tryToBuyCard(QString cardTitle, uchar playerBalance) -> CardReserve::handleTryToBuyCard(QString cardTitle, uchar playerBalance)
-4. CardReserve::sellCardToPlayer(shared_ptr<Card> card) -> GameLogic::giveCardToPlayer(shared_ptr<Card> card);
-5. GameLogic::playerBuildNewBuilding(shared_ptr<Card> card) -> MainWindpw::displayPlayerNewCard(shared_ptr<Card> card);
+### Player clicked Roll Button
+1. MainWindow::rollButtonClicked -> GameLogic::handleRollButtonClicked
+2. GameLogic::playerBalanceChanged -> MainWindow::updatePlayerBalanceLabel
 
-
-Let's try to shrink it
-1. CardWidget::clicked(QString cardTitle) -> MainWindow::handleCardClick(QString cardTitle)
-2. MainWindow::cardWidgetClicked(QString cardTitle) -> GameLogic::handleTryToBuyCard(QString cardTitle)
-3. GameLogic::playerBuildNewBuilding(shared_ptr<Card> card) -> MainWindpw::displayPlayerNewCard(shared_ptr<Card> card);
+### Move to next Player & Player Bought a building & Player clicked skip button
+1. MainWindow::skipClicked -> GameLogic::moveToNextPlaer
+2. GameLogic::buildStageFinished -> MainWindow::repaintPlayerPanel

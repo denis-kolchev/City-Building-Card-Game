@@ -29,13 +29,11 @@ public slots:
 
     void handleShowMainWindow(uchar numPlayers);
 
-    void startBuildStage();
+    void repaintPlayerPanel(int currentPlayerId);
 
     void unlockPlayerLandmark(std::shared_ptr<Card> card);
 
     void unlockRollTwoDiceButton();
-
-    void updateCurrentPlayer(int currentPlayerId);
 
     void updateDiceResultLabel(uchar dice);
 

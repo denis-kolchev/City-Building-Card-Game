@@ -128,9 +128,13 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     show();
 }
 
-void MainWindow::startBuildStage()
+void MainWindow::repaintPlayerPanel(int currentPlayerId)
 {
-    // unblock ability to click on cards and skip button
+    m_currentPlayerId = currentPlayerId;
+    if (m_tabWidget && currentPlayerId >= 0 && currentPlayerId < m_tabWidget->count()) {
+        m_tabWidget->setCurrentIndex(currentPlayerId);
+    }
+    updateButtonStates();
 }
 
 void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
@@ -145,16 +149,7 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 
     connect(landmark, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     update();
-    updatedPlayersPanel();
-
-#ifdef false
-    CardsList cards;
-    cards.push_back(card);
-    placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
-    removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
-    update();
     emit updatedPlayersPanel();
-#endif
 }
 
 void MainWindow::unlockRollTwoDiceButton()
@@ -162,17 +157,6 @@ void MainWindow::unlockRollTwoDiceButton()
     if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
         m_rollTwoDiceButtons[m_currentPlayerId]->setEnabled(true);
     }
-}
-
-void MainWindow::updateCurrentPlayer(int currentPlayerId)
-{
-    m_currentPlayerId = currentPlayerId;
-    if (m_tabWidget && currentPlayerId >= 0 && currentPlayerId < m_tabWidget->count()) {
-        m_tabWidget->setCurrentIndex(currentPlayerId);
-    }
-    // Todo: add checking of QTabWidget to the new currentPlayer
-    updateButtonStates();
-    // redraw menu making it available for the next player
 }
 
 void MainWindow::updateDiceResultLabel(uchar dice)
@@ -311,22 +295,6 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     return playerView;
 }
 
-#ifdef false
-void MainWindow::placeCards(CardsList &cards, CardsLayout &layout)
-{
-    for (int i = 0; i < cards.size(); ++i) {
-        auto* customWidget = new CardWidget(cards[i]->imagePath(),
-                                            cards[i]->activationValues(),
-                                            cards[i]->title(),
-                                            cards[i]->description(),
-                                            QString::number(cards[i]->price()),
-                                            QString::number(cards[i]->pack()),
-                                            cards[i]->type());
-        layout.addWidget(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-    }
-}
-#endif
 void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack)
 {
     for (int i = 0; i < cards.size(); ++i) {

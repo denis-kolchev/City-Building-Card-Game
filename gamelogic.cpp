@@ -65,7 +65,6 @@ void GameLogic::playTurn(uchar diceRoll) {
 
     // Now, build time!
     emit playerBalanceChanged(m_players[m_currentPlayerId]->coins());
-    emit incomeStageFinished();
 }
 
 void GameLogic::checkCoinBalanceForCard(QString cardTitle)
