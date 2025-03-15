@@ -31,6 +31,8 @@ public slots:
 
     void startBuildStage();
 
+    void unlockPlayerLandmark(std::shared_ptr<Card> card);
+
     void unlockRollTwoDiceButton();
 
     void updateCurrentPlayer(int currentPlayerId);

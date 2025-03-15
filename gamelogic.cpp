@@ -111,6 +111,7 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
 {
     auto card = m_cardReserve->findCardByTitle(cardTitle);
     if (!card) {
+        qDebug() << "Card isn't found!";
         // need an emit somewhere to rewdraw reserve without a card
         return; // no more cards of this type!
     }
@@ -120,9 +121,17 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
     if (cardPrice <= playerBalance) {
         m_players[m_currentPlayerId]->deductMoney(cardPrice);
         emit playerBalanceChanged(m_players[m_currentPlayerId]->coins());
-        m_players[m_currentPlayerId]->addCard(card);
-        m_cardReserve->removeCard(card);
-        emit playerBuildNewBuilding(card);
+
+        if (!card->hasActivationValue(0)) { // player buying from Reserve
+            m_players[m_currentPlayerId]->addCard(card);
+            m_cardReserve->removeCard(card);
+            emit playerBuildNewBuilding(card);
+        } else { // player buing Landmark
+            m_players[m_currentPlayerId]->addLandmark(card);
+            m_cardReserve->removeLandmark(card);
+            emit playerBuildLandmark(card);
+        }
+
     } else {
         // Maybe it should be displayed as a worning somewhere
         qDebug() << "Card is Too expensive!";

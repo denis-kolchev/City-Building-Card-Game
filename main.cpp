@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
     QObject::connect(gameLogic, &GameLogic::playerHasRailwayStation,
                      mainWindow, &MainWindow::unlockRollTwoDiceButton);
 
+    QObject::connect(gameLogic, &GameLogic::playerBuildLandmark,
+                     mainWindow, &MainWindow::unlockPlayerLandmark);
+
     startMenu->show();
 
     return app.exec();

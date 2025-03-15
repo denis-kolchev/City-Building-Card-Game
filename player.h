@@ -21,6 +21,8 @@ public:
 
     void addCoins(int amount);
 
+    void addLandmark(std::shared_ptr<Card> card);
+
     int coins() const;
 
     void deductMoney(int amount);
@@ -38,6 +40,7 @@ signals:
 
 private:
     QMap<std::shared_ptr<Card>, uchar> m_cardsTable;
+    QVector<std::shared_ptr<Card>> m_landmarks;
     QString m_name;
     int m_coins;
 };

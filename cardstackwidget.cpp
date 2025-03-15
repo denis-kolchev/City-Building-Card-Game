@@ -22,6 +22,17 @@ void CardStackWidget::addCard(CardWidget *card)
     update(); // Trigger a repaint
 }
 
+CardWidget* CardStackWidget::at(QString title) const
+{
+    for (auto card : m_cards) {
+        if (card->title() == title) {
+            return card;
+        }
+    }
+
+    return nullptr;
+}
+
 bool CardStackWidget::isEmpty()
 {
     return m_cards.empty();

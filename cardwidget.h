@@ -23,6 +23,8 @@ public:
                         CardType cardType,
                         QWidget *parent = nullptr);
 
+    void landmarkUnlocked();
+
     QString title();
 
 protected:

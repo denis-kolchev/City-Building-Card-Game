@@ -24,6 +24,10 @@ void Player::addCoins(int amount) {
     m_coins += amount;
 }
 
+void Player::addLandmark(std::shared_ptr<Card> card) {
+    m_landmarks.push_back(card);
+}
+
 int Player::coins() const {
     return m_coins;
 }
@@ -49,7 +53,10 @@ QString Player::name() const {
 }
 
 void Player::triggerCards(int diceRoll, Player& activePlayer) {
-    // To do: activate several cards if more then 1
+    for (auto it = m_landmarks.begin(), ite = m_landmarks.end(); it != ite; ++it) {
+        it->get()->activate(*this, activePlayer, diceRoll);
+    }
+
     QMap<std::shared_ptr<Card>, uchar> redCardsTable, othersTable;
     for (auto it = m_cardsTable.begin(), ite = m_cardsTable.end(); it != ite; ++it) {
         if (it.key()->type() == CardType::Dining) {

@@ -121,6 +121,12 @@ CardWidget::CardWidget(QPixmap imagePath,
     setLayout(mainLayout);
 }
 
+void CardWidget::landmarkUnlocked() {
+    m_backgroundColor = goldColor();
+    m_outlineColor = goldOutlineColor();
+    update();
+}
+
 QString CardWidget::title() {
     return m_title;
 }
@@ -158,11 +164,11 @@ QColor CardWidget::blueOutlineColor() const {
 }
 
 QColor CardWidget::goldColor() const {
-    return QColor(255, 250, 129);
+    return QColor(225, 207, 51);
 }
 
 QColor CardWidget::goldOutlineColor() const {
-    return QColor(235, 230, 109);
+    return QColor(205, 187, 31);
 }
 
 QColor CardWidget::greenColor() const {

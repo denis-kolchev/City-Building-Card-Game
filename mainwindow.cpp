@@ -14,34 +14,11 @@ MainWindow::MainWindow(QMainWindow *parent)
     : QMainWindow(parent)
     , m_stateMachine(new QStateMachine(this))
 {
-    connect(this, &MainWindow::rollButtonClicked,
-            this, &MainWindow::updateDiceResultLabel);
-
+    setWindowTitle("City Building Card Game");
     setupStateMachine();
 
-    setWindowTitle("City Building Card Game");
-
-    //connect(this, &MainWindow::buyButtonClicked);
-
-    // // Initialize game logic
-    // GameLogic game(playerNames);
-
-    // // Add cards and landmarks to players
-    // for (int i = 0; i < playerNames.size(); ++i) {
-    //     for (int j = 0; j < cards.size(); ++j) {
-    //         game.getPlayer(i).addCard(cards[j]);
-    //     }
-    // }
-
-    // // Play a few turns
-    // for (int i = 0; i < 39; ++i) {
-    //     game.playTurn();
-
-    //     for (int j = 0; j < playerNames.size(); ++j) {
-    //         qDebug() << game.getPlayer(j).name() << " has coins " << game.getPlayer(j).coins();
-    //     }
-    //     qDebug() << "\n";
-    // }
+    connect(this, &MainWindow::rollButtonClicked,
+            this, &MainWindow::updateDiceResultLabel);
 }
 
 MainWindow::~MainWindow()
@@ -50,7 +27,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
-    // m_currentPlayerId .. let's do stuff here of displaying it
     CardsList cards;
     cards.push_back(card);    
     placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
@@ -157,6 +133,30 @@ void MainWindow::startBuildStage()
     // unblock ability to click on cards and skip button
 }
 
+void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
+{
+    QString title = card->title();
+    CardWidget* landmark = m_landmarkCardStacks[m_currentPlayerId][title]->at(title);
+    if (!landmark) {
+        return;
+    }
+
+    landmark->landmarkUnlocked();
+
+    connect(landmark, &CardWidget::clicked, this, &MainWindow::handleCardClick);
+    update();
+    updatedPlayersPanel();
+
+#ifdef false
+    CardsList cards;
+    cards.push_back(card);
+    placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
+    removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
+    update();
+    emit updatedPlayersPanel();
+#endif
+}
+
 void MainWindow::unlockRollTwoDiceButton()
 {
     if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
@@ -187,10 +187,8 @@ void MainWindow::updatePlayerBalanceLabel(uchar balance)
 
 void MainWindow::handleCardClick(QString cardTitle)
 {
-    if (m_buyingState->isWindowType()) {
-        qDebug() << "card is clicked!";
-        emit cardWidgetClicked(cardTitle);
-    }
+    qDebug() << "card is clicked!";
+    emit cardWidgetClicked(cardTitle);
 }
 
 void MainWindow::onRollOneDiceClicked()

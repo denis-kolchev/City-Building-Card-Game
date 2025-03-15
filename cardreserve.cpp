@@ -29,6 +29,11 @@ CardReserve::CardReserve(QObject* parent)
             m_cards.insert(cards[i], 6);
         }
     }
+
+    auto landmarks = cardReader.readFromRange(0, 3);
+    for (auto landmark : landmarks) {
+        m_landmarks.push_back(landmark);
+    }
 }
 
 CardReserve::~CardReserve()
@@ -58,6 +63,11 @@ std::shared_ptr<Card> CardReserve::findCardByTitle(QString cardTitle)
             card = it.key();
         }
     }
+    for (auto landmark : m_landmarks) {
+        if (landmark->title() == cardTitle) {
+            card = landmark;
+        }
+    }
     return card;
 }
 
@@ -67,6 +77,13 @@ void CardReserve::removeCard(std::shared_ptr<Card> card)
     if (it.value() > 1) {
         m_cards.insert(card, m_cards.find(card).value() + 1);
     } else {
+        m_cards.remove(card);
+    }
+}
+
+void CardReserve::removeLandmark(std::shared_ptr<Card> card)
+{
+    if (m_cards.find(card) != m_cards.end()) {
         m_cards.remove(card);
     }
 }

@@ -46,6 +46,8 @@ public:
 
     void removeCard(std::shared_ptr<Card> card);
 
+    void removeLandmark(std::shared_ptr<Card> card);
+
     void activateCard(const QString& cardName, Player& owner, Player& activePlayer, int diceRoll);
 
 signals:
@@ -57,6 +59,7 @@ public slots:
 
 private:
     QMap<std::shared_ptr<Card>, uchar> m_cards;
+    QVector<std::shared_ptr<Card>> m_landmarks;
 };
 
 #endif // CARDRESERVE_H

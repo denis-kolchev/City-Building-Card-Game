@@ -56,6 +56,8 @@ signals:
 
     void playerBalanceChanged(uchar balance);
 
+    void playerBuildLandmark(std::shared_ptr<Card> card);
+
     void playerBuildNewBuilding(std::shared_ptr<Card> card);
 
     void tryToBuyCard(QString cardTitle, uchar playerBalance);

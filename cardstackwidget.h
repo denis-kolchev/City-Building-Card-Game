@@ -13,6 +13,8 @@ public:
 
     void addCard(CardWidget *card);
 
+    CardWidget* at(QString title) const;
+
     bool isEmpty();
 
     void removeCard();
