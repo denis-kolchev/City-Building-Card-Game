@@ -180,8 +180,10 @@ void MainWindow::updatePlayerBalanceLabel(uchar balance)
 
 void MainWindow::handleCardClick(QString cardTitle)
 {
-    qDebug() << "card is clicked!";
-    emit cardWidgetClicked(cardTitle);
+    if (m_buyingState->isWindowType()) {
+        qDebug() << "card is clicked!";
+        emit cardWidgetClicked(cardTitle);
+    }
 }
 
 void MainWindow::onRollOneDiceClicked()
@@ -361,7 +363,7 @@ void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStack &
             // If the stack becomes empty, remove it from the layout and delete it
             if (stackWidget->isEmpty()) {
                 layout.removeWidget(stackWidget);
-                delete stackWidget;
+                stackWidget->deleteLater();
                 cardStack.remove(cardTitle);
             }
         }
