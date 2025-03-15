@@ -51,6 +51,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_skipButtons.resize(m_numPlayers);
     m_playerCardStacks.resize(m_numPlayers);
     m_landmarkCardStacks.resize(m_numPlayers);
+    m_canPressTwoDiceButton.resize(m_numPlayers);
 
     // Read card data from config
     QString executablePath = QCoreApplication::applicationDirPath();
@@ -146,8 +147,8 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
     }
 
     landmark->landmarkUnlocked();
+    m_canPressTwoDiceButton[m_currentPlayerId] = true;
 
-    connect(landmark, &CardWidget::clicked, this, &MainWindow::handleCardClick);
     update();
     emit updatedPlayersPanel();
 }
@@ -380,7 +381,7 @@ void MainWindow::updateButtonStates()
         bool isActivePlayer = (i == m_currentPlayerId);
 
         m_rollOneDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer);
-        m_rollTwoDiceButtons[i]->setEnabled(false); // Disable by default
+        m_rollTwoDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
         m_skipButtons[i]->setEnabled(isBuyingState && isActivePlayer);
     }
 }

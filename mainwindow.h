@@ -89,6 +89,7 @@ private:
     QVector<QPushButton*> m_rollOneDiceButtons;
     QVector<QPushButton*> m_rollTwoDiceButtons;
     QVector<QPushButton*> m_skipButtons;
+    QVector<bool> m_canPressTwoDiceButton;
     QTabWidget *m_tabWidget;
     int m_numPlayers;
     int m_currentPlayerId;
