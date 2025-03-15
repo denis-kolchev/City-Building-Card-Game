@@ -21,13 +21,6 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_cardType(cardType)
     , QWidget(parent)
 {
-    // Add shadow effect
-    auto *shadowEffect = new QGraphicsDropShadowEffect(this);
-    shadowEffect->setBlurRadius(20); // Adjust blur radius for the shadow
-    shadowEffect->setColor(QColor(0, 0, 0, 160)); // Shadow color and opacity
-    shadowEffect->setOffset(3, 3); // Shadow offset
-    setGraphicsEffect(shadowEffect);
-
     QSet<CardType> blueTypes = {
         CardType::Agricultiral,
         CardType::Farm,
@@ -51,23 +44,32 @@ CardWidget::CardWidget(QPixmap imagePath,
 
     if (blueTypes.find(cardType) != blueTypes.end()) {
         m_backgroundColor = blueColor();
+        m_outlineColor = blueOutlineColor();
     } else if (greenTypes.find(cardType) != greenTypes.end()) {
         m_backgroundColor = greenColor();
+        m_outlineColor = greenOutlineColor();
     } else if (redTypes.find(cardType) != redTypes.end()) {
         m_backgroundColor = redColor();
+        m_outlineColor = redOutlineColor();
     } else if (purpleTypes.find(cardType) != purpleTypes.end() && triggerNumbers.find(0) != triggerNumbers.end()) {
         m_backgroundColor = greyColor();
+        m_outlineColor = greyOutlineColor();
     } else {
         m_backgroundColor = purpleColor();
+        m_outlineColor = purpleOutlineColor();
     }
 
     //int w = 200, h = 300;
     int w = 120, h = 228;
     setFixedSize(w, h);
 
+    // Adjust the size of the QPixmap to leave space for the outline
+    int pixmapWidth = w - 2 * 3;
+    int pixmapHeight = w - 2 * 3; // Assuming square image
+
     QLabel* centralImage = new QLabel(this);
     QPixmap pixmap(m_imagePath); // :/cardPublishingHouse.jpeg
-    centralImage->setPixmap(pixmap.scaled(w, w, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    centralImage->setPixmap(pixmap.scaled(pixmapWidth, pixmapHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     centralImage->setAlignment(Qt::AlignCenter);
     //centralImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -126,6 +128,8 @@ void CardWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void CardWidget::paintEvent(QPaintEvent* event) {
+    QWidget::paintEvent(event);
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -134,30 +138,59 @@ void CardWidget::paintEvent(QPaintEvent* event) {
 
     painter.setClipPath(path);
     painter.fillPath(path, m_backgroundColor); // Fill with color
+
+    // Draw the outline
+    QPen pen(m_outlineColor, 6); // Set the outline color and thickness
+    painter.setPen(pen);
+    painter.drawPath(path);
 }
 
 QColor CardWidget::blueColor() const {
     return QColor(111, 183, 214);
 }
 
+QColor CardWidget::blueOutlineColor() const {
+    return QColor(91, 163, 194);
+}
+
 QColor CardWidget::goldColor() const {
     return QColor(255, 250, 129);
+}
+
+QColor CardWidget::goldOutlineColor() const {
+    return QColor(235, 230, 109);
 }
 
 QColor CardWidget::greenColor() const {
     return QColor(72, 181, 163);
 }
 
+QColor CardWidget::greenOutlineColor() const {
+    return QColor(52, 161, 143);
+}
+
 QColor CardWidget::greyColor() const {
     return QColor(192, 186, 153);
+}
+
+QColor CardWidget::greyOutlineColor() const {
+    return QColor(172, 166, 133);
 }
 
 QColor CardWidget::purpleColor() const {
     return QColor(165, 137, 193);
 }
 
+QColor CardWidget::purpleOutlineColor() const {
+    return QColor(135, 117, 173);
+}
+
 QColor CardWidget::redColor() const {
     return QColor(252, 169, 133);
+}
+
+QColor CardWidget::redOutlineColor() const {
+    return QColor(232, 149, 113);
 }
 
 QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set) {

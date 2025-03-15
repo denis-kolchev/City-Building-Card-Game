@@ -34,15 +34,27 @@ signals:
 private:
     QColor blueColor() const;
 
+    QColor blueOutlineColor() const;
+
     QColor goldColor() const;
+
+    QColor goldOutlineColor() const;
 
     QColor greenColor() const;
 
+    QColor greenOutlineColor() const;
+
     QColor greyColor() const;
+
+    QColor greyOutlineColor() const;
 
     QColor purpleColor() const;
 
+    QColor purpleOutlineColor() const;
+
     QColor redColor() const;
+
+    QColor redOutlineColor() const;
 
     QString transformQSetToRangeString(const QSet<uchar>& set);
 
@@ -54,6 +66,7 @@ private:
     QString m_price;
     QString m_expension;
     QColor m_backgroundColor;
+    QColor m_outlineColor;
     CardType m_cardType;
 };
 
