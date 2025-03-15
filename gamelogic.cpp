@@ -33,7 +33,7 @@ int GameLogic::currentPlayerId() const {
 
 bool GameLogic::isGameIsFinished() {
     for (auto& player : m_players) {
-        auto cardsTable = player.getCardsTable();
+        auto cardsTable = player->getCardsTable();
         int count = 0;
         for (auto& card : m_cardsToWin) {
             if (cardsTable.find(card) != cardsTable.end()) {
@@ -48,36 +48,36 @@ bool GameLogic::isGameIsFinished() {
     return false;
 }
 
-Player&GameLogic::getPlayer(int id) {
+std::shared_ptr<Player> GameLogic::getPlayer(int id) {
     return m_players[id];
 }
 
 void GameLogic::playTurn(uchar diceRoll) {
-    Player& activePlayer = m_players[m_currentPlayerId];
+    auto activePlayer = m_players[m_currentPlayerId];
 
-    qDebug() << activePlayer.name() << " rolled a " << diceRoll << ".\n";
+    qDebug() << activePlayer->name() << " rolled a " << diceRoll << ".\n";
 
     // Trigger cards for all players
     // Active player loss money, get money from other players
     for (auto& player : m_players) {
-        player.triggerCards(diceRoll, activePlayer);
+        player->triggerCards(diceRoll, *activePlayer);
     }
 
     // Now, build time!
-    emit playerBalanceChanged(m_players[m_currentPlayerId].coins());
+    emit playerBalanceChanged(m_players[m_currentPlayerId]->coins());
     emit incomeStageFinished();
 }
 
 void GameLogic::checkCoinBalanceForCard(QString cardTitle)
 {
-    uchar coins = m_players[m_currentPlayerId].coins();
+    uchar coins = m_players[m_currentPlayerId]->coins();
     emit tryToBuyCard(cardTitle, coins);
 }
 
 void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 {
-    m_players[m_currentPlayerId].deductMoney(card->price());
-    m_players[m_currentPlayerId].addCard(card);
+    m_players[m_currentPlayerId]->deductMoney(card->price());
+    m_players[m_currentPlayerId]->addCard(card);
 
     // Move to the next player
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
@@ -88,13 +88,18 @@ void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 {
     for (int i = 0; i < playerNames.size(); ++i) {
-        Player* player = new Player(playerNames.at(i));
+        auto player = std::make_shared<Player>(playerNames.at(i));
+        connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
         player->addCard(m_cardReader->readFromRange(4, 4).at(0));
         player->addCard(m_cardReader->readFromRange(6, 6).at(0));
-        m_players.push_back(*player);
+        m_players.push_back(player);
     }
 }
 
+void GameLogic::handlePlayerHasRailwayStation()
+{
+    emit playerHasRailwayStation();
+}
 
 void GameLogic::handleRollButtonClicked(uchar diceRoll)
 {
@@ -111,11 +116,11 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
     }
 
     uchar cardPrice = card->price();
-    uchar playerBalance = m_players[m_currentPlayerId].coins();
+    uchar playerBalance = m_players[m_currentPlayerId]->coins();
     if (cardPrice <= playerBalance) {
-        m_players[m_currentPlayerId].deductMoney(cardPrice);
-        emit playerBalanceChanged(m_players[m_currentPlayerId].coins());
-        m_players[m_currentPlayerId].addCard(card);
+        m_players[m_currentPlayerId]->deductMoney(cardPrice);
+        emit playerBalanceChanged(m_players[m_currentPlayerId]->coins());
+        m_players[m_currentPlayerId]->addCard(card);
         m_cardReserve->removeCard(card);
         emit playerBuildNewBuilding(card);
     } else {

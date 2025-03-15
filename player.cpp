@@ -1,6 +1,15 @@
 #include "player.h"
 
-Player::Player(const QString& name) : m_name(name), m_coins(START_COINS_NUMBER) {}
+Player::Player(const QString& name, QObject *parent)
+    : m_name(name)
+    , m_coins(START_COINS_NUMBER)
+    , QObject(parent)
+{
+}
+
+void Player::activateRollTwoDice() {
+    emit hasRailwayStation();
+}
 
 void Player::addCard(std::shared_ptr<Card> card) {
     if (howManyCardsOfType(card) == 0) {

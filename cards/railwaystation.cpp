@@ -18,7 +18,6 @@ RailwayStation::RailwayStation(const QString& title,
 }
 
 void RailwayStation::activate(Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll)) {
-        qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
-    }
+    activePlayer.activateRollTwoDice();
+    qDebug() << m_title << " activated! " << owner.name();
 }

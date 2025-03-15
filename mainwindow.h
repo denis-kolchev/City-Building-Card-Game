@@ -31,6 +31,8 @@ public slots:
 
     void startBuildStage();
 
+    void unlockRollTwoDiceButton();
+
     void updateCurrentPlayer(int currentPlayerId);
 
     void updateDiceResultLabel(uchar dice);

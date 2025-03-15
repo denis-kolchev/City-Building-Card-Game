@@ -157,6 +157,13 @@ void MainWindow::startBuildStage()
     // unblock ability to click on cards and skip button
 }
 
+void MainWindow::unlockRollTwoDiceButton()
+{
+    if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
+        m_rollTwoDiceButtons[m_currentPlayerId]->setEnabled(true);
+    }
+}
+
 void MainWindow::updateCurrentPlayer(int currentPlayerId)
 {
     m_currentPlayerId = currentPlayerId;
@@ -407,7 +414,7 @@ void MainWindow::updateButtonStates()
         bool isActivePlayer = (i == m_currentPlayerId);
 
         m_rollOneDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer);
-        m_rollTwoDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer);
+        m_rollTwoDiceButtons[i]->setEnabled(false); // Disable by default
         m_skipButtons[i]->setEnabled(isBuyingState && isActivePlayer);
     }
 }

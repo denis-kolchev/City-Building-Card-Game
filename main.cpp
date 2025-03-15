@@ -44,6 +44,9 @@ int main(int argc, char *argv[])
     QObject::connect(mainWindow, &MainWindow::skipClicked,
                      gameLogic, &GameLogic::moveToNextPlaer);
 
+    QObject::connect(gameLogic, &GameLogic::playerHasRailwayStation,
+                     mainWindow, &MainWindow::unlockRollTwoDiceButton);
+
     startMenu->show();
 
     return app.exec();

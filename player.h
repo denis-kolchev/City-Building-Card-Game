@@ -3,14 +3,19 @@
 
 #include <QString>
 #include <QMap>
+#include <QObject>
 
 #include "cards/card.h"
 
 const int START_COINS_NUMBER = 3;
 
-class Player {
+class Player : public QObject {
+    Q_OBJECT
+
 public:
-    Player(const QString& name);
+    Player(const QString& name, QObject *parent = nullptr);
+
+    void activateRollTwoDice();
 
     void addCard(std::shared_ptr<Card> card);
 
@@ -27,6 +32,9 @@ public:
     QString name() const;
 
     void triggerCards(int diceRoll, Player& activePlayer);
+
+signals:
+    void hasRailwayStation();
 
 private:
     QMap<std::shared_ptr<Card>, uchar> m_cardsTable;

@@ -43,7 +43,7 @@ public:
 
     bool isGameIsFinished();
 
-    Player& getPlayer(int id);
+    std::shared_ptr<Player> getPlayer(int id);
 
     void playTurn(uchar diceRoll);
 
@@ -51,6 +51,8 @@ signals:
     void buildStageFinished(int currentPlayerId);
 
     void incomeStageFinished();
+
+    void playerHasRailwayStation();
 
     void playerBalanceChanged(uchar balance);
 
@@ -65,6 +67,8 @@ public slots:
 
     void handleCreatePlayers(QList<QString> playerNames);
 
+    void handlePlayerHasRailwayStation();
+
     void handleRollButtonClicked(uchar diceRoll);
 
     void handleTryToBuyCard(QString cardTitle);
@@ -76,7 +80,7 @@ public slots:
 private:
     CardReserve* m_cardReserve;
     QVector<std::shared_ptr<Card>> m_cardsToWin;
-    QVector<Player> m_players;
+    QVector<std::shared_ptr<Player>> m_players;
     DiceRoller m_roller;
     CardDataConfigReader* m_cardReader;
     int m_currentPlayerId;
