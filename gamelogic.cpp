@@ -32,22 +32,14 @@ int GameLogic::currentPlayerId() const {
 }
 
 bool GameLogic::isGameIsFinished() {
-    int countMax = 0;
-    for (auto& player : m_players) {
-        auto cardsTable = player->getLandmarks();
-        int count = 0;
-        for (auto& card : m_cardsToWin) {
-            if (cardsTable.contains(card)) {
-                count++;
-                countMax = fmax<int>(countMax, count);
-            }
-        }
-
-        if (count == cardsTable.size()) {
+    int mx = 0;
+    for (auto player : m_players) {
+        mx = fmax(mx, player->getLandmarks().size());
+        if (player->getLandmarks().size() == m_cardsToWin.size()) {
             return true;
         }
     }
-    qDebug() << "------->cards to win: " << countMax;
+    qDebug() << "------> The most number of landmarks is: " << mx;
     return false;
 }
 
@@ -131,11 +123,6 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
         } else { // player buing Landmark
             m_players[m_currentPlayerId]->addLandmark(card);
             m_cardReserve->removeLandmark(card);
-            if (isGameIsFinished()) {
-                qDebug() << "Game is not finished";
-            } else {
-                qDebug() << "Game is finished!";
-            }
             emit playerBuildLandmark(card);
         }
 
@@ -154,6 +141,11 @@ void GameLogic::moveToNextPlaer()
 
 void GameLogic::prepateNextTurn()
 {
+    if (isGameIsFinished()) {
+        qDebug() << "Game isfinished";
+        emit gameIsFinished(m_currentPlayerId);
+    }
+
     // Move to the next player
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
     buildStageFinished(m_currentPlayerId);

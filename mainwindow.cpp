@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QLabel>
+#include <QMessageBox>
 #include <QScrollArea>
 #include <QVector>
 
@@ -33,6 +34,12 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
     removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
     update();
     emit updatedPlayersPanel();
+}
+
+void MainWindow::finishGame(int currentPlayerId)
+{
+    QMessageBox::information(this, "Game Over", QString("Player %1 wins!").arg(char(currentPlayerId + 'A')));
+    close(); // Optionally close the game
 }
 
 void MainWindow::handleShowMainWindow(uchar numPlayers)

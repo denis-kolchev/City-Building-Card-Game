@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
     QObject::connect(gameLogic.get(), &GameLogic::playerBuildLandmark,
                      mainWindow.get(), &MainWindow::unlockPlayerLandmark);
 
+    QObject::connect(gameLogic.get(), &GameLogic::gameIsFinished,
+                     mainWindow.get(), &MainWindow::finishGame);
+
     startMenu->show();
 
     return app.exec();

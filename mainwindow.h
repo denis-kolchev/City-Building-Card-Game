@@ -27,6 +27,8 @@ public:
 public slots:
     void displayPlayerNewCard(std::shared_ptr<Card> card);
 
+    void finishGame(int currentPlayerId);
+
     void handleShowMainWindow(uchar numPlayers);
 
     void repaintPlayerPanel(int currentPlayerId);

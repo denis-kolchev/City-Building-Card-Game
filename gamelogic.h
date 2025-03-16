@@ -50,6 +50,8 @@ public:
 signals:
     void buildStageFinished(int currentPlayerId);
 
+    void gameIsFinished(int playerId);
+
     void playerHasRailwayStation();
 
     void playerBalanceChanged(uchar balance, int playerId);
