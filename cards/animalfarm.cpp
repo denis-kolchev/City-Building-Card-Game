@@ -17,7 +17,7 @@ AnimalFarm::AnimalFarm(const QString& title,
 {
 }
 
-void AnimalFarm::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void AnimalFarm::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
         owner.addCoins(1);
         // Give money to the owner

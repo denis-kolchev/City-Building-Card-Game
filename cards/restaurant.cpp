@@ -17,7 +17,7 @@ Restaurant::Restaurant(const QString& title,
 {
 }
 
-void Restaurant::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void Restaurant::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll) && &owner != &activePlayer) {
         int available = activePlayer.coins();
         uchar nCoinsToTake = 2;

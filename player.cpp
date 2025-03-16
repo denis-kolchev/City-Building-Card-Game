@@ -57,11 +57,11 @@ QString Player::name() const {
     return m_name;
 }
 
-void Player::triggerCards(int diceRoll, Player& activePlayer) {
+void Player::triggerCards(QVector<std::shared_ptr<Player>> players, Player& activePlayer, int diceRoll) {
     qDebug() << "------ TRIGGERED " << diceRoll << " CARDS ------";
     for (auto it = m_landmarks.begin(), ite = m_landmarks.end(); it != ite; ++it) {
         qDebug() << "--- activated: " << it->get()->title();
-        it->get()->activate(*this, activePlayer, diceRoll);
+        it->get()->activate(players, *this, activePlayer, diceRoll);
     }
 
     QMap<std::shared_ptr<Card>, uchar> redCardsTable, othersTable;
@@ -81,7 +81,7 @@ void Player::triggerCards(int diceRoll, Player& activePlayer) {
                     str += QString::number(value) + " ";
                 }
                 qDebug() << "--- activated: " << it.key()->title() << " " << str;
-                it.key()->activate(*this, activePlayer, diceRoll);
+                it.key()->activate(players, *this, activePlayer, diceRoll);
             }
         }
     }
@@ -90,7 +90,7 @@ void Player::triggerCards(int diceRoll, Player& activePlayer) {
         for (uchar i = 0; i < it.value(); ++i) {
             if (it.key()->hasActivationValue(diceRoll)) {
                 qDebug() << "--- activated: " << it.key()->title();
-                it.key()->activate(*this, activePlayer, diceRoll);
+                it.key()->activate(players, *this, activePlayer, diceRoll);
             }
         }
     }

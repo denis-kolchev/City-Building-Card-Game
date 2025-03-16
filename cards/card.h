@@ -31,7 +31,7 @@ public:
 
     virtual ~Card() = default;
 
-    virtual void activate(Player& owner, Player& activePlayer, int diceRoll) = 0;
+    virtual void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) = 0;
 
     QSet<uchar> activationValues() const;
 

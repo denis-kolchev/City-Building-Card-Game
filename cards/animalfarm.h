@@ -16,7 +16,7 @@ public:
                uchar pack,
                uchar price);
 
-    void activate(Player& owner, Player& activePlayer, int diceRoll) override;
+    void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) override;
 };
 
 #endif // ANIMALFARM_H

@@ -17,7 +17,7 @@ RadioTower::RadioTower(const QString& title,
 {
 }
 
-void RadioTower::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void RadioTower::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }

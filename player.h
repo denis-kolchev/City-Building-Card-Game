@@ -35,7 +35,7 @@ public:
 
     QString name() const;
 
-    void triggerCards(int diceRoll, Player& activePlayer);
+    void triggerCards(QVector<std::shared_ptr<Player>> players, Player& activePlayer, int diceRoll);
 
 signals:
     void hasRailwayStation();

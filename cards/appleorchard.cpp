@@ -17,7 +17,7 @@ AppleOrchard::AppleOrchard(const QString& title,
 {
 }
 
-void AppleOrchard::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void AppleOrchard::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
         owner.addCoins(3);
         // Give money to the owner

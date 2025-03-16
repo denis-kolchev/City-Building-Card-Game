@@ -17,7 +17,7 @@ FruitMarket::FruitMarket(const QString& title,
 {
 }
 
-void FruitMarket::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void FruitMarket::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
         auto cards = owner.getCardsTable();
         for (auto it = cards.begin(), ite = cards.end(); it != ite; ++it) {

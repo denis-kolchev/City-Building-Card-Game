@@ -17,7 +17,7 @@ AmusementPark::AmusementPark(const QString& title,
 {
 }
 
-void AmusementPark::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void AmusementPark::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }

@@ -64,7 +64,7 @@ void GameLogic::playTurn(uchar diceRoll) {
     // Active player loss money, get money from other players
     int i = 0;
     for (auto& player : m_players) {
-        player->triggerCards(diceRoll, *activePlayer);
+        player->triggerCards(m_players, *activePlayer, diceRoll);
         // Now, build time!
         emit playerBalanceChanged(player->coins(), i++);
     }

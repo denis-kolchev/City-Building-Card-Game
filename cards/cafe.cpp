@@ -18,7 +18,7 @@ Cafe::Cafe(const QString& title,
 }
 
 
-void Cafe::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void Cafe::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll) && &owner != &activePlayer) {
         int available = activePlayer.coins();
         if (available >= 1) {

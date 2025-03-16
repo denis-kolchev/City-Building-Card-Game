@@ -18,7 +18,7 @@ ShoppingMall::ShoppingMall(const QString& title,
 }
 
 
-void ShoppingMall::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     // Landmark-specific logic
     auto allCards = owner.getCardsTable();
     int count = 0;

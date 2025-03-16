@@ -17,7 +17,7 @@ BusinessCenter::BusinessCenter(const QString& title,
 {
 }
 
-void BusinessCenter::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void BusinessCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }

@@ -17,7 +17,7 @@ WheatField::WheatField(const QString& title,
 {
 }
 
-void WheatField::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void WheatField::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll)) {
         owner.addCoins(1);
         // Give money to the owner

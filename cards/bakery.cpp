@@ -17,7 +17,7 @@ Bakery::Bakery(const QString& title,
 {
 }
 
-void Bakery::activate(Player& owner, Player& activePlayer, int diceRoll) {
+void Bakery::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
     if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
         activePlayer.addCoins(1);
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
