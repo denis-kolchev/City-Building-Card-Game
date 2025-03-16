@@ -27,7 +27,7 @@ void TVCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner,
 
         auto richestPlayer = players.at(0);
         for (auto player : players) {
-            if (player->coins() > richestPlayer->coins()) {
+            if (player->coins() > richestPlayer->coins() && richestPlayer->name() != activePlayer.name()) {
                 richestPlayer = player;
             }
         }

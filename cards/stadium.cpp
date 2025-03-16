@@ -18,7 +18,25 @@ Stadium::Stadium(const QString& title,
 }
 
 void Stadium::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll)) {
-        qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
+    uchar MONEY_TO_TAKE = 2;
+    if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
+        if (players.size() == 0) {
+            return;
+        }
+
+        for (auto player : players) {
+            if (player->name() != activePlayer.name()) {
+                continue;
+            }
+
+            if (player->coins() >= MONEY_TO_TAKE) {
+                player->deductMoney(MONEY_TO_TAKE);
+                activePlayer.addCoins(MONEY_TO_TAKE);
+            } else {
+                auto availableCoins = player->coins();
+                player->deductMoney(availableCoins);
+                activePlayer.addCoins(availableCoins);
+            }
+        }
     }
 }
