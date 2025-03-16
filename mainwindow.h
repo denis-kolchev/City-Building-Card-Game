@@ -26,15 +26,23 @@ public:
     ~MainWindow();
 
 public slots:
+    bool askForReroll(QWidget* parent);
+
     void displayPlayerNewCard(std::shared_ptr<Card> card);
 
     void finishGame(int currentPlayerId);
 
+    void handlePlayerCardActivatedBefore(uchar dice1, uchar dice2);
+
     void handleShowMainWindow(uchar numPlayers);
+
+    void processDiceRoll(uchar dice1, uchar dice2);
 
     void repaintPlayerPanel(int currentPlayerId);
 
     void unlockBuildAgainIfDubleRollDice();
+
+    void unlockDiceReroll();
 
     void unlockPlayerLandmark(std::shared_ptr<Card> card);
 
@@ -57,9 +65,15 @@ signals:
 
     void cardWidgetClicked(QString cardTitle);
 
+    void checkPlayerCards(QString cardTitle, int playerId, uchar dice1, uchar dice2);
+
     void createPlayers(QList<QString> playerNames);
 
+    void diceRollAccepted(uchar dice1, uchar dice2);
+
     void rollButtonClicked(uchar dice1, uchar dice2);
+
+    void rollButtonClickedWithCanReroll(uchar dice1, uchar dice2);
 
     void skipClicked();
 
@@ -93,6 +107,7 @@ private:
     QStateMachine *m_stateMachine;
     QState *m_incomeState;
     QState *m_buyingState;
+    QState *m_buyOrRerollState;
     QFinalState *m_finalState;
 
     CardsStack m_reserveCardsStack;
@@ -108,6 +123,7 @@ private:
     QVector<QPushButton*> m_skipButtons;
     QVector<bool> m_canPressTwoDiceButton;
     QVector<bool> m_canBuildAgainIfDubleRollDice;
+    QVector<bool> m_canRerollDice;
     QTabWidget *m_tabWidget;
     int m_numPlayers;
     int m_currentPlayerId;

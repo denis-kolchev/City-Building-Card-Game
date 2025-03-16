@@ -25,8 +25,14 @@ int main(int argc, char *argv[])
     QObject::connect(mainWindow.get(), &MainWindow::createPlayers,
                      gameLogic.get(), &GameLogic::handleCreatePlayers);
 
-    QObject::connect(mainWindow.get(), &MainWindow::rollButtonClicked,
+    QObject::connect(mainWindow.get(), &MainWindow::diceRollAccepted,
                      gameLogic.get(), &GameLogic::handleRollButtonClicked);
+
+    QObject::connect(mainWindow.get(), &MainWindow::checkPlayerCards,
+                     gameLogic.get(), &GameLogic::processCheckPlayerCards);
+
+    QObject::connect(gameLogic.get(), &GameLogic::playerCardActivatedBefore,
+                     mainWindow.get(), &MainWindow::handlePlayerCardActivatedBefore);
 
     QObject::connect(gameLogic.get(), &GameLogic::buildStageFinished,
                      mainWindow.get(), &MainWindow::repaintPlayerPanel);
@@ -51,6 +57,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(gameLogic.get(), &GameLogic::playerHasAmusementPark,
                      mainWindow.get(), &MainWindow::unlockBuildAgainIfDubleRollDice);
+
+    QObject::connect(gameLogic.get(), &GameLogic::playerHasRadioTower,
+                     mainWindow.get(), &MainWindow::unlockDiceReroll);
 
     QObject::connect(gameLogic.get(), &GameLogic::playerBuildLandmark,
                      mainWindow.get(), &MainWindow::unlockPlayerLandmark);

@@ -11,8 +11,14 @@
 2. MainWindow::createPlayers -> GameLogic::handleCreatePlayers
 
 ### Player clicked Roll Button
-1. MainWindow::rollButtonClicked -> GameLogic::handleRollButtonClicked
-2. GameLogic::playerBalanceChanged -> MainWindow::updatePlayerBalanceLabel
+1.1. QPushButton::clicked -> MainWindow::onRollOneDiceClicked // roll the dice, display it
+1.2. QPushButton::clicked -> MainWindow::onRollTwoDiceClicked // roll the dice, display it
+2. MainWindow::checkPlayerCards -> GameLogic::processCheckPlayerCards // make Radio Tower work before step
+3. GameLogic::playerCardActivatedBefore -> MainWindow::handlePlayerCardActivatedBefore // tower activated, ask a question
+
+4.1. MainWindow::rollButtonClickedWithCanReroll -> state buyOrRecollState
+4.2. MainWindow::diceRollAccepted -> GameLogic::handleRollButtonClicked
+5. GameLogic::playerBalanceChanged -> MainWindow::updatePlayerBalanceLabel
 
 ### Move to next Player & Player Bought a building & Player clicked skip button
 1. MainWindow::skipClicked -> GameLogic::moveToNextPlaer

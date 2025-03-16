@@ -157,51 +157,77 @@ void CardWidget::paintEvent(QPaintEvent* event) {
 }
 
 QColor CardWidget::blueColor() const {
-    return QColor(111, 183, 214);
+    // QColor(239, 83, 80);
+    // QColor(100, 181, 246);
+    // QColor(129, 199, 132);
+    // QColor(186, 104, 200);
+    // QColor(149, 165, 166);
+    // QColor(255, 235, 59);
+
+    // QColor(255, 138, 128);
+    // QColor(173, 216, 230);
+    // QColor(178, 235, 175);
+    // QColor(206, 147, 216);
+    // QColor(200, 200, 200);
+    // QColor(255, 249, 196);
+
+    return QColor(111, 183, 214); // pastel
+    //return QColor(25, 118, 210);
 }
 
 QColor CardWidget::blueOutlineColor() const {
-    return QColor(91, 163, 194);
+    return QColor(91, 163, 194); // pastele
+    //return QColor(5, 98, 190);
 }
 
 QColor CardWidget::goldColor() const {
-    return QColor(225, 207, 51);
+    return QColor(225, 207, 51); // pastele
+    //return QColor(251, 192, 45);
 }
 
 QColor CardWidget::goldOutlineColor() const {
-    return QColor(205, 187, 31);
+    return QColor(205, 187, 31); // pastele
+    //return QColor(231, 172, 25);
 }
 
 QColor CardWidget::greenColor() const {
-    return QColor(72, 181, 163);
+    return QColor(72, 181, 163); // pastele
+    //return QColor(56, 142, 60);
 }
 
 QColor CardWidget::greenOutlineColor() const {
-    return QColor(52, 161, 143);
+    return QColor(52, 161, 143); // pastele
+    //return QColor(36, 132, 40);
 }
 
 QColor CardWidget::greyColor() const {
-    return QColor(192, 186, 153);
+    return QColor(192, 186, 153); // pastele
+    //return QColor(97, 97, 97);
 }
 
 QColor CardWidget::greyOutlineColor() const {
-    return QColor(172, 166, 133);
+    return QColor(172, 166, 133); // pastele
+    //return QColor(77, 77, 77);
 }
 
 QColor CardWidget::purpleColor() const {
-    return QColor(165, 137, 193);
+    return QColor(165, 137, 193); // pastele
+    //return QColor(123, 31, 162);
 }
 
 QColor CardWidget::purpleOutlineColor() const {
-    return QColor(135, 117, 173);
+    return QColor(135, 117, 173); // pastele
+    //return QColor(103, 11, 142);
 }
 
 QColor CardWidget::redColor() const {
-    return QColor(252, 169, 133);
+    return QColor(252, 169, 133); // pastele
+    //return QColor(211, 47, 47);
 }
 
 QColor CardWidget::redOutlineColor() const {
-    return QColor(232, 149, 113);
+    return QColor(232, 149, 113); // pastele
+    //return QColor(191, 27, 27);
 }
 
 QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set) {

@@ -15,6 +15,8 @@ class Player : public QObject {
 public:
     Player(const QString& name, QObject *parent = nullptr);
 
+    void activateRerollDice();
+
     void activateRollTwoDice();
 
     void activateOneMoreBuild();
@@ -41,6 +43,8 @@ public:
 
 signals:
     void hasAmusementPark();
+
+    void hasRadioTower();
 
     void hasRailwayStation();
 

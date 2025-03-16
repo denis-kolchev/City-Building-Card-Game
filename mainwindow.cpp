@@ -18,9 +18,6 @@ MainWindow::MainWindow(QMainWindow *parent)
     setWindowTitle("City Building Card Game");
     setupStateMachine();
 
-    connect(this, &MainWindow::rollButtonClicked,
-            this, &MainWindow::updateDiceResultLabel);
-
     connect(this, &MainWindow::buttonClickSound,
             m_soundManager, &SoundManager::playButtonClickSound);
 
@@ -36,6 +33,20 @@ MainWindow::MainWindow(QMainWindow *parent)
 
 MainWindow::~MainWindow()
 {
+}
+
+bool MainWindow::askForReroll(QWidget* parent)
+{
+    QString question = QString("Does the Player %1 want to re-roll the dice?")
+                           .arg(char(m_currentPlayerId + 'A'));
+
+    QMessageBox msgBox(parent);
+    msgBox.setWindowTitle("Re-roll?");
+    msgBox.setText(question);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    //msgBox.setDefaultButton(QMessageBox::Yes);
+
+    return msgBox.exec() == QMessageBox::Yes;
 }
 
 void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
@@ -59,6 +70,25 @@ void MainWindow::finishGame(int currentPlayerId)
     close(); // Optionally close the game
 }
 
+void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)
+{
+    if (m_stateMachine->configuration().contains(m_incomeState)) {
+        if (m_canRerollDice[m_currentPlayerId]) {
+            m_canRerollDice[m_currentPlayerId] = false;
+            bool wantsReroll = askForReroll(this);
+            if (wantsReroll) {
+                emit rollButtonClickedWithCanReroll(dice1, dice2);
+            } else {
+                emit diceRollAccepted(dice1, dice2);
+            }
+        } else {
+            emit diceRollAccepted(dice1, dice2);
+        }
+    } else {
+        emit diceRollAccepted(dice1, dice2);
+    }
+}
+
 void MainWindow::handleShowMainWindow(uchar numPlayers)
 {
     m_numPlayers = numPlayers;
@@ -77,6 +107,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_landmarkCardStacks.resize(m_numPlayers);
     m_canPressTwoDiceButton.resize(m_numPlayers, false);
     m_canBuildAgainIfDubleRollDice.resize(m_numPlayers, false);
+    m_canRerollDice.resize(m_numPlayers, false);
 
     // Read card data from config
     QString executablePath = QCoreApplication::applicationDirPath();
@@ -154,6 +185,11 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     show();
 }
 
+void MainWindow::processDiceRoll(uchar dice1, uchar dice2)
+{
+    emit checkPlayerCards(QString("Radio Tower"), m_currentPlayerId, dice1, dice2);
+}
+
 void MainWindow::repaintPlayerPanel(int currentPlayerId)
 {
     m_currentPlayerId = currentPlayerId;
@@ -170,6 +206,13 @@ void MainWindow::unlockBuildAgainIfDubleRollDice()
     }
 }
 
+void MainWindow::unlockDiceReroll()
+{
+    if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
+        m_canRerollDice[m_currentPlayerId] = true;
+    }
+}
+
 void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 {
     emit cardTurnSound();
@@ -183,10 +226,13 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
     if (title == "Railway Station") {
         landmark->landmarkUnlocked(); // changes the color
         m_canPressTwoDiceButton[m_currentPlayerId] = true;
-    }
-    else if (title == "Amusement Park") {
+    } else if (title == "Amusement Park") {
         landmark->landmarkUnlocked(); // changes the color
         //m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
+    } else if (title == "Shopping Mall") {
+        landmark->landmarkUnlocked();
+    } else if (title == "Radio Tower") {
+        landmark->landmarkUnlocked();
     }
 
     update();
@@ -217,7 +263,9 @@ void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
 
 void MainWindow::handleCardClick(QString cardTitle)
 {
-    if (m_stateMachine->configuration().contains(m_buyingState)) {
+    if (m_stateMachine->configuration().contains(m_buyingState) ||
+        m_stateMachine->configuration().contains(m_buyOrRerollState))
+    {
         qDebug() << "card is clicked!";
         emit cardWidgetClicked(cardTitle);
         emit takeCardSound();
@@ -231,7 +279,8 @@ void MainWindow::onRollOneDiceClicked()
     uchar dice = DiceRoller{}.rollDice(1);
     qDebug() << "Roll One Dice button Clicked!";
     m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
-    emit rollButtonClicked(dice, 0);
+
+    processDiceRoll(dice, 0);
 }
 
 void MainWindow::onRollTwoDiceClicked()
@@ -244,7 +293,8 @@ void MainWindow::onRollTwoDiceClicked()
     m_diceResultLabels[m_currentPlayerId]->setText(
         QString("Dice result: %1 + %2 = %3").arg(dice1).arg(dice2).arg(dice1 + dice2)
     );
-    emit rollButtonClicked(dice1, dice2);
+
+    processDiceRoll(dice1, dice2);
 }
 
 void MainWindow::onSkipClicked()
@@ -410,17 +460,21 @@ void MainWindow::setupStateMachine()
 {
     m_incomeState = new QState();
     m_buyingState = new QState();
+    m_buyOrRerollState = new QState();
     m_finalState = new QFinalState();
 
     // Define transitions
-    m_incomeState->addTransition(this, &MainWindow::rollButtonClicked, m_buyingState);
+    m_incomeState->addTransition(this, &MainWindow::diceRollAccepted, m_buyingState);
+    m_incomeState->addTransition(this, &MainWindow::rollButtonClickedWithCanReroll, m_buyOrRerollState);
     m_buyingState->addTransition(this, &MainWindow::buildOneMoreBuilding, m_buyingState);
     m_buyingState->addTransition(this, &MainWindow::skipClicked, m_incomeState);
     m_buyingState->addTransition(this, &MainWindow::updatedPlayersPanel, m_incomeState);
+    m_buyOrRerollState->addTransition(this, &MainWindow::diceRollAccepted, m_buyingState);
 
     // Add states to the state machine
     m_stateMachine->addState(m_incomeState);
     m_stateMachine->addState(m_buyingState);
+    m_stateMachine->addState(m_buyOrRerollState);
     m_stateMachine->addState(m_finalState);
 
     // Set the initial state
@@ -429,6 +483,7 @@ void MainWindow::setupStateMachine()
     // Connect state entered signals to update button states
     connect(m_incomeState, &QState::entered, this, &MainWindow::updateButtonStates);
     connect(m_buyingState, &QState::entered, this, &MainWindow::updateButtonStates);
+    connect(m_buyOrRerollState, &QState::entered, this, &MainWindow::updateButtonStates);
 
     // Start the state machine
     m_stateMachine->start();
@@ -438,12 +493,13 @@ void MainWindow::updateButtonStates()
 {
     bool isIncomeState = m_stateMachine->configuration().contains(m_incomeState);
     bool isBuyingState = m_stateMachine->configuration().contains(m_buyingState);
+    bool isBuyOrRerollState = m_stateMachine->configuration().contains(m_buyOrRerollState);
 
     for (int i = 0; i < m_numPlayers; ++i) {
         bool isActivePlayer = (i == m_currentPlayerId);
 
-        m_rollOneDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer);
-        m_rollTwoDiceButtons[i]->setEnabled(isIncomeState && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
-        m_skipButtons[i]->setEnabled(isBuyingState && isActivePlayer);
+        m_rollOneDiceButtons[i]->setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer);
+        m_rollTwoDiceButtons[i]->setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
+        m_skipButtons[i]->setEnabled((isBuyOrRerollState || isBuyingState) && isActivePlayer);
     }
 }

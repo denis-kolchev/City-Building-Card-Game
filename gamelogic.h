@@ -52,7 +52,11 @@ signals:
 
     void gameIsFinished(int playerId);
 
+    void playerCardActivatedBefore(uchar dice1, uchar dice2);
+
     void playerHasAmusementPark();
+
+    void playerHasRadioTower();
 
     void playerHasRailwayStation();
 
@@ -67,11 +71,15 @@ signals:
 public slots:
     void checkCoinBalanceForCard(QString cardTitle);
 
+    void processCheckPlayerCards(QString cardTitle, int playerId, uchar dice1, uchar dice2);
+
     void giveCardToPlayer(std::shared_ptr<Card> card);
 
     void handleCreatePlayers(QList<QString> playerNames);
 
     void handlePlayerHasAmusementPark();
+
+    void handlePlayerHasRadioTower();
 
     void handlePlayerHasRailwayStation();
 

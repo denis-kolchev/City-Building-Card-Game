@@ -72,6 +72,17 @@ void GameLogic::checkCoinBalanceForCard(QString cardTitle)
     emit tryToBuyCard(cardTitle, coins);
 }
 
+void GameLogic::processCheckPlayerCards(QString cardTitle, int playerId, uchar dice1, uchar dice2)
+{
+    auto cards = m_players[m_currentPlayerId]->getLandmarks(); // ToDO UNITE THESE TWO FUNCTIONS!
+    for (auto card : cards) {
+        if (card->title() == cardTitle) {
+            card->activate(m_players, *m_players[m_currentPlayerId], *m_players[m_currentPlayerId], dice1, dice1);
+        }
+    }
+    emit playerCardActivatedBefore(dice1, dice2);
+}
+
 void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 {
     m_players[m_currentPlayerId]->deductMoney(card->price());
@@ -89,6 +100,7 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
         auto player = std::make_shared<Player>(playerNames.at(i));
         connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
         connect(player.get(), &Player::hasAmusementPark, this, &GameLogic::handlePlayerHasAmusementPark);
+        connect(player.get(), &Player::hasRadioTower, this, &GameLogic::handlePlayerHasRadioTower);
         player->addCard(m_cardReader->readFromRange(4, 4).at(0));
         player->addCard(m_cardReader->readFromRange(6, 6).at(0));
         m_players.push_back(player);
@@ -98,6 +110,11 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 void GameLogic::handlePlayerHasAmusementPark()
 {
     emit playerHasAmusementPark();
+}
+
+void GameLogic::handlePlayerHasRadioTower()
+{
+    emit playerHasRadioTower();
 }
 
 void GameLogic::handlePlayerHasRailwayStation()

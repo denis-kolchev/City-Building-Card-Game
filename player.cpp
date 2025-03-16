@@ -8,6 +8,10 @@ Player::Player(const QString& name, QObject *parent)
 {
 }
 
+void Player::activateRerollDice() {
+    emit hasRadioTower();
+}
+
 void Player::activateRollTwoDice() {
     emit hasRailwayStation();
 }
