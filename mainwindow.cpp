@@ -10,6 +10,7 @@
 #include <QVector>
 
 #include <QTabWidget>
+#include <QtWidgets/qapplication.h>
 
 MainWindow::MainWindow(QMainWindow *parent)
     : QMainWindow(parent)
@@ -29,6 +30,9 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     connect(this, &MainWindow::takeCardSound,
             m_soundManager, &SoundManager::playTakeCardSound);
+
+    resize(1366, 768);
+    centerWindow();
 }
 
 MainWindow::~MainWindow()
@@ -308,6 +312,22 @@ void MainWindow::onSkipClicked()
         emit skipClicked();
     }
 }
+
+void MainWindow::centerWindow()
+{
+    // Get the screen geometry
+    QScreen *screen = QApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    // Calculate the center position
+    int x = (screenGeometry.width() - width()) / 2;
+    int y = (screenGeometry.height() - height()) / 2;
+
+    // Move the window to the center
+    move(x, y);
+    hide();
+}
+
 
 QWidget* MainWindow::createPlayerView(uchar playerId)
 {

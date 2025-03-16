@@ -12,6 +12,9 @@ public:
 signals:
     void showMainWindow(uchar numPlayers);
 
+private:
+    void centerWindow();
+
 };
 
 #endif // STARTMENU_H

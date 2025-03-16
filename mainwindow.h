@@ -91,6 +91,8 @@ private slots:
     void onSkipClicked();
 
 private:
+    void centerWindow();
+
     QWidget* createPlayerView(uchar playerId);
 
     void placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack);

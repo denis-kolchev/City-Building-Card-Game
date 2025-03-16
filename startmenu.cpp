@@ -4,9 +4,13 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QApplication>
+#include <QRect>
+#include <QScreen>
 
 StartMenu::StartMenu(QWidget *parent)
-    : QWidget(parent) {
+    : QWidget(parent)
+{
     setWindowTitle("Start Menu");
 
     // Layout
@@ -14,6 +18,7 @@ StartMenu::StartMenu(QWidget *parent)
 
     // Number of players selection
     QLabel *numPlayersLabel = new QLabel("Number of Players:", this);
+    numPlayersLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(numPlayersLabel);
 
     QSpinBox *numPlayersSpinBox = new QSpinBox(this);
@@ -33,4 +38,21 @@ StartMenu::StartMenu(QWidget *parent)
     });
 
     setLayout(layout);
+
+    setFixedSize(300, 130);
+    centerWindow();
+}
+
+void StartMenu::centerWindow()
+{
+    // Get the screen geometry
+    QScreen *screen = QApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    // Calculate the center position
+    int x = (screenGeometry.width() - width()) / 2;
+    int y = (screenGeometry.height() - height()) / 2;
+
+    // Move the window to the center
+    move(x, y);
 }
