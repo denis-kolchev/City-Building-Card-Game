@@ -60,7 +60,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     }
 
     //int w = 200, h = 300;
-    int w = 120, h = 228;
+    int w = 150, h = 250;
     setFixedSize(w, h);
 
     // Adjust the size of the QPixmap to leave space for the outline
@@ -84,8 +84,9 @@ CardWidget::CardWidget(QPixmap imagePath,
     cardTitple->setStyleSheet("color: white; font-size: 14px;  font-weight: bold;");
 
     QLabel* descriptionLabel = new QLabel(m_description, this); // description
+    descriptionLabel->setWordWrap(true);
     descriptionLabel->setContentsMargins(10, 10, 10, 0);
-    descriptionLabel->setStyleSheet("color: white; font-size: 13px;");
+    descriptionLabel->setStyleSheet("color: white; font-size: 10px;");
     descriptionLabel->setAlignment(Qt::AlignCenter);
 
     QLabel* priceLabel = new QLabel(m_price, this); // 5

@@ -5,7 +5,7 @@ CardStackWidget::CardStackWidget(QWidget *parent)
     : QWidget(parent)
 {
     // These calculations should be fixed in the future and made binamic
-    int w = 120, h = 228;
+    int w = 150, h = 250;
     w += 10; // outline
     h += 10; // otline
     h += 60; // offset * 6
