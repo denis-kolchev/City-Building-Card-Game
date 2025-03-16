@@ -190,15 +190,18 @@ void MainWindow::onRollOneDiceClicked()
     uchar dice = DiceRoller{}.rollDice(1);
     qDebug() << "Roll One Dice button Clicked!";
     m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
-    emit rollButtonClicked(dice);
+    emit rollButtonClicked(dice, 0);
 }
 
 void MainWindow::onRollTwoDiceClicked()
 {
-    uchar dice = DiceRoller{}.rollDice(2);
+    uchar dice1 = DiceRoller{}.rollDice(1);
+    uchar dice2 = DiceRoller{}.rollDice(2);
     qDebug() << "Roll Two Dice button Clicked!";
-    m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
-    emit rollButtonClicked(dice);
+    m_diceResultLabels[m_currentPlayerId]->setText(
+        QString("Dice result: %1 + %2 = %3").arg(dice1).arg(dice2).arg(dice1 + dice2)
+    );
+    emit rollButtonClicked(dice1, dice2);
 }
 
 void MainWindow::onSkipClicked()

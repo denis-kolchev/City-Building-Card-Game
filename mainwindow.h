@@ -48,7 +48,7 @@ signals:
 
     void createPlayers(QList<QString> playerNames);
 
-    void rollButtonClicked(uchar dice);
+    void rollButtonClicked(uchar dice1, uchar dice2);
 
     void skipClicked();
 

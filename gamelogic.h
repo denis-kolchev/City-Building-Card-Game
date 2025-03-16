@@ -45,7 +45,7 @@ public:
 
     std::shared_ptr<Player> getPlayer(int id);
 
-    void playTurn(uchar diceRoll);
+    void playTurn(uchar dice1, uchar dice2);
 
 signals:
     void buildStageFinished(int currentPlayerId);
@@ -71,7 +71,7 @@ public slots:
 
     void handlePlayerHasRailwayStation();
 
-    void handleRollButtonClicked(uchar diceRoll);
+    void handleRollButtonClicked(uchar dice1, uchar dice2);
 
     void handleTryToBuyCard(QString cardTitle);
 

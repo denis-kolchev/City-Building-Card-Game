@@ -17,8 +17,8 @@ Mine::Mine(const QString& title,
 {
 }
 
-void Mine::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
-    if (hasActivationValue(diceRoll)) {
+void Mine::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
+    if (hasActivationValue(dice1 + dice2)) {
         owner.addCoins(5);
         // Give money to the owner
         qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";

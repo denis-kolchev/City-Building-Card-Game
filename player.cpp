@@ -57,11 +57,15 @@ QString Player::name() const {
     return m_name;
 }
 
-void Player::triggerCards(QVector<std::shared_ptr<Player>> players, Player& activePlayer, int diceRoll) {
-    qDebug() << "------ TRIGGERED " << diceRoll << " CARDS ------";
+void Player::triggerCards(QVector<std::shared_ptr<Player>> players,
+                          Player& activePlayer,
+                          uchar dice1,
+                          uchar dice2)
+{
+    qDebug() << "------ TRIGGERED " << dice1 + dice2 << " CARDS ------";
     for (auto it = m_landmarks.begin(), ite = m_landmarks.end(); it != ite; ++it) {
         qDebug() << "--- activated: " << it->get()->title();
-        it->get()->activate(players, *this, activePlayer, diceRoll);
+        it->get()->activate(players, *this, activePlayer, dice1, dice2);
     }
 
     QMap<std::shared_ptr<Card>, uchar> redCardsTable, othersTable;
@@ -75,22 +79,22 @@ void Player::triggerCards(QVector<std::shared_ptr<Player>> players, Player& acti
 
     for (auto it = redCardsTable.begin(), ite = redCardsTable.end(); it != ite; ++it) {
         for (uchar i = 0; i < it.value(); ++i) {
-            if (it.key()->hasActivationValue(diceRoll)) {
+            if (it.key()->hasActivationValue(dice1 + dice2)) {
                 QString str;
                 for (uchar value : it.key()->activationValues()) {
                     str += QString::number(value) + " ";
                 }
                 qDebug() << "--- activated: " << it.key()->title() << " " << str;
-                it.key()->activate(players, *this, activePlayer, diceRoll);
+                it.key()->activate(players, *this, activePlayer, dice1, dice2);
             }
         }
     }
 
     for (auto it = othersTable.begin(), ite = othersTable.end(); it != ite; ++it) {
         for (uchar i = 0; i < it.value(); ++i) {
-            if (it.key()->hasActivationValue(diceRoll)) {
+            if (it.key()->hasActivationValue(dice1 + dice2)) {
                 qDebug() << "--- activated: " << it.key()->title();
-                it.key()->activate(players, *this, activePlayer, diceRoll);
+                it.key()->activate(players, *this, activePlayer, dice1, dice2);
             }
         }
     }

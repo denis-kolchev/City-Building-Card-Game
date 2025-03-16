@@ -47,16 +47,20 @@ std::shared_ptr<Player> GameLogic::getPlayer(int id) {
     return m_players[id];
 }
 
-void GameLogic::playTurn(uchar diceRoll) {
+void GameLogic::playTurn(uchar dice1, uchar dice2) {
     auto activePlayer = m_players[m_currentPlayerId];
 
-    qDebug() << activePlayer->name() << " rolled a " << diceRoll << ".\n";
+    if (dice2 == 0) {
+        qDebug() << activePlayer->name() << " rolled a " << dice1 << ".\n";
+    } else {
+        qDebug() << activePlayer->name() << " rolled a " << dice1 << " & " << dice2 << ".\n";
+    }
 
     // Trigger cards for all players
     // Active player loss money, get money from other players
     int i = 0;
     for (auto& player : m_players) {
-        player->triggerCards(m_players, *activePlayer, diceRoll);
+        player->triggerCards(m_players, *activePlayer, dice1, dice2);
         // Now, build time!
         emit playerBalanceChanged(player->coins(), i++);
     }
@@ -95,9 +99,9 @@ void GameLogic::handlePlayerHasRailwayStation()
     emit playerHasRailwayStation();
 }
 
-void GameLogic::handleRollButtonClicked(uchar diceRoll)
+void GameLogic::handleRollButtonClicked(uchar dice1, uchar dice2)
 {
-    playTurn(diceRoll);
+    playTurn(dice1, dice2);
     //emit waitForBuyOrSkip();
 }
 

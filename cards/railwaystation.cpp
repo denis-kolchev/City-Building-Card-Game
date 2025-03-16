@@ -17,7 +17,7 @@ RailwayStation::RailwayStation(const QString& title,
 {
 }
 
-void RailwayStation::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
+void RailwayStation::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     activePlayer.activateRollTwoDice();
     qDebug() << m_title << " activated! " << owner.name();
 }

@@ -17,10 +17,10 @@ TVCenter::TVCenter(const QString& title,
 {
 }
 
-void TVCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
+void TVCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     // First, takes money from the richest player
     uchar MONEY_TO_TAKE = 5;
-    if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
+    if (hasActivationValue(dice1 + dice2) && &owner == &activePlayer) {
         if (players.size() == 0) {
             return;
         }

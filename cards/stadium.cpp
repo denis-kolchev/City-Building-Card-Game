@@ -17,9 +17,9 @@ Stadium::Stadium(const QString& title,
 {
 }
 
-void Stadium::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) {
+void Stadium::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     uchar MONEY_TO_TAKE = 2;
-    if (hasActivationValue(diceRoll) && &owner == &activePlayer) {
+    if (hasActivationValue(dice1 + dice2) && &owner == &activePlayer) {
         if (players.size() == 0) {
             return;
         }

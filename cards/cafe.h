@@ -16,7 +16,7 @@ public:
          uchar pack,
          uchar price);
 
-    void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, int diceRoll) override;
+    void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) override;
 };
 
 #endif // CAFE_H
