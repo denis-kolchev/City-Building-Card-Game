@@ -23,7 +23,10 @@ void ShoppingMall::activate(Player& owner, Player& activePlayer, int diceRoll) {
     auto allCards = owner.getCardsTable();
     int count = 0;
     for (auto it = allCards.begin(), ite = allCards.end(); it != ite; ++it) {
-        if (it.key()->type() == CardType::Dining || it.key()->type() == CardType::Shop) {
+        if ((it.key()->type() == CardType::Dining ||
+             it.key()->type() == CardType::Shop) &&
+             it.key()->hasActivationValue(diceRoll))
+        {
             count++;
         }
     }
