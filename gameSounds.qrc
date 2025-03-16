@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sounds/button-click.wav</file>
+        <file>sounds/card-fail.wav</file>
+        <file>sounds/card-turn.wav</file>
+        <file>sounds/take-card.wav</file>
+    </qresource>
+</RCC>

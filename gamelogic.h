@@ -52,6 +52,8 @@ signals:
 
     void gameIsFinished(int playerId);
 
+    void playerHasAmusementPark();
+
     void playerHasRailwayStation();
 
     void playerBalanceChanged(uchar balance, int playerId);
@@ -68,6 +70,8 @@ public slots:
     void giveCardToPlayer(std::shared_ptr<Card> card);
 
     void handleCreatePlayers(QList<QString> playerNames);
+
+    void handlePlayerHasAmusementPark();
 
     void handlePlayerHasRailwayStation();
 

@@ -10,6 +10,7 @@
 
 #include "carddataconfigreader.h"
 #include "cardstackwidget.h"
+#include "soundmanager.h"
 
 using CardsLayout = QHBoxLayout;
 using CardsList = QVector<std::shared_ptr<Card>>;
@@ -33,6 +34,8 @@ public slots:
 
     void repaintPlayerPanel(int currentPlayerId);
 
+    void unlockBuildAgainIfDubleRollDice();
+
     void unlockPlayerLandmark(std::shared_ptr<Card> card);
 
     void unlockRollTwoDiceButton();
@@ -42,7 +45,13 @@ public slots:
     void updatePlayerBalanceLabel(uchar balance, int playerId);
 
 signals:
+    void buttonClickSound();
+
     void buyButtonClicked();
+
+    void cardFailSound();
+
+    void cardTurnSound();
 
     void cardWidgetClicked(QString cardTitle);
 
@@ -51,6 +60,8 @@ signals:
     void rollButtonClicked(uchar dice1, uchar dice2);
 
     void skipClicked();
+
+    void takeCardSound();
 
     void updatedPlayersPanel();
 
@@ -75,6 +86,8 @@ private:
     void updateButtonStates();
 
 private:
+    SoundManager *m_soundManager;
+
     QStateMachine *m_stateMachine;
     QState *m_incomeState;
     QState *m_buyingState;
@@ -92,6 +105,7 @@ private:
     QVector<QPushButton*> m_rollTwoDiceButtons;
     QVector<QPushButton*> m_skipButtons;
     QVector<bool> m_canPressTwoDiceButton;
+    QVector<bool> m_canBuildAgainIfDubleRollDice;
     QTabWidget *m_tabWidget;
     int m_numPlayers;
     int m_currentPlayerId;

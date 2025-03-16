@@ -19,7 +19,6 @@ ShoppingMall::ShoppingMall(const QString& title,
 
 
 void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
-    // Landmark-specific logic
     auto allCards = owner.getCardsTable();
     int count = 0;
     for (auto it = allCards.begin(), ite = allCards.end(); it != ite; ++it) {

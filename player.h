@@ -17,6 +17,8 @@ public:
 
     void activateRollTwoDice();
 
+    void activateOneMoreBuild();
+
     void addCard(std::shared_ptr<Card> card);
 
     void addCoins(int amount);
@@ -38,6 +40,8 @@ public:
     void triggerCards(QVector<std::shared_ptr<Player>> players, Player& activePlayer, uchar dice1, uchar dice2);
 
 signals:
+    void hasAmusementPark();
+
     void hasRailwayStation();
 
 private:

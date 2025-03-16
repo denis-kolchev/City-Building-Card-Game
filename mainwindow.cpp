@@ -20,6 +20,18 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     connect(this, &MainWindow::rollButtonClicked,
             this, &MainWindow::updateDiceResultLabel);
+
+    connect(this, &MainWindow::buttonClickSound,
+            m_soundManager, &SoundManager::playButtonClickSound);
+
+    connect(this, &MainWindow::cardFailSound,
+            m_soundManager, &SoundManager::playCardFailSound);
+
+    connect(this, &MainWindow::cardTurnSound,
+            m_soundManager, &SoundManager::playCardTurnSound);
+
+    connect(this, &MainWindow::takeCardSound,
+            m_soundManager, &SoundManager::playTakeCardSound);
 }
 
 MainWindow::~MainWindow()
@@ -145,16 +157,31 @@ void MainWindow::repaintPlayerPanel(int currentPlayerId)
     updateButtonStates();
 }
 
+void MainWindow::unlockBuildAgainIfDubleRollDice()
+{
+    if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
+
+    }
+}
+
 void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 {
+    emit cardTurnSound();
+
     QString title = card->title();
     CardWidget* landmark = m_landmarkCardStacks[m_currentPlayerId][title]->at(title);
     if (!landmark) {
         return;
     }
 
-    landmark->landmarkUnlocked();
-    m_canPressTwoDiceButton[m_currentPlayerId] = true;
+    if (title == "Railway Station") {
+        landmark->landmarkUnlocked();
+        m_canPressTwoDiceButton[m_currentPlayerId] = true;
+    }
+    else if (title == "Amusement Park") {
+        landmark->landmarkUnlocked();
+        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
+    }
 
     update();
     emit updatedPlayersPanel();
@@ -182,11 +209,14 @@ void MainWindow::handleCardClick(QString cardTitle)
     if (m_stateMachine->configuration().contains(m_buyingState)) {
         qDebug() << "card is clicked!";
         emit cardWidgetClicked(cardTitle);
+        emit takeCardSound();
     }
 }
 
 void MainWindow::onRollOneDiceClicked()
 {
+    emit buttonClickSound();
+
     uchar dice = DiceRoller{}.rollDice(1);
     qDebug() << "Roll One Dice button Clicked!";
     m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
@@ -195,6 +225,8 @@ void MainWindow::onRollOneDiceClicked()
 
 void MainWindow::onRollTwoDiceClicked()
 {
+    emit buttonClickSound();
+
     uchar dice1 = DiceRoller{}.rollDice(1);
     uchar dice2 = DiceRoller{}.rollDice(2);
     qDebug() << "Roll Two Dice button Clicked!";
@@ -206,6 +238,7 @@ void MainWindow::onRollTwoDiceClicked()
 
 void MainWindow::onSkipClicked()
 {
+    emit buttonClickSound();
     qDebug() << "Skip button Clicked!";
     emit skipClicked();
 }

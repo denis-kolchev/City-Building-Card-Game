@@ -88,10 +88,16 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
     for (int i = 0; i < playerNames.size(); ++i) {
         auto player = std::make_shared<Player>(playerNames.at(i));
         connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
+        connect(player.get(), &Player::hasAmusementPark, this, &GameLogic::handlePlayerHasAmusementPark);
         player->addCard(m_cardReader->readFromRange(4, 4).at(0));
         player->addCard(m_cardReader->readFromRange(6, 6).at(0));
         m_players.push_back(player);
     }
+}
+
+void GameLogic::handlePlayerHasAmusementPark()
+{
+    emit playerHasAmusementPark();
 }
 
 void GameLogic::handlePlayerHasRailwayStation()
