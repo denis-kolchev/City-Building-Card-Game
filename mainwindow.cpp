@@ -45,7 +45,12 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
     placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
     removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
     update();
-    emit updatedPlayersPanel();
+    if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
+        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
+        emit buildOneMoreBuilding();
+    } else {
+        emit updatedPlayersPanel();
+    }
 }
 
 void MainWindow::finishGame(int currentPlayerId)
@@ -70,7 +75,8 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_skipButtons.resize(m_numPlayers);
     m_playerCardStacks.resize(m_numPlayers);
     m_landmarkCardStacks.resize(m_numPlayers);
-    m_canPressTwoDiceButton.resize(m_numPlayers);
+    m_canPressTwoDiceButton.resize(m_numPlayers, false);
+    m_canBuildAgainIfDubleRollDice.resize(m_numPlayers, false);
 
     // Read card data from config
     QString executablePath = QCoreApplication::applicationDirPath();
@@ -160,7 +166,7 @@ void MainWindow::repaintPlayerPanel(int currentPlayerId)
 void MainWindow::unlockBuildAgainIfDubleRollDice()
 {
     if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
-
+        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
     }
 }
 
@@ -175,16 +181,21 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
     }
 
     if (title == "Railway Station") {
-        landmark->landmarkUnlocked();
+        landmark->landmarkUnlocked(); // changes the color
         m_canPressTwoDiceButton[m_currentPlayerId] = true;
     }
     else if (title == "Amusement Park") {
-        landmark->landmarkUnlocked();
-        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
+        landmark->landmarkUnlocked(); // changes the color
+        //m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
     }
 
     update();
-    emit updatedPlayersPanel();
+    if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
+        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
+        emit buildOneMoreBuilding();
+    } else {
+        emit updatedPlayersPanel(); // the look of it
+    }
 }
 
 void MainWindow::unlockRollTwoDiceButton()
@@ -240,7 +251,12 @@ void MainWindow::onSkipClicked()
 {
     emit buttonClickSound();
     qDebug() << "Skip button Clicked!";
-    emit skipClicked();
+    if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
+        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
+        emit buildOneMoreBuilding();
+    } else {
+        emit skipClicked();
+    }
 }
 
 QWidget* MainWindow::createPlayerView(uchar playerId)
@@ -398,6 +414,7 @@ void MainWindow::setupStateMachine()
 
     // Define transitions
     m_incomeState->addTransition(this, &MainWindow::rollButtonClicked, m_buyingState);
+    m_buyingState->addTransition(this, &MainWindow::buildOneMoreBuilding, m_buyingState);
     m_buyingState->addTransition(this, &MainWindow::skipClicked, m_incomeState);
     m_buyingState->addTransition(this, &MainWindow::updatedPlayersPanel, m_incomeState);
 

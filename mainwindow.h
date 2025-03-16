@@ -45,6 +45,8 @@ public slots:
     void updatePlayerBalanceLabel(uchar balance, int playerId);
 
 signals:
+    void buildOneMoreBuilding();
+
     void buttonClickSound();
 
     void buyButtonClicked();

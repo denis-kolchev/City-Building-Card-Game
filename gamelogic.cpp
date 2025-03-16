@@ -126,14 +126,14 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
         m_players[m_currentPlayerId]->deductMoney(cardPrice);
         emit playerBalanceChanged(m_players[m_currentPlayerId]->coins(), m_currentPlayerId);
 
-        if (!card->hasActivationValue(0)) { // player buying from Reserve
-            m_players[m_currentPlayerId]->addCard(card);
-            m_cardReserve->removeCard(card);
-            emit playerBuildNewBuilding(card);
-        } else { // player buing Landmark
+        if (card->hasActivationValue(0)) { // player builds Landmark
             m_players[m_currentPlayerId]->addLandmark(card);
             m_cardReserve->removeLandmark(card);
             emit playerBuildLandmark(card);
+        } else {// player builds from Reserve
+            m_players[m_currentPlayerId]->addCard(card);
+            m_cardReserve->removeCard(card);
+            emit playerBuildNewBuilding(card);
         }
 
     } else {

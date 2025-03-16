@@ -12,6 +12,10 @@ void Player::activateRollTwoDice() {
     emit hasRailwayStation();
 }
 
+void Player::activateOneMoreBuild() {
+    emit hasAmusementPark();
+}
+
 void Player::addCard(std::shared_ptr<Card> card) {
     if (howManyCardsOfType(card) == 0) {
         m_cardsTable.insert(card, 1);

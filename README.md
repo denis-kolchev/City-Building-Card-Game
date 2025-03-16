@@ -17,3 +17,8 @@
 ### Move to next Player & Player Bought a building & Player clicked skip button
 1. MainWindow::skipClicked -> GameLogic::moveToNextPlaer
 2. GameLogic::buildStageFinished -> MainWindow::repaintPlayerPanel
+
+### Railway Station Activation
+1. Player::hasRailwayStation -> GameLogic::handlePlayerHasRailwayStation
+2. GameLogic::playerHasRailwayStation -> MainWindow::unlockRollTwoDiceButton
+3. 

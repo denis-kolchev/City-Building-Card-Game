@@ -4,11 +4,16 @@
 
 
 #include <QApplication>
-
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+#ifdef false
+    QTranslator translator;
+    translator.load("");
+    app.installTranslator(&translator);
+#endif
 
     auto gameLogic = std::make_shared<GameLogic>();
     auto mainWindow = std::make_shared<MainWindow>();
@@ -44,8 +49,8 @@ int main(int argc, char *argv[])
     QObject::connect(gameLogic.get(), &GameLogic::playerHasRailwayStation,
                      mainWindow.get(), &MainWindow::unlockRollTwoDiceButton);
 
-    // QObject::connect(gameLogic.get(), &GameLogic::playerHasAmusementPark,
-    //                  mainWindow, &MainWindow::unlockBuildAgainIfDubleRollDice);
+    QObject::connect(gameLogic.get(), &GameLogic::playerHasAmusementPark,
+                     mainWindow.get(), &MainWindow::unlockBuildAgainIfDubleRollDice);
 
     QObject::connect(gameLogic.get(), &GameLogic::playerBuildLandmark,
                      mainWindow.get(), &MainWindow::unlockPlayerLandmark);
