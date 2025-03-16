@@ -55,14 +55,6 @@ int CardStackWidget::cardCount() const
     return m_cards.size();
 }
 
-void CardStackWidget::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton && !m_cards.empty()) {
-        qDebug() << "mousepressEvent from CardStackWidget, send a tilte of card";
-        emit clicked(m_cards.at(0)->title()); // Emit a signal when clicked
-    }
-}
-
 void CardStackWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);

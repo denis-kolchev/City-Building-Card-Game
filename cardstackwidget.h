@@ -22,8 +22,6 @@ public:
     int cardCount() const;
 
 protected:
-    void mousePressEvent(QMouseEvent* event) override;
-
     void paintEvent(QPaintEvent *event) override;
 
 signals:
