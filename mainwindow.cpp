@@ -399,7 +399,7 @@ void MainWindow::setupStateMachine()
     // Define transitions
     m_incomeState->addTransition(this, &MainWindow::rollButtonClicked, m_buyingState);
     m_buyingState->addTransition(this, &MainWindow::skipClicked, m_incomeState);
-    m_buyingState->addTransition(this, &MainWindow::cardWidgetClicked, m_incomeState);
+    m_buyingState->addTransition(this, &MainWindow::updatedPlayersPanel, m_incomeState);
 
     // Add states to the state machine
     m_stateMachine->addState(m_incomeState);
