@@ -148,9 +148,18 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
         reserveCards += cardReader.readFromRange(4, 9);
         reserveCards += cardReader.readFromRange(13, 18);
     }
-    std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
-        return a->activationValues().values().at(0) < b->activationValues().values().at(0);
-    });
+
+    try {
+        std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
+            // Use value() with default instead of at()
+            int aVal = a->activationValues().values().value(0, 0);
+            int bVal = b->activationValues().values().value(0, 0);
+            return aVal < bVal;
+        });
+    } catch (const std::out_of_range& e) {
+        qCritical() << "Card activation values error:" << e.what();
+        // Handle error
+    }
 
     placeCards(reserveCards, *m_reserveLayout, m_reserveCardsStack);
     //m_reserveLayout->addStretch();
@@ -333,6 +342,10 @@ void MainWindow::centerWindow()
 
 QWidget* MainWindow::createPlayerView(uchar playerId)
 {
+    if (playerId >= m_playerViews.size()) {
+        qFatal("Player ID %d exceeds allocated vector size", playerId);
+    }
+
     m_playerViews[playerId] = new QWidget();
     m_viewCardsLayouts[playerId] = new QVBoxLayout(m_playerViews[playerId]);
 
