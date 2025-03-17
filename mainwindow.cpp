@@ -303,7 +303,7 @@ void MainWindow::onRollTwoDiceClicked()
     emit buttonClickSound();
 
     uchar dice1 = DiceRoller{}.rollDice(1);
-    uchar dice2 = DiceRoller{}.rollDice(2);
+    uchar dice2 = DiceRoller{}.rollDice(1);
     qDebug() << "Roll Two Dice button Clicked!";
     m_diceResultLabels[m_currentPlayerId]->setText(
         QString("Dice result: %1 + %2 = %3").arg(dice1).arg(dice2).arg(dice1 + dice2)

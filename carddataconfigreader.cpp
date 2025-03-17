@@ -128,20 +128,18 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                         type = CardType::Shop;
                     }
 
-                    //CardType type = static_cast<CardType>(currentCardData.value("type", "0").toInt());
                     uchar pack = currentCardData.value("pack", "0").toUShort();
                     uchar price = currentCardData.value("price", "0").toUShort();
 
                     std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, i);
                     cards.append(card);
-                    //cards.append(std::make_shared<Card>(title, description, imagePath, activationValues, type, pack, price));
+                    i++; // Increment i after processing each card
                 }
             }
 
             // Start a new section
             currentSection = sectionMatch.captured(1);
             currentCardData.clear();
-            i++;
             continue;
         }
 
@@ -154,7 +152,6 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     }
 
     // Process the last card in the file
-    i++;
     if (!currentSection.isEmpty()) {
         uchar cardNumber = currentSection.toUShort();
         if (cardNumber >= begin && cardNumber <= end) {
@@ -167,7 +164,6 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                 activationValues.insert(value.toUShort());
             }
 
-            // Convert type string to CardType enum (assuming CardType is an enum)
             QString typeStr = currentCardData.value("type", "Agricultural");
             CardType type;
             if (typeStr == "Agricultural") {
@@ -192,13 +188,12 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                 type = CardType::Shop;
             }
 
-            //CardType type = static_cast<CardType>(currentCardData.value("type", "0").toInt());
             uchar pack = currentCardData.value("pack", "0").toUShort();
             uchar price = currentCardData.value("price", "0").toUShort();
 
             std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, i);
             cards.append(card);
-            //cards.append(std::make_shared<Card>(title, description, imagePath, activationValues, type, pack, price));
+            i++; // Increment i after processing the last card
         }
     }
 
