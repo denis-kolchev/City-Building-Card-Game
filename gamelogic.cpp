@@ -155,8 +155,6 @@ void GameLogic::handleTryToBuyCard(QString cardTitle)
 
     } else {
         emit playerHasNotEnoughCoins("You have not enough coins to buy it.");
-        // Maybe it should be displayed as a worning somewhere
-        qDebug() << "Card is Too expensive!";
     }
 }
 

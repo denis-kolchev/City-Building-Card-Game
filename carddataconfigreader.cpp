@@ -15,6 +15,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     QVector<std::shared_ptr<Card>> cards;
 
     QStringList groups = m_settings.childGroups();
+    uchar current = begin;
     for (const QString& group : groups) {
         if (!group.startsWith("Card_")) continue;
 
@@ -47,11 +48,13 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
 
         uchar pack = static_cast<uchar>(m_settings.value("pack", 0).toUInt());
 
-        std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price);
+        std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, current);
         cards.append(card);
 
         m_settings.endGroup();
+        current++;
     }
+
     return cards;
 }
 

@@ -16,7 +16,8 @@ public:
                                      const QSet<uchar>& activationValues,
                                      CardType type,
                                      uchar pack,
-                                     uchar price);
+                                     uchar price,
+                                     uchar id);
 };
 
 #endif // CARDFACTORY_H

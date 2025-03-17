@@ -7,7 +7,8 @@ Card::Card(const QString& title,
            const QSet<uchar>& activationValues,
            CardType type,
            uchar pack,
-           uchar price)
+           uchar price,
+           uchar id)
     : m_title(title)
     , m_description(description)
     , m_imagePath(imagePath)
@@ -15,6 +16,7 @@ Card::Card(const QString& title,
     , m_type(type)
     , m_pack(pack)
     , m_price(price)
+    , m_id(id)
 {
 }
 
@@ -24,6 +26,10 @@ QSet<uchar> Card::activationValues() const {
 
 QString Card::description() const {
     return m_description;
+}
+
+uchar Card::id() const {
+    return m_id;
 }
 
 QString Card::imagePath() const {

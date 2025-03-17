@@ -27,7 +27,8 @@ public:
          const QSet<uchar> &activationValues,
          CardType type,
          uchar pack,
-         uchar price);
+         uchar price,
+         uchar id);
 
     virtual ~Card() = default;
 
@@ -36,6 +37,8 @@ public:
     QSet<uchar> activationValues() const;
 
     QString description() const;
+
+    uchar id() const;
 
     QString imagePath() const;
 
@@ -58,6 +61,7 @@ protected:
     CardType m_type;
     uchar m_pack;
     uchar m_price;
+    uchar m_id;
 };
 
 #endif // CARD_H

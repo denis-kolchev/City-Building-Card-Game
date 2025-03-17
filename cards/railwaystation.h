@@ -14,7 +14,8 @@ public:
                    const QSet<uchar>& activationValues,
                    CardType type,
                    uchar pack,
-                   uchar price);
+                   uchar price,
+                   uchar id);
 
     void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) override;
 };

@@ -6,14 +6,16 @@ BusinessCenter::BusinessCenter(const QString& title,
                                const QSet<uchar>& activationValues,
                                CardType type,
                                uchar pack,
-                               uchar price)
+                               uchar price,
+                               uchar id)
     : Card(title,
            description,
            imagePath,
            activationValues,
            type,
            pack,
-           price)
+           price,
+           id)
 {
 }
 
