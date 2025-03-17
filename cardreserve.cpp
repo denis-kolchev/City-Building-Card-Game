@@ -55,16 +55,16 @@ uchar CardReserve::coundCards(std::shared_ptr<Card> card)
     return m_cards.find(card).value();
 }
 
-std::shared_ptr<Card> CardReserve::findCardByTitle(QString cardTitle)
+std::shared_ptr<Card> CardReserve::findCardByTitle(uchar cardid)
 {
     std::shared_ptr<Card> card = nullptr;
     for (auto it = m_cards.begin(), ite = m_cards.end(); it != ite; ++it) {
-        if (it.key()->title() == cardTitle) {
+        if (it.key()->id() == cardid) {
             card = it.key();
         }
     }
     for (auto landmark : m_landmarks) {
-        if (landmark->title() == cardTitle) {
+        if (landmark->id() == cardid) {
             card = landmark;
         }
     }
@@ -88,14 +88,9 @@ void CardReserve::removeLandmark(std::shared_ptr<Card> card)
     }
 }
 
-void activateCard(const QString& cardName, Player& owner, Player& activePlayer, int diceRoll)
+void CardReserve::handleTryToBuyCard(uchar cardId, uchar playerBalance)
 {
-
-}
-
-void CardReserve::handleTryToBuyCard(QString title, uchar playerBalance)
-{
-    std::shared_ptr<Card> cardClicked = findCardByTitle(title);
+    std::shared_ptr<Card> cardClicked = findCardByTitle(cardId);
     if (!cardClicked) {
         qDebug() << "Eror, card isn't found!";
         std::abort();

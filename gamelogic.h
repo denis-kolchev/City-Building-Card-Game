@@ -68,12 +68,12 @@ signals:
 
     void playerBuildNewBuilding(std::shared_ptr<Card> card);
 
-    void tryToBuyCard(QString cardTitle, uchar playerBalance);
+    void tryToBuyCard(uchar cardId, uchar playerBalance);
 
 public slots:
-    void checkCoinBalanceForCard(QString cardTitle);
+    void checkCoinBalanceForCard(uchar cardId);
 
-    void processCheckPlayerCards(QString cardTitle, int playerId, uchar dice1, uchar dice2);
+    void processCheckPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2);
 
     void giveCardToPlayer(std::shared_ptr<Card> card);
 
@@ -87,7 +87,7 @@ public slots:
 
     void handleRollButtonClicked(uchar dice1, uchar dice2);
 
-    void handleTryToBuyCard(QString cardTitle);
+    void handleTryToBuyCard(uchar cardId);
 
     void moveToNextPlaer();
 

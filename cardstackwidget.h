@@ -13,7 +13,7 @@ public:
 
     void addCard(CardWidget *card);
 
-    CardWidget* at(QString title) const;
+    CardWidget* at(uchar id) const;
 
     bool isEmpty();
 

@@ -42,19 +42,17 @@ public:
 
     uchar coundCards(std::shared_ptr<Card> card);
 
-    std::shared_ptr<Card> findCardByTitle(QString cardTitle);
+    std::shared_ptr<Card> findCardByTitle(uchar cardid);
 
     void removeCard(std::shared_ptr<Card> card);
 
     void removeLandmark(std::shared_ptr<Card> card);
 
-    void activateCard(const QString& cardName, Player& owner, Player& activePlayer, int diceRoll);
-
 signals:
     void sellCardToPlayer(std::shared_ptr<Card> card);
 
 public slots:
-    void handleTryToBuyCard(QString title, uchar playerBalance);
+    void handleTryToBuyCard(uchar cardId, uchar playerBalance);
 
 
 private:

@@ -11,6 +11,7 @@ CardWidget::CardWidget(QPixmap imagePath,
                        QString price,
                        QString expension,
                        CardType cardType,
+                       uchar id,
                        QWidget *parent)
     : m_imagePath(imagePath)
     , m_triggerNumber(transformQSetToRangeString(triggerNumbers))
@@ -19,6 +20,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_price(price)
     , m_expension(expension)
     , m_cardType(cardType)
+    , m_id(id)
     , QWidget(parent)
 {
     QMap<CardType, QString> emojiMap = {
@@ -33,12 +35,11 @@ CardWidget::CardWidget(QPixmap imagePath,
         {CardType::Ship, "\u26F4"},
         {CardType::Shop, "\u26F1"}
     };
-#ifdef false
+
     // Use the map to set the title
     if (emojiMap.contains(m_cardType)) {
         m_title = emojiMap[m_cardType] + " " + m_title;
     }
-#endif
 
     QSet<CardType> blueTypes = {
         CardType::Agricultiral,
@@ -154,13 +155,13 @@ void CardWidget::landmarkUnlocked() {
     update();
 }
 
-QString CardWidget::title() {
-    return m_title;
+uchar CardWidget::id() {
+    return m_id;
 }
 
 void CardWidget::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        emit clicked(m_title); // Emit a signal when clicked
+        emit clicked(m_id); // Emit a signal when clicked
     }
 }
 

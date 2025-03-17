@@ -201,7 +201,8 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 
 void MainWindow::processDiceRoll(uchar dice1, uchar dice2)
 {
-    emit checkPlayerCards(QString("Radio Tower"), m_currentPlayerId, dice1, dice2);
+    // 3 - id of Radio Tower
+    emit checkPlayerCards(3, m_currentPlayerId, dice1, dice2);
 }
 
 void MainWindow::repaintPlayerPanel(int currentPlayerId)
@@ -231,21 +232,21 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 {
     emit cardTurnSound();
 
-    QString title = card->title();
-    CardWidget* landmark = m_landmarkCardStacks[m_currentPlayerId][title]->at(title);
+    auto id= card->id();
+    CardWidget* landmark = m_landmarkCardStacks[m_currentPlayerId][id]->at(id);
     if (!landmark) {
         return;
     }
 
-    if (title == "Railway Station") {
+    if (id == 0) {
         landmark->landmarkUnlocked(); // changes the color
         m_canPressTwoDiceButton[m_currentPlayerId] = true;
-    } else if (title == "Amusement Park") {
+    } else if (id == 1) {
         landmark->landmarkUnlocked(); // changes the color
         //m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
-    } else if (title == "Shopping Mall") {
+    } else if (id == 2) {
         landmark->landmarkUnlocked();
-    } else if (title == "Radio Tower") {
+    } else if (id == 3) {
         landmark->landmarkUnlocked();
     }
 
@@ -275,14 +276,14 @@ void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
     m_playerBalanceLabels[playerId]->setText(QString("Coins: %1").arg(balance));
 }
 
-void MainWindow::handleCardClick(QString cardTitle)
+void MainWindow::handleCardClick(uchar cardId)
 {
     if (m_stateMachine->configuration().contains(m_buyingState) ||
         m_stateMachine->configuration().contains(m_buyOrRerollState))
     {
         qDebug() << "card is clicked!";
         emit takeCardSound();
-        emit cardWidgetClicked(cardTitle);
+        emit cardWidgetClicked(cardId);
     }
 }
 
@@ -446,17 +447,18 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &c
                                             cards[i]->description(),
                                             QString::number(cards[i]->price()),
                                             QString::number(cards[i]->pack()),
-                                            cards[i]->type());
+                                            cards[i]->type(),
+                                            cards[i]->id());
 
         // Find or create a pile for this card type
-        QString cardTitle = cards[i]->title();
-        if (!cardStack.contains(cardTitle)) {
-            cardStack[cardTitle] = new CardStackWidget();
-            layout.addWidget(cardStack[cardTitle]); // Add the pile to the layout
+        auto cardId = cards[i]->id();
+        if (!cardStack.contains(cardId)) {
+            cardStack[cardId] = new CardStackWidget();
+            layout.addWidget(cardStack[cardId]); // Add the pile to the layout
         }
 
         // Add the card to the appropriate pile
-        cardStack[cardTitle]->addCard(customWidget);
+        cardStack[cardId]->addCard(customWidget);
         connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
         update();
     }
@@ -465,11 +467,11 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &c
 void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack)
 {
     for (int i = 0; i < cards.size(); ++i) {
-        QString cardTitle = cards[i]->title();
+        uchar cardId = cards[i]->id();
 
         // Check if the stack exists
-        if (cardStack.contains(cardTitle)) {
-            CardStackWidget *stackWidget = cardStack[cardTitle];
+        if (cardStack.contains(cardId)) {
+            CardStackWidget *stackWidget = cardStack[cardId];
 
             if (!stackWidget->isEmpty()) {
                 stackWidget->removeCard(); // Remove a card from the stack
@@ -479,7 +481,7 @@ void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStack &
             if (stackWidget->isEmpty()) {
                 //layout.removeWidget(stackWidget);
                 stackWidget->deleteLater();
-                cardStack.remove(cardTitle);
+                cardStack.remove(cardId);
             }
         }
     }

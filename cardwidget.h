@@ -21,11 +21,12 @@ public:
                         QString price,
                         QString expension,
                         CardType cardType,
+                        uchar id,
                         QWidget *parent = nullptr);
 
     void landmarkUnlocked();
 
-    QString title();
+    uchar id();
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
@@ -33,7 +34,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 
 signals:
-    void clicked(QString cardTitle);
+    void clicked(uchar cardId);
 
 private:
     QColor blueColor() const;
@@ -74,6 +75,7 @@ private:
     QColor m_backgroundColor;
     QColor m_outlineColor;
     CardType m_cardType;
+    uchar m_id;
 };
 
 #endif // CARDWIDGET_H

@@ -11,6 +11,7 @@ CardDataConfigReader::CardDataConfigReader(const QString& configFilePath)
     }
 }
 
+#ifdef false
 QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end) {
     QVector<std::shared_ptr<Card>> cards;
 
@@ -57,8 +58,8 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
 
     return cards;
 }
+#endif
 
-#ifdef false
 QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end) {
     QVector<std::shared_ptr<Card>> cards;
 
@@ -83,6 +84,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     QString currentSection;
     QMap<QString, QString> currentCardData;
 
+    uchar i = begin;
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
         if (line.isEmpty() || line.startsWith(';') || line.startsWith('#')) continue;
@@ -130,7 +132,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                     uchar pack = currentCardData.value("pack", "0").toUShort();
                     uchar price = currentCardData.value("price", "0").toUShort();
 
-                    std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price);
+                    std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, i);
                     cards.append(card);
                     //cards.append(std::make_shared<Card>(title, description, imagePath, activationValues, type, pack, price));
                 }
@@ -139,6 +141,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
             // Start a new section
             currentSection = sectionMatch.captured(1);
             currentCardData.clear();
+            i++;
             continue;
         }
 
@@ -151,6 +154,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     }
 
     // Process the last card in the file
+    i++;
     if (!currentSection.isEmpty()) {
         uchar cardNumber = currentSection.toUShort();
         if (cardNumber >= begin && cardNumber <= end) {
@@ -192,7 +196,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
             uchar pack = currentCardData.value("pack", "0").toUShort();
             uchar price = currentCardData.value("price", "0").toUShort();
 
-            std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price);
+            std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, i);
             cards.append(card);
             //cards.append(std::make_shared<Card>(title, description, imagePath, activationValues, type, pack, price));
         }
@@ -201,4 +205,3 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     file.close();
     return cards;
 }
-#endif

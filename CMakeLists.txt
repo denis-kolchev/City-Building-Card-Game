@@ -30,7 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         player.h player.cpp
         cardreserve.h cardreserve.cpp
 
-        gamestate.h gamestate.cpp
+
 
         README.md
 

@@ -14,7 +14,7 @@
 
 using CardsLayout = QHBoxLayout;
 using CardsList = QVector<std::shared_ptr<Card>>;
-using CardsStack = QMap<QString, CardStackWidget*>;
+using CardsStack = QMap<uchar, CardStackWidget*>;
 
 class MainWindow : public QMainWindow
 {
@@ -65,9 +65,9 @@ signals:
 
     void cardTurnSound();
 
-    void cardWidgetClicked(QString cardTitle);
+    void cardWidgetClicked(uchar cardId);
 
-    void checkPlayerCards(QString cardTitle, int playerId, uchar dice1, uchar dice2);
+    void checkPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2);
 
     void createPlayers(QList<QString> playerNames);
 
@@ -84,7 +84,7 @@ signals:
     void updatedPlayersPanel();
 
 private slots:
-    void handleCardClick(QString cardTitle);
+    void handleCardClick(uchar cardId);
 
     void onRollOneDiceClicked();
 

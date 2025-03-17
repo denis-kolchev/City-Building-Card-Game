@@ -22,10 +22,10 @@ void CardStackWidget::addCard(CardWidget *card)
     update(); // Trigger a repaint
 }
 
-CardWidget* CardStackWidget::at(QString title) const
+CardWidget* CardStackWidget::at(uchar id) const
 {
     for (auto card : m_cards) {
-        if (card->title() == title) {
+        if (card->id() == id) {
             return card;
         }
     }

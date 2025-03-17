@@ -66,17 +66,17 @@ void GameLogic::playTurn(uchar dice1, uchar dice2) {
     }
 }
 
-void GameLogic::checkCoinBalanceForCard(QString cardTitle)
+void GameLogic::checkCoinBalanceForCard(uchar cardId)
 {
     uchar coins = m_players[m_currentPlayerId]->coins();
-    emit tryToBuyCard(cardTitle, coins);
+    emit tryToBuyCard(cardId, coins);
 }
 
-void GameLogic::processCheckPlayerCards(QString cardTitle, int playerId, uchar dice1, uchar dice2)
+void GameLogic::processCheckPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2)
 {
     auto cards = m_players[m_currentPlayerId]->getLandmarks(); // ToDO UNITE THESE TWO FUNCTIONS!
     for (auto card : cards) {
-        if (card->title() == cardTitle) {
+        if (card->id() == cardId) {
             card->activate(m_players, *m_players[m_currentPlayerId], *m_players[m_currentPlayerId], dice1, dice1);
         }
     }
@@ -128,9 +128,9 @@ void GameLogic::handleRollButtonClicked(uchar dice1, uchar dice2)
     //emit waitForBuyOrSkip();
 }
 
-void GameLogic::handleTryToBuyCard(QString cardTitle)
+void GameLogic::handleTryToBuyCard(uchar cardId)
 {
-    auto card = m_cardReserve->findCardByTitle(cardTitle);
+    auto card = m_cardReserve->findCardByTitle(cardId);
     if (!card) {
         qDebug() << "Card isn't found!";
         // need an emit somewhere to rewdraw reserve without a card
