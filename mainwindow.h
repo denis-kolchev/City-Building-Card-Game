@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QStateMachine>
 #include <QVBoxLayout>
+#include <QtWidgets/qscrollarea.h>
 
 #include "carddataconfigreader.h"
 #include "cardstackwidget.h"
@@ -111,12 +112,29 @@ private:
     QState *m_buyOrRerollState;
     QFinalState *m_finalState;
 
+    QWidget *m_centralWidget; // this
+    QHBoxLayout *m_mainLayout; // m_centralWidget
+    QScrollArea *m_reserveCardsArea;
+    QWidget *m_reserveScrollWidget;
+    QHBoxLayout* m_reserveLayout; // reserveScrollWidget
+
+    QVector<QWidget*> m_playerViews;
+
     CardsStack m_reserveCardsStack;
+    QVector<QVBoxLayout*> m_viewCardsLayouts;
+    QVector<QScrollArea*> m_landmarksScrollAreas;
+    QVector<QScrollArea*> m_playersBuildsAreas;
+    QVector<QWidget*> m_landmarksScrollWidgets;
+    QVector<QWidget*> m_playersBuildsScrollWidgets;
+    QVector<QHBoxLayout*> m_buttonLayouts;
+    QVector<QVBoxLayout*> m_actionLayouts;
+    QVector<QHBoxLayout*> m_labelLayouts;
+    QVector<QWidget*> m_actionWidgets;
+
     QVector<CardsStack> m_landmarkCardStacks;
     QVector<CardsStack> m_playerCardStacks;
     QVector<QLabel*> m_playerBalanceLabels;
     QVector<QLabel*> m_diceResultLabels;
-    QHBoxLayout* m_reserveLayout;
     QVector<QHBoxLayout*> m_buildsLayout;
     QVector<QHBoxLayout*> m_landmarksLayout;
     QVector<QPushButton*> m_rollOneDiceButtons;
