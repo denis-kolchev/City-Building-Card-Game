@@ -24,18 +24,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
 
-
         diceroller.h diceroller.cpp
         gamelogic.h gamelogic.cpp
         player.h player.cpp
         cardreserve.h cardreserve.cpp
 
-
-
         README.md
-
-
-
 
         cards/cafe.h cards/cafe.cpp
         cards/card.h cards/card.cpp
@@ -46,7 +40,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cardwidget.h cardwidget.cpp
         gamecontroller.h gamecontroller.cpp
         cardfactory.h cardfactory.cpp
-        CardsDataConfig.ini
+        # Removed CardsDataConfig.ini from sources (not a source file)
         carddataconfigreader.h carddataconfigreader.cpp
         cards/railwaystation.h cards/railwaystation.cpp
         cards/amusementpark.h cards/amusementpark.cpp
@@ -66,7 +60,16 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         startmenu.h startmenu.cpp
         cardstackwidget.h cardstackwidget.cpp
         gameSounds.qrc
-        soundmanager.h soundmanager.cpp
+    )
+
+    # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"
+    source_group("Configuration Files" FILES ${CMAKE_CURRENT_SOURCE_DIR}/CardsDataConfig.ini)
+
+    # Copy INI file to build directory on every build
+    add_custom_command(TARGET CityBuildingCardGame POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/CardsDataConfig.ini
+            $<TARGET_FILE_DIR:CityBuildingCardGame>
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CityBuildingCardGame APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -90,14 +93,8 @@ target_link_libraries(CityBuildingCardGame PRIVATE Qt${QT_VERSION_MAJOR}::Widget
 target_link_libraries(CityBuildingCardGame PRIVATE Qt${QT_VERSION_MAJOR}::StateMachine)
 target_link_libraries(CityBuildingCardGame PRIVATE Qt${QT_VERSION_MAJOR}::Multimedia)
 
-# Add CardsDataConfig.ini into sources, to make Qt Creator see this file
-install(FILES CardsDataConfig.ini DESTINATION ${CMAKE_BINARY_DIR})
-
-# Copy CardsDataConfig.ini in the build folder
-configure_file(${CMAKE_SOURCE_DIR}/CardsDataConfig.ini ${CMAKE_BINARY_DIR}/CardsDataConfig.ini COPYONLY)
-
-# To install CardsDataConfig.ini together with app
-install(FILES ${CMAKE_SOURCE_DIR}/CardsDataConfig.ini DESTINATION ${CMAKE_INSTALL_BINDIR})
+# To install CardsDataConfig.ini together with app (optional for deployment)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CardsDataConfig.ini DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

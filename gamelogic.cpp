@@ -7,11 +7,7 @@
 GameLogic::GameLogic(QObject *parent)
     : m_cardReserve(new CardReserve()), m_currentPlayerId(0), QObject(parent)
 {
-    // find a way to config file
-    QString executablePath = QCoreApplication::applicationDirPath();
-    QDir sourceDir(executablePath);
-    sourceDir.cd("../../../"); // Move on 3 levels up
-    QString configPath = sourceDir.absolutePath() + "/CardsDataConfig.ini";
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
     } else {

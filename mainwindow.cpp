@@ -19,18 +19,6 @@ MainWindow::MainWindow(QMainWindow *parent)
     setWindowTitle("City Building Card Game");
     setupStateMachine();
 
-    connect(this, &MainWindow::buttonClickSound,
-            m_soundManager, &SoundManager::playButtonClickSound);
-
-    connect(this, &MainWindow::cardFailSound,
-            m_soundManager, &SoundManager::playCardFailSound);
-
-    connect(this, &MainWindow::cardTurnSound,
-            m_soundManager, &SoundManager::playCardTurnSound);
-
-    connect(this, &MainWindow::takeCardSound,
-            m_soundManager, &SoundManager::playTakeCardSound);
-
     resize(1366, 768);
     centerWindow();
 }
@@ -123,11 +111,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_canBuildAgainIfDubleRollDice.resize(m_numPlayers, false);
     m_canRerollDice.resize(m_numPlayers, false);
 
-    // Read card data from config
-    QString executablePath = QCoreApplication::applicationDirPath();
-    QDir sourceDir(executablePath);
-    sourceDir.cd("../../../"); // Move on 3 levels up
-    QString configPath = sourceDir.absolutePath() + "/CardsDataConfig.ini";
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
     } else {
@@ -351,11 +335,7 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
     auto *playersBuilds = new QLabel("Builds");
     auto *playersBuildsArea = new QScrollArea();
 
-    // Read card data from config
-    QString executablePath = QCoreApplication::applicationDirPath();
-    QDir sourceDir(executablePath);
-    sourceDir.cd("../../../"); // Move on 3 levels up
-    QString configPath = sourceDir.absolutePath() + "/CardsDataConfig.ini";
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
     } else {

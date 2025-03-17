@@ -10,7 +10,6 @@
 
 #include "carddataconfigreader.h"
 #include "cardstackwidget.h"
-#include "soundmanager.h"
 
 using CardsLayout = QHBoxLayout;
 using CardsList = QVector<std::shared_ptr<Card>>;
@@ -106,8 +105,6 @@ private:
     void updateButtonStates();
 
 private:
-    SoundManager *m_soundManager;
-
     QStateMachine *m_stateMachine;
     QState *m_incomeState;
     QState *m_buyingState;

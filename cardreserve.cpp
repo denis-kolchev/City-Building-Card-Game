@@ -7,18 +7,7 @@
 CardReserve::CardReserve(QObject* parent)
     : QObject(parent)
 {
-    // TO DO this code isn't universal for other platforms
-    // find a way to config file
-    QString executablePath = QCoreApplication::applicationDirPath();
-    QDir sourceDir(executablePath);
-    sourceDir.cd("../../../"); // Move on 3 levels up
-    QString configPath = sourceDir.absolutePath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
-    } else {
-        qDebug() << "File not found!";
-    }
-
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     // read card data from config
     CardDataConfigReader cardReader(configPath);
     auto cards = cardReader.readFromRange(4, 18);
