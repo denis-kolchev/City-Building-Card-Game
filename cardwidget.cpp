@@ -109,12 +109,14 @@ CardWidget::CardWidget(QPixmap imagePath,
     cardTitple->setContentsMargins(2, 4, 4, 10);
     cardTitple->setAlignment(Qt::AlignCenter);
     cardTitple->setStyleSheet("color: white; font-size: 14px;  font-weight: bold;");
+    cardTitple->setTextFormat(Qt::PlainText);
 
     QLabel* descriptionLabel = new QLabel(m_description, this); // description
     descriptionLabel->setWordWrap(true);
     descriptionLabel->setContentsMargins(10, 10, 10, 0);
     descriptionLabel->setStyleSheet("color: white; font-size: 10px;");
     descriptionLabel->setAlignment(Qt::AlignCenter);
+    descriptionLabel->setTextFormat(Qt::PlainText);
 
     QLabel* priceLabel = new QLabel(m_price, this); // 5
     priceLabel->setContentsMargins(10, 10, 10, 10);
