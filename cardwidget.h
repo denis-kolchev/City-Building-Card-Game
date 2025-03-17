@@ -60,6 +60,8 @@ private:
 
     QColor redOutlineColor() const;
 
+    QString replaceSubstringWithEmoji(const QString &input, const QString &substring, const QString &emoji);
+
     QString transformQSetToRangeString(const QSet<uchar>& set);
 
 private:

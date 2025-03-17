@@ -21,6 +21,24 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_cardType(cardType)
     , QWidget(parent)
 {
+    QMap<CardType, QString> emojiMap = {
+        {CardType::Agricultiral, "\u2600"},
+        {CardType::Business, "\u26EA"},
+        {CardType::Dining, "\u2615"},
+        {CardType::Farm, "\u26F0"},
+        {CardType::Fruit, "\u26FA"},
+        {CardType::Landmark, "\u26E9"},
+        {CardType::Mining, "\u2699"},
+        {CardType::Production, "\u267B"},
+        {CardType::Ship, "\u26F4"},
+        {CardType::Shop, "\u26F1"}
+    };
+
+    // Use the map to set the title
+    if (emojiMap.contains(m_cardType)) {
+        m_title = emojiMap[m_cardType] + " " + m_title;
+    }
+
     QSet<CardType> blueTypes = {
         CardType::Agricultiral,
         CardType::Farm,
@@ -58,6 +76,13 @@ CardWidget::CardWidget(QPixmap imagePath,
         m_backgroundColor = purpleColor();
         m_outlineColor = purpleOutlineColor();
     }
+
+    m_description = replaceSubstringWithEmoji(m_description, "coffee shop", emojiMap[CardType::Dining]);
+    m_description = replaceSubstringWithEmoji(m_description, "store", emojiMap[CardType::Shop]);
+    m_description = replaceSubstringWithEmoji(m_description, "landmark", emojiMap[CardType::Landmark]);
+    m_description = replaceSubstringWithEmoji(m_description, "farm", emojiMap[CardType::Farm]);
+    m_description = replaceSubstringWithEmoji(m_description, "mining", emojiMap[CardType::Mining]);
+    m_description = replaceSubstringWithEmoji(m_description, "agricultiral", emojiMap[CardType::Agricultiral]);
 
     //int w = 200, h = 300;
     int w = 150, h = 250;
@@ -228,6 +253,12 @@ QColor CardWidget::redColor() const {
 QColor CardWidget::redOutlineColor() const {
     return QColor(232, 149, 113); // pastele
     //return QColor(191, 27, 27);
+}
+
+QString CardWidget::replaceSubstringWithEmoji(const QString &input, const QString &substring, const QString &emoji) {
+    QString result = input;
+    result.replace(substring, emoji);
+    return result;
 }
 
 QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set) {
