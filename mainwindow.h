@@ -30,6 +30,8 @@ public slots:
 
     void displayPlayerNewCard(std::shared_ptr<Card> card);
 
+    void displayWorningWindow(QString message);
+
     void finishGame(int currentPlayerId);
 
     void handlePlayerCardActivatedBefore(uchar dice1, uchar dice2);

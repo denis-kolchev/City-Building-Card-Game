@@ -68,6 +68,16 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
     }
 }
 
+void MainWindow::displayWorningWindow(QString message)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Warning!"); // Set the title of the window
+    msgBox.setText(message); // Set the message text
+    msgBox.setStandardButtons(QMessageBox::Ok); // Add an "OK" button
+    msgBox.setDefaultButton(QMessageBox::Ok); // Set "OK" as the default button
+    msgBox.exec();
+}
+
 void MainWindow::finishGame(int currentPlayerId)
 {
     QMessageBox::information(this, "Game Over", QString("Player %1 wins!").arg(char(currentPlayerId + 'A')));
@@ -271,8 +281,8 @@ void MainWindow::handleCardClick(QString cardTitle)
         m_stateMachine->configuration().contains(m_buyOrRerollState))
     {
         qDebug() << "card is clicked!";
-        emit cardWidgetClicked(cardTitle);
         emit takeCardSound();
+        emit cardWidgetClicked(cardTitle);
     }
 }
 

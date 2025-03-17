@@ -67,6 +67,9 @@ int main(int argc, char *argv[])
     QObject::connect(gameLogic.get(), &GameLogic::gameIsFinished,
                      mainWindow.get(), &MainWindow::finishGame);
 
+    QObject::connect(gameLogic.get(), &GameLogic::playerHasNotEnoughCoins,
+                     mainWindow.get(), &MainWindow::displayWorningWindow);
+
     startMenu->show();
 
     return app.exec();

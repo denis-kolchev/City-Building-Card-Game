@@ -33,11 +33,12 @@ CardWidget::CardWidget(QPixmap imagePath,
         {CardType::Ship, "\u26F4"},
         {CardType::Shop, "\u26F1"}
     };
-
+#ifdef false
     // Use the map to set the title
     if (emojiMap.contains(m_cardType)) {
         m_title = emojiMap[m_cardType] + " " + m_title;
     }
+#endif
 
     QSet<CardType> blueTypes = {
         CardType::Agricultiral,

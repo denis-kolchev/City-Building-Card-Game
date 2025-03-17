@@ -56,6 +56,8 @@ signals:
 
     void playerHasAmusementPark();
 
+    void playerHasNotEnoughCoins(QString message);
+
     void playerHasRadioTower();
 
     void playerHasRailwayStation();
