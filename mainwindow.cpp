@@ -53,8 +53,8 @@ bool MainWindow::askForReroll(QWidget* parent)
 void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
     CardsList cards;
-    cards.push_back(card);    
-    placeCards(cards, *m_buildsLayout[m_currentPlayerId], m_playerCardStacks[m_currentPlayerId]);
+    cards.push_back(card);
+    placeCards(cards, m_playerPages[m_currentPlayerId]->getBuildsLayout(), m_playerPages[m_currentPlayerId]->getBuildCardStack());
     removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
     update();
     if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
@@ -105,30 +105,9 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_numPlayers = numPlayers;
     m_currentPlayerId = 0;
 
-    // Create several copies of player panel based on number of players
-    // ToDo: make it a sepate function or a class
-    m_playerBalanceLabels.resize(m_numPlayers);
-    m_diceResultLabels.resize(m_numPlayers);
-    m_buildsLayout.resize(m_numPlayers);
-    m_landmarksLayout.resize(m_numPlayers);
-    m_rollOneDiceButtons.resize(m_numPlayers);
-    m_rollTwoDiceButtons.resize(m_numPlayers);
-    m_skipButtons.resize(m_numPlayers);
-    m_playerCardStacks.resize(m_numPlayers);
-    m_landmarkCardStacks.resize(m_numPlayers);
     m_canPressTwoDiceButton.resize(m_numPlayers, false);
     m_canBuildAgainIfDubleRollDice.resize(m_numPlayers, false);
     m_canRerollDice.resize(m_numPlayers, false);
-    m_playerViews.resize(m_numPlayers);
-    m_viewCardsLayouts.resize(m_numPlayers);
-    m_landmarksScrollAreas.resize(m_numPlayers);
-    m_playersBuildsAreas.resize(m_numPlayers);
-    m_landmarksScrollWidgets.resize(m_numPlayers);
-    m_playersBuildsScrollWidgets.resize(m_numPlayers);
-    m_buttonLayouts.resize(m_numPlayers);
-    m_actionLayouts.resize(m_numPlayers);
-    m_labelLayouts.resize(m_numPlayers);
-    m_actionWidgets.resize(m_numPlayers);
 
     QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
@@ -138,7 +117,6 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     }
 
     // define what card should go suppose to do the logic
-
     CardDataConfigReader cardReader(configPath);
     CardsList reserveCards;
     for (uchar i = 0; i < m_numPlayers; ++i) {
@@ -151,10 +129,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 
     try {
         std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
-            // Use value() with default instead of at()
-            int aVal = a->activationValues().values().value(0, 0);
-            int bVal = b->activationValues().values().value(0, 0);
-            return aVal < bVal;
+            return a->id() < b->id();
         });
     } catch (const std::out_of_range& e) {
         qCritical() << "Card activation values error:" << e.what();
@@ -175,8 +150,8 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
-        auto *playerView = createPlayerView(i);
-        m_tabWidget->addTab(playerView, QString("Player %1").arg(playerId));
+        auto *playerPage = createPlayerPage(i);
+        m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
         playerNames[i] = QString("Player %1").arg(playerId);
     }
 
@@ -232,8 +207,8 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 {
     emit cardTurnSound();
 
-    auto id= card->id();
-    CardWidget* landmark = m_landmarkCardStacks[m_currentPlayerId][id]->at(id);
+    auto id = card->id();
+    CardWidget* landmark = m_playerPages[m_currentPlayerId]->getLandmarkCardStack()[id]->at(id);
     if (!landmark) {
         return;
     }
@@ -262,7 +237,7 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 void MainWindow::unlockRollTwoDiceButton()
 {
     if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
-        m_rollTwoDiceButtons[m_currentPlayerId]->setEnabled(true);
+        m_playerPages[m_currentPlayerId]->setRollButtonsEnabled(true, true);
     }
 }
 
@@ -273,7 +248,7 @@ void MainWindow::updateDiceResultLabel(uchar dice)
 
 void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
 {
-    m_playerBalanceLabels[playerId]->setText(QString("Coins: %1").arg(balance));
+    m_playerPages[m_currentPlayerId]->setPlayerBalance(balance);
 }
 
 void MainWindow::handleCardClick(uchar cardId)
@@ -293,7 +268,7 @@ void MainWindow::onRollOneDiceClicked()
 
     uchar dice = DiceRoller{}.rollDice(1);
     qDebug() << "Roll One Dice button Clicked!";
-    m_diceResultLabels[m_currentPlayerId]->setText(QString("Dice result: %1").arg(dice));
+    m_playerPages[m_currentPlayerId]->setOneDiceResult(dice);
 
     processDiceRoll(dice, 0);
 }
@@ -305,9 +280,7 @@ void MainWindow::onRollTwoDiceClicked()
     uchar dice1 = DiceRoller{}.rollDice(1);
     uchar dice2 = DiceRoller{}.rollDice(1);
     qDebug() << "Roll Two Dice button Clicked!";
-    m_diceResultLabels[m_currentPlayerId]->setText(
-        QString("Dice result: %1 + %2 = %3").arg(dice1).arg(dice2).arg(dice1 + dice2)
-    );
+    m_playerPages[m_currentPlayerId]->setTwoDiceResult(dice1, dice2);
 
     processDiceRoll(dice1, dice2);
 }
@@ -340,18 +313,8 @@ void MainWindow::centerWindow()
 }
 
 
-QWidget* MainWindow::createPlayerView(uchar playerId)
+QWidget* MainWindow::createPlayerPage(uchar playerId)
 {
-    if (playerId >= m_playerViews.size()) {
-        qFatal("Player ID %d exceeds allocated vector size", playerId);
-    }
-
-    m_playerViews[playerId] = new QWidget();
-    m_viewCardsLayouts[playerId] = new QVBoxLayout(m_playerViews[playerId]);
-
-    m_landmarksScrollAreas[playerId] = new QScrollArea();
-    m_playersBuildsAreas[playerId] = new QScrollArea();
-
     QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
@@ -359,83 +322,17 @@ QWidget* MainWindow::createPlayerView(uchar playerId)
         qDebug() << "File not found!";
     }
 
-    CardDataConfigReader cardReader(configPath);
+    auto *playerPage = new PlayerPage(playerId, configPath);
+    connect(playerPage, &PlayerPage::rollOneDiceClicked, this, &MainWindow::onRollOneDiceClicked);
+    connect(playerPage, &PlayerPage::rollTwoDiceClicked, this, &MainWindow::onRollTwoDiceClicked);
+    connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::onSkipClicked);
+    connect(playerPage, &PlayerPage::cardClicked, this, &MainWindow::handleCardClick);
 
-
-    m_landmarksScrollWidgets[playerId] = new QWidget();
-    m_landmarksLayout[playerId] = new QHBoxLayout(m_landmarksScrollWidgets[playerId]);
-
-    QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 3);
-    //QVector<std::shared_ptr<Card>> landmarkCards = cardReader.readFromRange(0, 18);
-    placeCards(landmarkCards, *m_landmarksLayout[playerId], m_landmarkCardStacks[playerId]);
-
-    m_landmarksScrollWidgets[playerId]->setLayout(m_landmarksLayout[playerId]);
-    m_landmarksScrollAreas[playerId]->setWidget(m_landmarksScrollWidgets[playerId]);
-    m_landmarksScrollAreas[playerId]->setWidgetResizable(true);
-
-    m_playersBuildsScrollWidgets[playerId] = new QWidget();
-    m_buildsLayout[playerId] = new QHBoxLayout(m_landmarksScrollWidgets[playerId]);
-
-    QVector<std::shared_ptr<Card>> playerCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
-    placeCards(playerCards, *m_buildsLayout[playerId], m_playerCardStacks[playerId]);
-
-    m_playersBuildsScrollWidgets[playerId]->setLayout(m_buildsLayout[playerId]);
-    m_playersBuildsAreas[playerId]->setWidget(m_playersBuildsScrollWidgets[playerId]);
-    m_playersBuildsAreas[playerId]->setWidgetResizable(true);
-
-    m_viewCardsLayouts[playerId]->addWidget(new QLabel("Landmarks"));
-    m_viewCardsLayouts[playerId]->addWidget(m_landmarksScrollAreas[playerId]);
-    m_viewCardsLayouts[playerId]->addWidget(new QLabel("Builds"));
-    m_viewCardsLayouts[playerId]->addWidget(m_playersBuildsAreas[playerId]);
-
-    // Create a horizontal layout for buttons
-    m_buttonLayouts[playerId] = new QHBoxLayout();
-    m_rollOneDiceButtons[playerId] = new QPushButton("Roll 1 dice");
-    m_rollOneDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_rollOneDiceButtons[playerId]->setEnabled(false);
-    m_rollTwoDiceButtons[playerId] = new QPushButton("Roll 2 dice");
-    m_rollTwoDiceButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_rollTwoDiceButtons[playerId]->setEnabled(false);
-    m_skipButtons[playerId] = new QPushButton("Skip Build");
-    m_skipButtons[playerId]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_skipButtons[playerId]->setEnabled(false);
-
-    connect(m_rollOneDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollOneDiceClicked);
-    connect(m_rollTwoDiceButtons[playerId], &QPushButton::clicked, this, &MainWindow::onRollTwoDiceClicked);
-    connect(m_skipButtons[playerId], &QPushButton::clicked, this, &MainWindow::onSkipClicked);
-
-    m_buttonLayouts[playerId]->addWidget(m_rollOneDiceButtons[playerId]);
-    m_buttonLayouts[playerId]->addWidget(m_rollTwoDiceButtons[playerId]);
-    m_buttonLayouts[playerId]->addWidget(m_skipButtons[playerId]);
-
-    // Create a horizontal layout for labels
-    m_labelLayouts[playerId] = new QHBoxLayout();
-    m_playerBalanceLabels[playerId] = new QLabel("Coins: 3");
-    m_playerBalanceLabels[playerId]->setAlignment(Qt::AlignLeft);
-    m_diceResultLabels[playerId] = new QLabel("Dice result: 0");
-    m_diceResultLabels[playerId]->setAlignment(Qt::AlignLeft);
-
-    m_labelLayouts[playerId]->addWidget(m_playerBalanceLabels[playerId]);
-    m_labelLayouts[playerId]->addWidget(m_diceResultLabels[playerId]);
-    m_labelLayouts[playerId]->setAlignment(Qt::AlignLeft);
-
-    // Add both horizontal layouts to the actionLayout
-    m_actionLayouts[playerId] = new QVBoxLayout();
-    m_actionLayouts[playerId]->addLayout(m_actionLayouts[playerId]); // Add button layout
-    m_actionLayouts[playerId]->addLayout(m_labelLayouts[playerId]); // Add label layout
-    m_actionLayouts[playerId]->setAlignment(Qt::AlignLeft);
-
-    m_actionWidgets[playerId] = new QWidget(m_playerViews[playerId]);
-    m_actionWidgets[playerId]->setLayout(m_actionLayouts[playerId]);
-
-    m_viewCardsLayouts[playerId]->addWidget(m_actionWidgets[playerId]);
-
-    m_playerViews[playerId]->setLayout(m_viewCardsLayouts[playerId]);
-
-    return m_playerViews[playerId];
+    m_playerPages.append(playerPage);
+    return playerPage;
 }
 
-void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack)
+void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack)
 {
     for (int i = 0; i < cards.size(); ++i) {
         auto *customWidget = new CardWidget(cards[i]->imagePath(),
@@ -461,7 +358,7 @@ void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStack &c
     }
 }
 
-void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack)
+void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack)
 {
     for (int i = 0; i < cards.size(); ++i) {
         uchar cardId = cards[i]->id();
@@ -522,8 +419,8 @@ void MainWindow::updateButtonStates()
     for (int i = 0; i < m_numPlayers; ++i) {
         bool isActivePlayer = (i == m_currentPlayerId);
 
-        m_rollOneDiceButtons[i]->setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer);
-        m_rollTwoDiceButtons[i]->setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
-        m_skipButtons[i]->setEnabled((isBuyOrRerollState || isBuyingState) && isActivePlayer);
+        m_playerPages[i]->getOneDiceButton().setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer);
+        m_playerPages[i]->getTwoDiceButton().setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
+        m_playerPages[i]->getSkipButton().setEnabled((isBuyOrRerollState || isBuyingState) && isActivePlayer);
     }
 }

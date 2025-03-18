@@ -11,10 +11,9 @@
 
 #include "carddataconfigreader.h"
 #include "cardstackwidget.h"
+#include "playerpage.h"
 
 using CardsLayout = QHBoxLayout;
-using CardsList = QVector<std::shared_ptr<Card>>;
-using CardsStack = QMap<uchar, CardStackWidget*>;
 
 class MainWindow : public QMainWindow
 {
@@ -95,11 +94,11 @@ private slots:
 private:
     void centerWindow();
 
-    QWidget* createPlayerView(uchar playerId);
+    QWidget* createPlayerPage(uchar playerId);
 
-    void placeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack);
+    void placeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack);
 
-    void removeCards(CardsList &cards, CardsLayout &layout, CardsStack &cardStack);
+    void removeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack);
 
     void setupStateMachine();
 
@@ -121,28 +120,10 @@ private:
     QWidget *m_reserveScrollWidget;
     QHBoxLayout* m_reserveLayout; // reserveScrollWidget
 
-    QVector<QWidget*> m_playerViews;
+    QVector<PlayerPage*> m_playerPages;
 
-    CardsStack m_reserveCardsStack;
-    QVector<QVBoxLayout*> m_viewCardsLayouts;
-    QVector<QScrollArea*> m_landmarksScrollAreas;
-    QVector<QScrollArea*> m_playersBuildsAreas;
-    QVector<QWidget*> m_landmarksScrollWidgets;
-    QVector<QWidget*> m_playersBuildsScrollWidgets;
-    QVector<QHBoxLayout*> m_buttonLayouts;
-    QVector<QVBoxLayout*> m_actionLayouts;
-    QVector<QHBoxLayout*> m_labelLayouts;
-    QVector<QWidget*> m_actionWidgets;
+    CardsStacks m_reserveCardsStack;
 
-    QVector<CardsStack> m_landmarkCardStacks;
-    QVector<CardsStack> m_playerCardStacks;
-    QVector<QLabel*> m_playerBalanceLabels;
-    QVector<QLabel*> m_diceResultLabels;
-    QVector<QHBoxLayout*> m_buildsLayout;
-    QVector<QHBoxLayout*> m_landmarksLayout;
-    QVector<QPushButton*> m_rollOneDiceButtons;
-    QVector<QPushButton*> m_rollTwoDiceButtons;
-    QVector<QPushButton*> m_skipButtons;
     QVector<bool> m_canPressTwoDiceButton;
     QVector<bool> m_canBuildAgainIfDubleRollDice;
     QVector<bool> m_canRerollDice;

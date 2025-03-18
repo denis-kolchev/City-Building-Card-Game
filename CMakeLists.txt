@@ -69,6 +69,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
         startmenu.h startmenu.cpp
         cardstackwidget.h cardstackwidget.cpp
         gameSounds.qrc
+        playerpage.h playerpage.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"
