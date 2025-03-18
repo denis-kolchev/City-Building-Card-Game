@@ -106,6 +106,9 @@ private:
     void updateButtonStates();
 
 private:
+    int m_numPlayers;
+    int m_currentPlayerId;
+
     QStateMachine *m_stateMachine;
     QState *m_incomeState;
     QState *m_buyingState;
@@ -144,7 +147,5 @@ private:
     QVector<bool> m_canBuildAgainIfDubleRollDice;
     QVector<bool> m_canRerollDice;
     QTabWidget *m_tabWidget;
-    int m_numPlayers;
-    int m_currentPlayerId;
 };
 #endif // MAINWINDOW_H
