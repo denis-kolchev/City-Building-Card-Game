@@ -6,12 +6,22 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(QT_VERSION_MAJOR EQUAL 6)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+else()
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Multimedia)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
-find_package(Qt6 REQUIRED COMPONENTS StateMachine)
+
+if(QT_VERSION_MAJOR EQUAL 6)
+    find_package(Qt6 REQUIRED COMPONENTS StateMachine)
+else()
+    find_package(Qt5 REQUIRED COMPONENTS StateMachine) # Ensure Qt5 compatibility
+endif()
 
 set(PROJECT_SOURCES
         main.cpp
@@ -19,7 +29,7 @@ set(PROJECT_SOURCES
         mainwindow.h
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
     qt_add_executable(CityBuildingCardGame
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
@@ -40,7 +50,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         cardwidget.h cardwidget.cpp
         gamecontroller.h gamecontroller.cpp
         cardfactory.h cardfactory.cpp
-        # Removed CardsDataConfig.ini from sources (not a source file)
         carddataconfigreader.h carddataconfigreader.cpp
         cards/railwaystation.h cards/railwaystation.cpp
         cards/amusementpark.h cards/amusementpark.cpp
@@ -117,6 +126,6 @@ install(TARGETS CityBuildingCardGame
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(QT_VERSION_MAJOR EQUAL 6)
+if(QT_VERSION_MAJOR EQUAL 5)
     qt_finalize_executable(CityBuildingCardGame)
 endif()
