@@ -24,6 +24,10 @@ MainWindow::MainWindow(QMainWindow *parent)
     , m_reserveLayout(new QHBoxLayout(m_reserveScrollWidget))
     , m_tabWidget(new QTabWidget(this))
 {
+    m_canPressTwoDiceButton.resize(5, 0);
+    m_canBuildAgainIfDubleRollDice.resize(5, 0);
+    m_canRerollDice.resize(5, 0);
+
     QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
@@ -141,15 +145,12 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_numPlayers = numPlayers;
     m_currentPlayerId = 0;
 
-    m_canPressTwoDiceButton.resize(m_numPlayers, false);
-    m_canBuildAgainIfDubleRollDice.resize(m_numPlayers, false);
-    m_canRerollDice.resize(m_numPlayers, false);
-
     // Create a view for each player and add it as a tab
     char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
-        auto *playerPage = createPlayerPage(i);
+        PlayerPage* playerPage = createPlayerPage(i);
+        m_playerPages.append(playerPage);
         m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
         playerNames[i] = QString("Player %1").arg(playerId);
     }
@@ -283,7 +284,7 @@ void MainWindow::centerWindow()
 }
 
 
-QWidget* MainWindow::createPlayerPage(uchar playerId)
+PlayerPage* MainWindow::createPlayerPage(uchar playerId)
 {
     QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
@@ -292,13 +293,12 @@ QWidget* MainWindow::createPlayerPage(uchar playerId)
         qDebug() << "File not found!";
     }
 
-    auto *playerPage = new PlayerPage(playerId, configPath);
+    PlayerPage* playerPage = new PlayerPage(playerId, configPath);
     connect(playerPage, &PlayerPage::rollOneDiceClicked, this, &MainWindow::onRollOneDiceClicked);
     connect(playerPage, &PlayerPage::rollTwoDiceClicked, this, &MainWindow::onRollTwoDiceClicked);
     connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::onSkipClicked);
     connect(playerPage, &PlayerPage::cardClicked, this, &MainWindow::handleCardClick);
 
-    m_playerPages.append(playerPage);
     return playerPage;
 }
 

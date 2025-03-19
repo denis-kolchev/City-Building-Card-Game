@@ -91,7 +91,7 @@ private slots:
 private:
     void centerWindow();
 
-    QWidget* createPlayerPage(uchar playerId);
+    PlayerPage* createPlayerPage(uchar playerId);
 
     void setupStateMachine();
 
@@ -115,9 +115,9 @@ private:
 
     QVector<PlayerPage*> m_playerPages;
 
-    QVector<bool> m_canPressTwoDiceButton;
-    QVector<bool> m_canBuildAgainIfDubleRollDice;
-    QVector<bool> m_canRerollDice;
+    QVector<int> m_canPressTwoDiceButton;
+    QVector<int> m_canBuildAgainIfDubleRollDice;
+    QVector<int> m_canRerollDice;
     QTabWidget *m_tabWidget;
 };
 #endif // MAINWINDOW_H
