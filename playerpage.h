@@ -8,7 +8,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include "carddataconfigreader.h"
 #include "cardscrollwidget.h"
 
 class PlayerPage : public QWidget
@@ -26,6 +25,14 @@ public:
 
     void setSkipButtonEnabled(bool enabled);
 
+    void placeCards(CardList cards);
+
+    void removeCards(CardList cards);
+
+    void turnOnCardStack(uchar id);
+
+    void turnOffCardStack(uchar id);
+
     QPushButton& getOneDiceButton();
 
     QPushButton& getTwoDiceButton();
@@ -39,7 +46,7 @@ signals:
 
     void skipClicked(uchar playerId);
 
-    void cardClicked(cardIdType id);
+    void cardClicked(CardIdType id);
 
 private:
     void setupUi();

@@ -72,3 +72,19 @@ void CardStackWidget::paintEvent(QPaintEvent *event)
         xOffset += m_cardOverlap; // Increment the offset for the next card
     }
 }
+
+void CardStackWidget::turnOn()
+{
+    for (qsizetype i = 0; i < m_cards.size(); ++i) {
+        m_cards[i]->turnOn();
+    }
+    update();
+}
+
+void CardStackWidget::turnOff()
+{
+    for (qsizetype i = 0; i < m_cards.size(); ++i) {
+        m_cards[i]->turnOff();
+    }
+    update();
+}

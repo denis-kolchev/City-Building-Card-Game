@@ -1,4 +1,5 @@
 #include "playerpage.h"
+#include "carddataconfigreader.h"
 
 #include <QDebug>
 #include <QDir>
@@ -116,6 +117,18 @@ void PlayerPage::setSkipButtonEnabled(bool enabled)
     m_skipButton->setEnabled(enabled);
 }
 
+void PlayerPage::placeCards(CardList cards)
+{
+    // Cards logic. Again!
+    for (qsizetype i = 0; i < cards.size(); ++i) {
+        if (i <= 3 && i >= 0) {
+            m_landmarkScrollWidget->placeCards(CardList{cards[i]});
+        } else if (i >= 18 && i <= 4) {
+            m_buildScrollWidget->placeCards(CardList{cards[i]});
+        }
+    }
+}
+
 QPushButton& PlayerPage::getOneDiceButton()
 {
     return *m_rollOneDiceButton;
@@ -129,4 +142,22 @@ QPushButton& PlayerPage::getTwoDiceButton()
 QPushButton& PlayerPage::getSkipButton()
 {
     return *m_skipButton;
+}
+
+void PlayerPage::turnOnCardStack(uchar id)
+{
+    if (id >= 0 && id <= 3) {
+        m_landmarkScrollWidget->turnOn(id);
+    } else {
+        m_buildScrollWidget->turnOn(id);
+    }
+}
+
+void PlayerPage::turnOffCardStack(uchar id)
+{
+    if (id >= 0 && id <= 3) {
+        m_landmarkScrollWidget->turnOff(id);
+    } else {
+        m_buildScrollWidget->turnOff(id);
+    }
 }

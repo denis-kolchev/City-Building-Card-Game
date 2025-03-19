@@ -10,7 +10,6 @@
 #include <QtWidgets/qscrollarea.h>
 
 #include "carddataconfigreader.h"
-#include "cardstackwidget.h"
 #include "playerpage.h"
 
 using CardsLayout = QHBoxLayout;
@@ -48,8 +47,6 @@ public slots:
     void unlockPlayerLandmark(std::shared_ptr<Card> card);
 
     void unlockRollTwoDiceButton();
-
-    void updateDiceResultLabel(uchar dice);
 
     void updatePlayerBalanceLabel(uchar balance, int playerId);
 
@@ -96,10 +93,6 @@ private:
 
     QWidget* createPlayerPage(uchar playerId);
 
-    void placeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack);
-
-    void removeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack);
-
     void setupStateMachine();
 
     void updateButtonStates();
@@ -117,12 +110,10 @@ private:
     QWidget *m_centralWidget; // this
     QHBoxLayout *m_mainLayout; // m_centralWidget
     QScrollArea *m_reserveCardsArea;
-    QWidget *m_reserveScrollWidget;
+    CardScrollWidget* m_reserveScrollWidget;
     QHBoxLayout* m_reserveLayout; // reserveScrollWidget
 
     QVector<PlayerPage*> m_playerPages;
-
-    CardsStacks m_reserveCardsStack;
 
     QVector<bool> m_canPressTwoDiceButton;
     QVector<bool> m_canBuildAgainIfDubleRollDice;

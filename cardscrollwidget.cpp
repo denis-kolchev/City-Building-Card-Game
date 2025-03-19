@@ -19,7 +19,7 @@ void CardScrollWidget::placeCards(const CardList &cards)
                                           cards[i]->type(),
                                           cards[i]->id());
 
-        cardIdType id = cards[i]->id();
+        CardIdType id = cards[i]->id();
         connect(cardWidget, &CardWidget::clicked, this, [this, id]() {
             emit cardClicked(id);
         });
@@ -39,7 +39,7 @@ void CardScrollWidget::placeCards(const CardList &cards)
 void CardScrollWidget::removeCards(const CardList &cards)
 {
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        cardIdType id = cards[i]->id();
+        CardIdType id = cards[i]->id();
 
         // check if a stack exists
         if (m_stacks.contains(id)) {
@@ -58,4 +58,14 @@ void CardScrollWidget::removeCards(const CardList &cards)
         }
     }
     update();
+}
+
+void CardScrollWidget::turnOn(CardIdType id)
+{
+    m_stacks[id]->turnOn();
+}
+
+void CardScrollWidget::turnOff(CardIdType id)
+{
+    m_stacks[id]->turnOff();
 }

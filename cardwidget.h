@@ -28,6 +28,10 @@ public:
 
     uchar id();
 
+    void turnOn();
+
+    void turnOff();
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 

@@ -151,14 +151,49 @@ CardWidget::CardWidget(QPixmap imagePath,
     setLayout(mainLayout);
 }
 
-void CardWidget::landmarkUnlocked() {
-    m_backgroundColor = goldColor();
-    m_outlineColor = goldOutlineColor();
+uchar CardWidget::id() {
+    return m_id;
+}
+
+void CardWidget::turnOn()
+{
+    // So it should be somewhere set in some file
+    QSet<CardType> blueTypes = {
+        CardType::Agricultiral,
+        CardType::Farm,
+        CardType::Mining,
+        CardType::Ship
+    };
+
+    QSet<CardType> greenType = {
+        CardType::Business,
+        CardType::Fruit,
+        CardType::Production,
+        CardType::Shop
+    };
+
+    if (m_triggerNumber == "0") {
+        m_backgroundColor = goldColor();
+        m_outlineColor = goldOutlineColor();
+    } else if (CardType::Landmark == m_cardType) {
+        m_backgroundColor = purpleColor();
+        m_outlineColor = purpleOutlineColor();
+    } else if (greenType.contains(m_cardType)) {
+        m_backgroundColor = greenColor();
+        m_outlineColor = greenOutlineColor();
+    } else if (blueTypes.contains(m_cardType)) {
+        m_backgroundColor = blueColor();
+        m_outlineColor = blueOutlineColor();
+    }
+
     update();
 }
 
-uchar CardWidget::id() {
-    return m_id;
+void CardWidget::turnOff()
+{
+    m_backgroundColor = greyColor();
+    m_outlineColor = greyOutlineColor();
+    update();
 }
 
 void CardWidget::mousePressEvent(QMouseEvent* event) {

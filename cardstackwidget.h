@@ -21,6 +21,10 @@ public:
 
     int cardCount() const;
 
+    void turnOn();
+
+    void turnOff();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 

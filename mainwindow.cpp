@@ -1,6 +1,4 @@
 #include "mainwindow.h"
-#include "cardstackwidget.h"
-#include "cardwidget.h"
 #include "diceroller.h"
 
 #include <QDir>
@@ -22,12 +20,52 @@ MainWindow::MainWindow(QMainWindow *parent)
     , m_centralWidget(new QWidget(this))
     , m_mainLayout(new QHBoxLayout(m_centralWidget))
     , m_reserveCardsArea(new QScrollArea())
-    , m_reserveScrollWidget(new QWidget())
+    , m_reserveScrollWidget(new CardScrollWidget())
     , m_reserveLayout(new QHBoxLayout(m_reserveScrollWidget))
+    , m_tabWidget(new QTabWidget(this))
 {
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
+    if (QFile::exists(configPath)) {
+        qDebug() << "Config file has found: " << configPath;
+    } else {
+        qDebug() << "File not found!";
+    }
+
+    // define what card should go suppose to do the logic
+    CardDataConfigReader cardReader(configPath);
+    CardList reserveCards;
+    for (uchar i = 0; i < m_numPlayers; ++i) {
+        reserveCards += cardReader.readFromRange(10, 12);
+    }
+    for (uchar i = 0; i < 6; ++i) {
+        reserveCards += cardReader.readFromRange(4, 9);
+        reserveCards += cardReader.readFromRange(13, 18);
+    }
+
+    try {
+        std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
+            return a->id() < b->id();
+        });
+    } catch (const std::out_of_range& e) {
+        qCritical() << "Card activation values error:" << e.what();
+        // Handle error
+    }
+
+    m_reserveScrollWidget->placeCards(reserveCards);
+    m_reserveCardsArea->setWidget(m_reserveScrollWidget);
+    m_reserveCardsArea->setWidgetResizable(true);
+
+    // Add the QTabWidget to the main layout
+    m_mainLayout->addWidget(m_reserveCardsArea);
+
+    // Add the QTabWidget to the main layout
+    m_mainLayout->addWidget(m_tabWidget);
+
+    m_centralWidget->setLayout(m_mainLayout);
+    setCentralWidget(m_centralWidget);
+
     setWindowTitle("City Building Card Game");
     setupStateMachine();
-
     resize(1366, 768);
     centerWindow();
 }
@@ -39,7 +77,7 @@ MainWindow::~MainWindow()
 bool MainWindow::askForReroll(QWidget* parent)
 {
     QString question = QString("Does the Player %1 want to re-roll the dice?")
-                           .arg(char(m_currentPlayerId + 'A'));
+    .arg(char(m_currentPlayerId + 'A'));
 
     QMessageBox msgBox(parent);
     msgBox.setWindowTitle("Re-roll?");
@@ -52,11 +90,9 @@ bool MainWindow::askForReroll(QWidget* parent)
 
 void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
-    CardsList cards;
-    cards.push_back(card);
-    placeCards(cards, m_playerPages[m_currentPlayerId]->getBuildsLayout(), m_playerPages[m_currentPlayerId]->getBuildCardStack());
-    removeCards(cards, *m_reserveLayout, m_reserveCardsStack);
-    update();
+    m_playerPages.at(m_currentPlayerId)->placeCards(CardList{card});
+    m_reserveScrollWidget->removeCards(CardList{card});
+
     if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
         m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
         emit buildOneMoreBuilding();
@@ -109,43 +145,6 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_canBuildAgainIfDubleRollDice.resize(m_numPlayers, false);
     m_canRerollDice.resize(m_numPlayers, false);
 
-    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
-    } else {
-        qDebug() << "File not found!";
-    }
-
-    // define what card should go suppose to do the logic
-    CardDataConfigReader cardReader(configPath);
-    CardsList reserveCards;
-    for (uchar i = 0; i < m_numPlayers; ++i) {
-        reserveCards += cardReader.readFromRange(10, 12);
-    }
-    for (uchar i = 0; i < 6; ++i) {
-        reserveCards += cardReader.readFromRange(4, 9);
-        reserveCards += cardReader.readFromRange(13, 18);
-    }
-
-    try {
-        std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
-            return a->id() < b->id();
-        });
-    } catch (const std::out_of_range& e) {
-        qCritical() << "Card activation values error:" << e.what();
-        // Handle error
-    }
-
-    placeCards(reserveCards, *m_reserveLayout, m_reserveCardsStack);
-    //m_reserveLayout->addStretch();
-
-    m_reserveScrollWidget->setLayout(m_reserveLayout);
-    m_reserveCardsArea->setWidget(m_reserveScrollWidget);
-    m_reserveCardsArea->setWidgetResizable(true);
-
-    // Create a QTabWidget to hold player views
-    m_tabWidget = new QTabWidget(this);
-
     // Create a view for each player and add it as a tab
     char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
@@ -156,19 +155,6 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     }
 
     emit createPlayers(playerNames.toList());
-
-    // Add the QTabWidget to the main layout
-    m_mainLayout->addWidget(m_reserveCardsArea);
-
-    // Add the Landmarks to the main layout
-    //mainLayout->addWidget(landmarksCardsArea);
-
-    // Add the QTabWidget to the main layout
-    m_mainLayout->addWidget(m_tabWidget);
-
-    m_centralWidget->setLayout(m_mainLayout);
-    setCentralWidget(m_centralWidget);
-
     updateButtonStates();
 
     show();
@@ -208,21 +194,10 @@ void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
     emit cardTurnSound();
 
     auto id = card->id();
-    CardWidget* landmark = m_playerPages[m_currentPlayerId]->getLandmarkCardStack()[id]->at(id);
-    if (!landmark) {
-        return;
-    }
+    m_playerPages[m_currentPlayerId]->turnOnCardStack(id);
 
     if (id == 0) {
-        landmark->landmarkUnlocked(); // changes the color
         m_canPressTwoDiceButton[m_currentPlayerId] = true;
-    } else if (id == 1) {
-        landmark->landmarkUnlocked(); // changes the color
-        //m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
-    } else if (id == 2) {
-        landmark->landmarkUnlocked();
-    } else if (id == 3) {
-        landmark->landmarkUnlocked();
     }
 
     update();
@@ -239,11 +214,6 @@ void MainWindow::unlockRollTwoDiceButton()
     if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
         m_playerPages[m_currentPlayerId]->setRollButtonsEnabled(true, true);
     }
-}
-
-void MainWindow::updateDiceResultLabel(uchar dice)
-{
-
 }
 
 void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
@@ -268,7 +238,7 @@ void MainWindow::onRollOneDiceClicked()
 
     uchar dice = DiceRoller{}.rollDice(1);
     qDebug() << "Roll One Dice button Clicked!";
-    m_playerPages[m_currentPlayerId]->setOneDiceResult(dice);
+    m_playerPages[m_currentPlayerId]->setDiceResult(dice);
 
     processDiceRoll(dice, 0);
 }
@@ -280,7 +250,7 @@ void MainWindow::onRollTwoDiceClicked()
     uchar dice1 = DiceRoller{}.rollDice(1);
     uchar dice2 = DiceRoller{}.rollDice(1);
     qDebug() << "Roll Two Dice button Clicked!";
-    m_playerPages[m_currentPlayerId]->setTwoDiceResult(dice1, dice2);
+    m_playerPages[m_currentPlayerId]->setDiceResult(dice1, dice2);
 
     processDiceRoll(dice1, dice2);
 }
@@ -330,56 +300,6 @@ QWidget* MainWindow::createPlayerPage(uchar playerId)
 
     m_playerPages.append(playerPage);
     return playerPage;
-}
-
-void MainWindow::placeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack)
-{
-    for (int i = 0; i < cards.size(); ++i) {
-        auto *customWidget = new CardWidget(cards[i]->imagePath(),
-                                            cards[i]->activationValues(),
-                                            cards[i]->title(),
-                                            cards[i]->description(),
-                                            QString::number(cards[i]->price()),
-                                            QString::number(cards[i]->pack()),
-                                            cards[i]->type(),
-                                            cards[i]->id());
-
-        // Find or create a pile for this card type
-        auto cardId = cards[i]->id();
-        if (!cardStack.contains(cardId)) {
-            cardStack[cardId] = new CardStackWidget();
-            layout.addWidget(cardStack[cardId]); // Add the pile to the layout
-        }
-
-        // Add the card to the appropriate pile
-        cardStack[cardId]->addCard(customWidget);
-        connect(customWidget, &CardWidget::clicked, this, &MainWindow::handleCardClick);
-        update();
-    }
-}
-
-void MainWindow::removeCards(CardsList &cards, CardsLayout &layout, CardsStacks &cardStack)
-{
-    for (int i = 0; i < cards.size(); ++i) {
-        uchar cardId = cards[i]->id();
-
-        // Check if the stack exists
-        if (cardStack.contains(cardId)) {
-            CardStackWidget *stackWidget = cardStack[cardId];
-
-            if (!stackWidget->isEmpty()) {
-                stackWidget->removeCard(); // Remove a card from the stack
-            }
-
-            // If the stack becomes empty, remove it from the layout and delete it
-            if (stackWidget->isEmpty()) {
-                //layout.removeWidget(stackWidget);
-                stackWidget->deleteLater();
-                cardStack.remove(cardId);
-            }
-        }
-    }
-    update();
 }
 
 void MainWindow::setupStateMachine()
