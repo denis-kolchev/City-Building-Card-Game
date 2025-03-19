@@ -17,18 +17,14 @@ void PlayerPage::setupUi()
 
     // Landmarks Section
     m_landmarksScrollArea = new QScrollArea();
-    m_landmarksScrollWidget = new QWidget();
-    m_landmarksLayout = new QHBoxLayout(m_landmarksScrollWidget);
-    m_landmarksScrollWidget->setLayout(m_landmarksLayout);
-    m_landmarksScrollArea->setWidget(m_landmarksScrollWidget);
+    m_landmarkScrollWidget = new CardScrollWidget();
+    m_landmarksScrollArea->setWidget(m_landmarkScrollWidget);
     m_landmarksScrollArea->setWidgetResizable(true);
 
     // Builds Section
     m_buildsScrollArea = new QScrollArea();
-    m_buildsScrollWidget = new QWidget();
-    m_buildsLayout = new QHBoxLayout(m_buildsScrollWidget);
-    m_buildsScrollWidget->setLayout(m_buildsLayout);
-    m_buildsScrollArea->setWidget(m_buildsScrollWidget);
+    m_buildScrollWidget = new CardScrollWidget();
+    m_buildsScrollArea->setWidget(m_buildScrollWidget);
     m_buildsScrollArea->setWidgetResizable(true);
 
     // Buttons
@@ -67,11 +63,14 @@ void PlayerPage::setupUi()
     m_mainLayout->addWidget(actionWidget);
 
     // Connect signals
+    connect(m_landmarkScrollWidget, &CardScrollWidget::cardClicked, this, &PlayerPage::cardClicked);
+    connect(m_buildScrollWidget, &CardScrollWidget::cardClicked, this, &PlayerPage::cardClicked);
     connect(m_rollOneDiceButton, &QPushButton::clicked, this, [this]() { emit rollOneDiceClicked(m_playerId); });
     connect(m_rollTwoDiceButton, &QPushButton::clicked, this, [this]() { emit rollTwoDiceClicked(m_playerId); });
     connect(m_skipButton, &QPushButton::clicked, this, [this]() { emit skipClicked(m_playerId); });
 }
 
+// initial card set maybe shouldn't be here
 void PlayerPage::readCardData(const QString &configPath)
 {
     if (!QFile::exists(configPath)) {
@@ -80,29 +79,14 @@ void PlayerPage::readCardData(const QString &configPath)
     }
 
     CardDataConfigReader cardReader(configPath);
-    CardsList landmarkCards = cardReader.readFromRange(0, 3);
-    placeCards(landmarkCards, m_landmarksLayout, m_landmarkCardStacks);
+    auto landmarkCards = cardReader.readFromRange(0, 3); // it's a game logic!
+    m_landmarkScrollWidget->placeCards(landmarkCards);
 
-    CardsList buildCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
-    placeCards(buildCards, m_buildsLayout, m_buildCardStacks);
-}
-
-void PlayerPage::placeCards(const CardsList &cards, QHBoxLayout *layout, CardsStacks &cardStack)
-{
-    for (int i = 0; i < cards.size(); ++i) {
-        auto *cardWidget = new CardWidget(cards[i]->imagePath(),
-                                          cards[i]->activationValues(),
-                                          cards[i]->title(),
-                                          cards[i]->description(),
-                                          QString::number(cards[i]->price()),
-                                          QString::number(cards[i]->pack()),
-                                          cards[i]->type(),
-                                          cards[i]->id());
-
-        connect(cardWidget, &CardWidget::clicked, this, [this, &cards, &i]() { emit cardClicked(cards[i]->id()); });
-        layout->addWidget(cardWidget);
-        cardStack[cards[i]->id()]->addCard(cardWidget);
-    }
+    // these data also a part of a game logic!
+    // It should be inside of the settings ini file
+    // TODO create such file
+    auto buildCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
+    m_buildScrollWidget->placeCards(buildCards);
 }
 
 void PlayerPage::setPlayerBalance(uchar balance)
@@ -110,16 +94,15 @@ void PlayerPage::setPlayerBalance(uchar balance)
     m_playerBalanceLabel->setText(QString("Coins: %1").arg(balance));
 }
 
-void PlayerPage::setOneDiceResult(uchar result)
+void PlayerPage::setDiceResult(uchar dice1, uchar dice2)
 {
-    m_diceResultLabel->setText(QString("Dice result: %1").arg(result));
-}
-
-void PlayerPage::setTwoDiceResult(uchar dice1, uchar dice2)
-{
-    m_diceResultLabel->setText(
-        QString("Dice result: %1 + %2 = %3").arg(dice1).arg(dice2).arg(dice1 + dice2)
-    );
+    if (dice2 == 0) {
+        m_diceResultLabel->setText(QString("Dice result: %1").arg(dice1));
+    } else {
+        m_diceResultLabel->setText(
+            QString("Dice result: %1 + %2 = %3").arg(dice1).arg(dice2).arg(dice1 + dice2)
+        );
+    }
 }
 
 void PlayerPage::setRollButtonsEnabled(bool rollOneEnabled, bool rollTwoEnabled)
@@ -131,26 +114,6 @@ void PlayerPage::setRollButtonsEnabled(bool rollOneEnabled, bool rollTwoEnabled)
 void PlayerPage::setSkipButtonEnabled(bool enabled)
 {
     m_skipButton->setEnabled(enabled);
-}
-
-const CardsStacks& PlayerPage::getLandmarkCardStack() const
-{
-    return m_landmarkCardStacks;
-}
-
-CardsStacks& PlayerPage::getBuildCardStack()
-{
-    return m_buildCardStacks;
-}
-
-QHBoxLayout& PlayerPage::getBuildsLayout() const
-{
-    return *m_buildsLayout;
-}
-
-const QHBoxLayout& PlayerPage::getLandmarksLayout() const
-{
-    return *m_landmarksLayout;
 }
 
 QPushButton& PlayerPage::getOneDiceButton()

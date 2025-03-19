@@ -9,10 +9,7 @@
 #include <QHBoxLayout>
 
 #include "carddataconfigreader.h"
-#include "cardstackwidget.h"
-
-using CardsList = QVector<std::shared_ptr<Card>>;
-using CardsStacks = QMap<uchar, CardStackWidget*>;
+#include "cardscrollwidget.h"
 
 class PlayerPage : public QWidget
 {
@@ -23,21 +20,11 @@ public:
 
     void setPlayerBalance(uchar balance);
 
-    void setOneDiceResult(uchar result);
-
-    void setTwoDiceResult(uchar dice1, uchar dice2);
+    void setDiceResult(uchar dice1, uchar dice2 = 0);
 
     void setRollButtonsEnabled(bool rollOneEnabled, bool rollTwoEnabled);
 
     void setSkipButtonEnabled(bool enabled);
-
-    const CardsStacks& getLandmarkCardStack() const;
-
-    CardsStacks& getBuildCardStack();
-
-    QHBoxLayout& getBuildsLayout() const;
-
-    const QHBoxLayout& getLandmarksLayout() const;
 
     QPushButton& getOneDiceButton();
 
@@ -52,30 +39,24 @@ signals:
 
     void skipClicked(uchar playerId);
 
-    void cardClicked(uchar uchar);
+    void cardClicked(cardIdType id);
 
 private:
     void setupUi();
 
-    void readCardData(const QString &configPath);
-
-    void placeCards(const CardsList &cards, QHBoxLayout *layout, CardsStacks &cardStack);
+    void readCardData(const QString &configPath); // initial card set maybe shouldn't be here
 
     uchar m_playerId;
     QVBoxLayout *m_mainLayout;
     QScrollArea *m_landmarksScrollArea;
-    QWidget *m_landmarksScrollWidget;
-    QHBoxLayout *m_landmarksLayout;
     QScrollArea *m_buildsScrollArea;
-    QWidget *m_buildsScrollWidget;
-    QHBoxLayout *m_buildsLayout;
     QPushButton *m_rollOneDiceButton;
     QPushButton *m_rollTwoDiceButton;
     QPushButton *m_skipButton;
     QLabel *m_playerBalanceLabel;
     QLabel *m_diceResultLabel;
-    CardsStacks m_landmarkCardStacks;
-    CardsStacks m_buildCardStacks;
+    CardScrollWidget* m_landmarkScrollWidget;
+    CardScrollWidget* m_buildScrollWidget;
 };
 
 #endif // PLAYERPAGE_H
