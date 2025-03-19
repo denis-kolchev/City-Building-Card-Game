@@ -72,6 +72,7 @@ MainWindow::MainWindow(QMainWindow *parent)
     setupStateMachine();
     resize(1366, 768);
     centerWindow();
+    qDebug() << "2. mainWindow is made correctly";
 }
 
 MainWindow::~MainWindow()
@@ -142,6 +143,7 @@ void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)
 
 void MainWindow::handleShowMainWindow(uchar numPlayers)
 {
+    qDebug() << "handleShowMainWindow starts";
     m_numPlayers = numPlayers;
     m_currentPlayerId = 0;
 
@@ -150,8 +152,10 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
         PlayerPage* playerPage = createPlayerPage(i);
+        qDebug() << "append playerPage to m_playerPages starts";
         m_playerPages.append(playerPage);
         m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
+        qDebug() << "added playerPage to tab";
         playerNames[i] = QString("Player %1").arg(playerId);
     }
 
@@ -286,6 +290,7 @@ void MainWindow::centerWindow()
 
 PlayerPage* MainWindow::createPlayerPage(uchar playerId)
 {
+    qDebug() << "createPlayerPage starts";
     QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
@@ -299,6 +304,7 @@ PlayerPage* MainWindow::createPlayerPage(uchar playerId)
     connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::onSkipClicked);
     connect(playerPage, &PlayerPage::cardClicked, this, &MainWindow::handleCardClick);
 
+    qDebug() << "createPlayerPage finishes";
     return playerPage;
 }
 
@@ -332,6 +338,7 @@ void MainWindow::setupStateMachine()
 
 void MainWindow::updateButtonStates()
 {
+    qDebug() << "updateButtonStates starts";
     bool isIncomeState = m_stateMachine->configuration().contains(m_incomeState);
     bool isBuyingState = m_stateMachine->configuration().contains(m_buyingState);
     bool isBuyOrRerollState = m_stateMachine->configuration().contains(m_buyOrRerollState);
@@ -343,4 +350,5 @@ void MainWindow::updateButtonStates()
         m_playerPages[i]->getTwoDiceButton().setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
         m_playerPages[i]->getSkipButton().setEnabled((isBuyOrRerollState || isBuyingState) && isActivePlayer);
     }
+    qDebug() << "updateButtonStates finishes";
 }

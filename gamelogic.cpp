@@ -17,6 +17,7 @@ GameLogic::GameLogic(QObject *parent)
     // read card data from config
     m_cardReader = new CardDataConfigReader(configPath);
     m_cardsToWin = m_cardReader->readFromRange(0, 3);
+    qDebug() << "1. gameLogic is made correctly";
 }
 
 GameLogic::~GameLogic()
@@ -92,6 +93,7 @@ void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 {
+    qDebug() << "handleCreatePlayers starts";
     for (int i = 0; i < playerNames.size(); ++i) {
         auto player = std::make_shared<Player>(playerNames.at(i));
         connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
@@ -101,6 +103,7 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
         player->addCard(m_cardReader->readFromRange(6, 6).at(0));
         m_players.push_back(player);
     }
+    qDebug() << "finishes starts";
 }
 
 void GameLogic::handlePlayerHasAmusementPark()
