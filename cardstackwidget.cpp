@@ -69,6 +69,7 @@ void CardStackWidget::paintEvent(QPaintEvent *event)
         card->move(0, xOffset);
         card->raise(); // Bring the card to the front
         card->updateGeometry();
+        card->setVisible(true);
         xOffset += m_cardOverlap; // Increment the offset for the next card
     }
 }

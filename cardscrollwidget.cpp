@@ -10,19 +10,17 @@ CardScrollWidget::CardScrollWidget(QWidget *parent)
 void CardScrollWidget::placeCards(const CardList &cards)
 {
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        auto *cardWidget = new CardWidget(cards[i]->imagePath(),
-                                          cards[i]->activationValues(),
-                                          cards[i]->title(),
-                                          cards[i]->description(),
-                                          QString::number(cards[i]->price()),
-                                          QString::number(cards[i]->pack()),
-                                          cards[i]->type(),
-                                          cards[i]->id());
+        CardWidget *cardWidget = new CardWidget(cards[i]->imagePath(),
+                                                cards[i]->activationValues(),
+                                                cards[i]->title(),
+                                                cards[i]->description(),
+                                                QString::number(cards[i]->price()),
+                                                QString::number(cards[i]->pack()),
+                                                cards[i]->type(),
+                                                cards[i]->id());
 
-        CardIdType id = cards[i]->id();
-        connect(cardWidget, &CardWidget::clicked, this, [this, id]() {
-            emit cardClicked(id);
-        });
+        uchar id = cards[i]->id();
+        connect(cardWidget, &CardWidget::clicked, this, &CardScrollWidget::handleCardClicked);
 
         // create a stack for this card type if wasn't made before
         if (!m_stacks.contains(id)) {
@@ -39,7 +37,7 @@ void CardScrollWidget::placeCards(const CardList &cards)
 void CardScrollWidget::removeCards(const CardList &cards)
 {
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        CardIdType id = cards[i]->id();
+        uchar id = cards[i]->id();
 
         // check if a stack exists
         if (m_stacks.contains(id)) {
@@ -60,12 +58,18 @@ void CardScrollWidget::removeCards(const CardList &cards)
     update();
 }
 
-void CardScrollWidget::turnOn(CardIdType id)
+void CardScrollWidget::turnOn(uchar id)
 {
     m_stacks[id]->turnOn();
 }
 
-void CardScrollWidget::turnOff(CardIdType id)
+void CardScrollWidget::turnOff(uchar id)
 {
     m_stacks[id]->turnOff();
+}
+
+void CardScrollWidget::handleCardClicked(uchar id)
+{
+    qDebug() << "[CardScrollWidget] Forwarding ID:" << id; // Debug
+    emit this->cardSignalClicked(id);
 }

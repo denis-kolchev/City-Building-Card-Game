@@ -130,7 +130,7 @@ CardWidget::CardWidget(QPixmap imagePath,
 
     // Layouts
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    QHBoxLayout* dataLayout = new QHBoxLayout(this);
+    QHBoxLayout* dataLayout = new QHBoxLayout();
 
 
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -198,6 +198,7 @@ void CardWidget::turnOff()
 
 void CardWidget::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
+        qDebug() << "[CardWidget] Clicked ID:" << m_id; // Debug
         emit clicked(m_id); // Emit a signal when clicked
     }
 }

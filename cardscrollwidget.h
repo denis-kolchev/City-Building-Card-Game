@@ -8,8 +8,7 @@
 // Layout is outside of this to place it on
 // Card
 
-using CardIdType = uchar;
-using CardStacks = QMap<CardIdType, CardStackWidget*>;
+using CardStacks = QMap<uchar, CardStackWidget*>;
 using CardList = QVector<std::shared_ptr<Card>>;
 
 class CardScrollWidget : public QWidget
@@ -22,12 +21,15 @@ public:
 
     void removeCards(const CardList &cards);
 
-    void turnOn(CardIdType id);
+    void turnOn(uchar id);
 
-    void turnOff(CardIdType id);
+    void turnOff(uchar id);
 
 signals:
-    void cardClicked(CardIdType id);
+    void cardSignalClicked(uchar id);
+
+public slots:
+    void handleCardClicked(uchar id);
 
 private:
     CardStacks m_stacks;

@@ -39,6 +39,10 @@ public:
 
     QPushButton& getSkipButton();
 
+    CardScrollWidget* getLandmarkScrollWidget();
+
+    CardScrollWidget* getBuildScrollWidget();
+
 signals:
     void rollOneDiceClicked(uchar playerId);
 
@@ -46,7 +50,12 @@ signals:
 
     void skipClicked(uchar playerId);
 
-    void cardClicked(CardIdType id);
+    void cardClicked(uchar id);
+
+public slots:
+    void handleCardClicked(uchar id);
+
+    void buttonBlocked();
 
 private:
     void setupUi();

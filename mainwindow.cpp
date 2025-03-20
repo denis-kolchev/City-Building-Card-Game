@@ -28,34 +28,6 @@ MainWindow::MainWindow(QMainWindow *parent)
     m_canBuildAgainIfDubleRollDice.resize(5, 0);
     m_canRerollDice.resize(5, 0);
 
-    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
-    } else {
-        qDebug() << "File not found!";
-    }
-
-    // define what card should go suppose to do the logic
-    CardDataConfigReader cardReader(configPath);
-    CardList reserveCards;
-    for (uchar i = 0; i < m_numPlayers; ++i) {
-        reserveCards += cardReader.readFromRange(10, 12);
-    }
-    for (uchar i = 0; i < 6; ++i) {
-        reserveCards += cardReader.readFromRange(4, 9);
-        reserveCards += cardReader.readFromRange(13, 18);
-    }
-
-    try {
-        std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
-            return a->id() < b->id();
-        });
-    } catch (const std::out_of_range& e) {
-        qCritical() << "Card activation values error:" << e.what();
-        // Handle error
-    }
-
-    m_reserveScrollWidget->placeCards(reserveCards);
     m_reserveCardsArea->setWidget(m_reserveScrollWidget);
     m_reserveCardsArea->setWidgetResizable(true);
 
@@ -69,7 +41,6 @@ MainWindow::MainWindow(QMainWindow *parent)
     setCentralWidget(m_centralWidget);
 
     setWindowTitle("City Building Card Game");
-    setupStateMachine();
     resize(1366, 768);
     centerWindow();
     qDebug() << "2. mainWindow is made correctly";
@@ -147,6 +118,39 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     m_numPlayers = numPlayers;
     m_currentPlayerId = 0;
 
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
+    if (QFile::exists(configPath)) {
+        qDebug() << "Config file has found: " << configPath;
+    } else {
+        qDebug() << "File not found!";
+    }
+
+    // define what card should go suppose to do the logic
+    CardDataConfigReader cardReader(configPath);
+    CardList reserveCards;
+    const uchar mx = m_numPlayers;
+    for (uchar i = 0; i < m_numPlayers && i < mx ; ++i) {
+        reserveCards += cardReader.readFromRange(10, 12);
+    }
+    const uchar mxmx = 6;
+    for (uchar i = 0; i < 6 && i < mxmx; ++i) {
+        reserveCards += cardReader.readFromRange(4, 9);
+        reserveCards += cardReader.readFromRange(13, 18);
+    }
+
+    try {
+        std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
+            return a->id() < b->id();
+        });
+    } catch (const std::out_of_range& e) {
+        qCritical() << "Card activation values error:" << e.what();
+        // Handle error
+    }
+
+    m_reserveScrollWidget->placeCards(reserveCards);
+    connect(m_reserveScrollWidget, &CardScrollWidget::cardSignalClicked,
+        this, &MainWindow::handleCardClick);
+
     // Create a view for each player and add it as a tab
     char playerId = 'A';
     QVector<QString> playerNames(m_numPlayers);
@@ -160,6 +164,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     }
 
     emit createPlayers(playerNames.toList());
+    setupStateMachine();
     updateButtonStates();
 
     show();
@@ -228,6 +233,7 @@ void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
 
 void MainWindow::handleCardClick(uchar cardId)
 {
+    qDebug() << "HandleCardClick!";
     if (m_stateMachine->configuration().contains(m_buyingState) ||
         m_stateMachine->configuration().contains(m_buyOrRerollState))
     {
@@ -302,7 +308,12 @@ PlayerPage* MainWindow::createPlayerPage(uchar playerId)
     connect(playerPage, &PlayerPage::rollOneDiceClicked, this, &MainWindow::onRollOneDiceClicked);
     connect(playerPage, &PlayerPage::rollTwoDiceClicked, this, &MainWindow::onRollTwoDiceClicked);
     connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::onSkipClicked);
-    connect(playerPage, &PlayerPage::cardClicked, this, &MainWindow::handleCardClick);
+    //connect(playerPage, &PlayerPage::)
+
+    connect(playerPage, &PlayerPage::cardClicked, this, [this](uchar cardId) {
+        qDebug() << "[MainWindow] Handling ID:" << cardId; // Debug
+        handleCardClick(cardId);
+    });
 
     qDebug() << "createPlayerPage finishes";
     return playerPage;
@@ -310,6 +321,7 @@ PlayerPage* MainWindow::createPlayerPage(uchar playerId)
 
 void MainWindow::setupStateMachine()
 {
+
     // Define transitions
     m_incomeState->addTransition(this, &MainWindow::diceRollAccepted, m_buyingState);
     m_incomeState->addTransition(this, &MainWindow::rollButtonClickedWithCanReroll, m_buyOrRerollState);
