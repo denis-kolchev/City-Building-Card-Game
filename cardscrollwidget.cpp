@@ -26,6 +26,7 @@ void CardScrollWidget::placeCards(const CardList &cards)
         if (!m_stacks.contains(id)) {
             m_stacks[id] = new CardStackWidget();
             m_layout->addWidget(m_stacks[id]);
+            m_stacks[id]->show();
         }
 
         // add a cardWidget to the appropriate stack

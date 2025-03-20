@@ -137,12 +137,14 @@ void PlayerPage::placeCards(CardList cards)
 {
     // Cards logic. Again!
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        if (i <= 3 && i >= 0) {
+        if (cards[i]->id() <= 3 && cards[i]->id() >= 0) {
             m_landmarkScrollWidget->placeCards(CardList{cards[i]});
-        } else if (i >= 18 && i <= 4) {
+        } else if (cards[i]->id() <= 18 && cards[i]->id() >= 4) {
             m_buildScrollWidget->placeCards(CardList{cards[i]});
         }
     }
+    updateGeometry();
+    update();
 }
 
 QPushButton& PlayerPage::getOneDiceButton()
