@@ -78,16 +78,8 @@ void CardScrollWidget::handleCardClicked(uchar id)
     emit this->cardSignalClicked(id);
 }
 
-void CardScrollWidget::sortCardsById()
-{
-    QList<CardStackWidget*> cardStacks;
-    for (int i = 0; i < m_layout->count(); ++i) {
-        CardStackWidget* stack = qobject_cast<CardStackWidget*>(m_layout->itemAt(i)->widget());
-        if (stack) {
-            cardStacks.append(stack);
-        }
-    }
-
+void CardScrollWidget::sortCardsById() {
+    QList<CardStackWidget*> cardStacks = m_stacks.values();
     std::sort(cardStacks.begin(), cardStacks.end(), [](CardStackWidget* a, CardStackWidget* b) {
         return a->id() < b->id();
     });
@@ -99,6 +91,7 @@ void CardScrollWidget::sortCardsById()
         }
         delete item;
     }
+
     for (auto* stack : cardStacks) {
         m_layout->addWidget(stack);
     }

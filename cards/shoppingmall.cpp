@@ -21,32 +21,35 @@ ShoppingMall::ShoppingMall(const QString& title,
 
 
 void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
-    auto allCards = owner.getCardsTable();
-    int diningCount = 0;
-    int shopCount = 0;
-    for (auto it = allCards.begin(), ite = allCards.end(); it != ite; ++it) {
-        if (it.key()->hasActivationValue(dice1 + dice2) && it.key()->type() == CardType::Dining) {
-            diningCount++;
-        }
-        if (&owner == &activePlayer && it.key()->type() == CardType::Shop) {
-            shopCount++;
-        }
-    }
-
-    owner.addCoins(shopCount);
-
     if (&owner != &activePlayer) {
-        int balance = activePlayer.coins();
-        if (balance >= diningCount) {
-            activePlayer.deductMoney(diningCount);
-            owner.addCoins(diningCount);
-            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << diningCount;
-        } else {
-            activePlayer.deductMoney(balance);
-            owner.addCoins(balance);
-            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << balance;
+        auto diningCards = owner.getCardsTableOfType(CardType::Dining);
+        if (!diningCards.empty()) {
+            int diningCount = 0;
+            for (auto it = diningCards.begin(), ite = diningCards.end(); it != ite; ++it) {
+                if (it.key()->activationValues().contains(dice1 + dice2)) {
+                    diningCount += it.value(); // amount of cars in stack
+                }
+            }
+            int moneyToTake = std::min(activePlayer.coins(), diningCount);
+            activePlayer.deductMoney(moneyToTake);
+            owner.addCoins(moneyToTake);
+
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << moneyToTake;
+            qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << moneyToTake;
         }
     }
 
-    qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << diningCount + shopCount;
+    if (&owner == &activePlayer) {
+        auto shopCards = activePlayer.getCardsTableOfType(CardType::Shop);
+        if (!shopCards.empty()) {
+            int shopCount = 0;
+            for (auto it = shopCards.begin(), ite = shopCards.end(); it != ite; ++it) {
+                if (it.key()->activationValues().contains(dice1 + dice2)) {
+                    shopCount += it.value(); // amount of cars in stack
+                }
+            }
+            activePlayer.addCoins(shopCount);
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain income: " << shopCount;
+        }
+    }
 }

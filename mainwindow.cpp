@@ -23,18 +23,14 @@ MainWindow::MainWindow(QMainWindow *parent)
     , m_reserveScrollWidget(new CardScrollWidget())
     , m_reserveLayout(new QHBoxLayout())
     , m_tabWidget(new QTabWidget(this))
+    , m_canPressTwoDiceButton(5, 0)
+    , m_canBuildAgainIfDubleRollDice(5, 0)
+    , m_canRerollDice(5, 0)
 {
-    m_canPressTwoDiceButton.resize(5, 0);
-    m_canBuildAgainIfDubleRollDice.resize(5, 0);
-    m_canRerollDice.resize(5, 0);
-
     m_reserveCardsArea->setWidget(m_reserveScrollWidget);
     m_reserveCardsArea->setWidgetResizable(true);
 
-    // Add the QTabWidget to the main layout
     m_mainLayout->addWidget(m_reserveCardsArea);
-
-    // Add the QTabWidget to the main layout
     m_mainLayout->addWidget(m_tabWidget);
 
     m_centralWidget->setLayout(m_mainLayout);
@@ -42,8 +38,6 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     setWindowTitle("City Building Card Game");
     resize(1366, 768);
-    centerWindow();
-    //qDebug() << "2. mainWindow is made correctly";
 }
 
 MainWindow::~MainWindow()
@@ -59,7 +53,6 @@ bool MainWindow::askForReroll(QWidget* parent)
     msgBox.setWindowTitle("Re-roll?");
     msgBox.setText(question);
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    //msgBox.setDefaultButton(QMessageBox::Yes);
 
     return msgBox.exec() == QMessageBox::Yes;
 }

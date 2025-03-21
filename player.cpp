@@ -9,19 +9,23 @@ Player::Player(const QString& name, int id, QObject *parent)
 {
 }
 
-void Player::activateRerollDice() {
+void Player::activateRerollDice()
+{
     emit hasRadioTower();
 }
 
-void Player::activateRollTwoDice() {
+void Player::activateRollTwoDice()
+{
     emit hasRailwayStation();
 }
 
-void Player::activateOneMoreBuild() {
+void Player::activateOneMoreBuild()
+{
     emit hasAmusementPark();
 }
 
-void Player::addCard(std::shared_ptr<Card> card) {
+void Player::addCard(std::shared_ptr<Card> card)
+{
     if (howManyCardsOfType(card) == 0) {
         m_cardsTable.insert(card, 1);
         return;
@@ -30,12 +34,14 @@ void Player::addCard(std::shared_ptr<Card> card) {
     m_cardsTable[card]++;
 }
 
-void Player::addCoins(int amount) {
+void Player::addCoins(int amount)
+{
     m_coins += amount;
     emit playerBalanceChanged(m_coins, m_id);
 }
 
-void Player::addLandmark(std::shared_ptr<Card> card) {
+void Player::addLandmark(std::shared_ptr<Card> card)
+{
     m_landmarks.push_back(card);
 }
 
@@ -43,7 +49,8 @@ int Player::coins() const {
     return m_coins;
 }
 
-void Player::deductMoney(int amount) {
+void Player::deductMoney(int amount)
+{
     m_coins -= amount;
     emit playerBalanceChanged(m_coins, m_id);
 }
@@ -53,15 +60,29 @@ int Player::id()
     return m_id;
 }
 
-QMap<std::shared_ptr<Card>, uchar> Player::getCardsTable() {
+QMap<std::shared_ptr<Card>, uchar> Player::getCardsTable()
+{
     return m_cardsTable;
 }
 
-QVector<std::shared_ptr<Card>> Player::getLandmarks() {
+QMap<std::shared_ptr<Card>, uchar> Player::getCardsTableOfType(CardType type)
+{
+    QMap<std::shared_ptr<Card>, uchar>  cards;
+    for (auto it = m_cardsTable.begin(), ite = m_cardsTable.end(); it != ite; ++it) {
+        if (it.key()->type() == type) {
+            cards.insert(it.key(), it.value());
+        }
+    }
+    return cards;
+}
+
+QVector<std::shared_ptr<Card>> Player::getLandmarks()
+{
     return m_landmarks;
 }
 
-uchar Player::howManyCardsOfType(std::shared_ptr<Card> card) {
+uchar Player::howManyCardsOfType(std::shared_ptr<Card> card)
+{
     if (m_cardsTable.find(card) == m_cardsTable.end()) {
         return 0;
     }
@@ -69,7 +90,8 @@ uchar Player::howManyCardsOfType(std::shared_ptr<Card> card) {
     return m_cardsTable.find(card).value();
 }
 
-QString Player::name() const {
+QString Player::name() const
+{
     return m_name;
 }
 

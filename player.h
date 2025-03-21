@@ -35,6 +35,8 @@ public:
 
     QMap<std::shared_ptr<Card>, uchar> getCardsTable();
 
+    QMap<std::shared_ptr<Card>, uchar> getCardsTableOfType(CardType type);
+
     QVector<std::shared_ptr<Card>> getLandmarks();
 
     uchar howManyCardsOfType(std::shared_ptr<Card> card);
