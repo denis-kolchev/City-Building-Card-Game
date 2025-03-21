@@ -88,6 +88,8 @@ private slots:
 
     void onSkipClicked();
 
+    QIcon createCircleIcon(const QColor color, qsizetype size = 32);
+
 private:
     void centerWindow();
 

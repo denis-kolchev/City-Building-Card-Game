@@ -21,5 +21,5 @@ RailwayStation::RailwayStation(const QString& title,
 
 void RailwayStation::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     activePlayer.activateRollTwoDice();
-    qDebug() << m_title << " activated! " << owner.name();
+    qDebug() << "--- " << m_title << " - " << owner.name() << " can drop the dice 2 times";
 }

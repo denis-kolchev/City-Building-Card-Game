@@ -21,6 +21,6 @@ BusinessCenter::BusinessCenter(const QString& title,
 
 void BusinessCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     if (hasActivationValue(dice1 + dice2)) {
-        qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
+        qDebug() << "--- " << m_title << " - " << owner.name() << " can try to exchange one card";
     }
 }

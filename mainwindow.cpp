@@ -43,7 +43,7 @@ MainWindow::MainWindow(QMainWindow *parent)
     setWindowTitle("City Building Card Game");
     resize(1366, 768);
     centerWindow();
-    qDebug() << "2. mainWindow is made correctly";
+    //qDebug() << "2. mainWindow is made correctly";
 }
 
 MainWindow::~MainWindow()
@@ -114,7 +114,7 @@ void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)
 
 void MainWindow::handleShowMainWindow(uchar numPlayers)
 {
-    qDebug() << "handleShowMainWindow starts";
+    //qDebug() << "handleShowMainWindow starts";
     m_numPlayers = numPlayers;
     m_currentPlayerId = 0;
 
@@ -156,10 +156,17 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
         PlayerPage* playerPage = createPlayerPage(i);
-        qDebug() << "append playerPage to m_playerPages starts";
+        //qDebug() << "append playerPage to m_playerPages starts";
         m_playerPages.append(playerPage);
         m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
-        qDebug() << "added playerPage to tab";
+
+        if (i == 0) {
+            m_tabWidget->setTabIcon(i, createCircleIcon(QColor(72, 181, 163)));
+        } else {
+            m_tabWidget->setTabIcon(i, createCircleIcon(QColor(252, 169, 133)));
+        }
+
+        //qDebug() << "added playerPage to tab";
         playerNames[i] = QString("Player %1").arg(playerId);
     }
 
@@ -182,6 +189,14 @@ void MainWindow::repaintPlayerPanel(int currentPlayerId)
     if (m_tabWidget && currentPlayerId >= 0 && currentPlayerId < m_tabWidget->count()) {
         m_tabWidget->setCurrentIndex(currentPlayerId);
     }
+
+    QIcon activeIcon = createCircleIcon(QColor(72, 181, 163), 128);
+    QIcon notActiveIcon = createCircleIcon(QColor(252, 169, 133), 128);
+    for (int playerId = 0; playerId < m_numPlayers; ++playerId) {
+        m_tabWidget->setTabIcon(playerId, notActiveIcon);
+    }
+    m_tabWidget->setTabIcon(currentPlayerId, activeIcon);
+
     updateButtonStates();
 }
 
@@ -228,16 +243,17 @@ void MainWindow::unlockRollTwoDiceButton()
 
 void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
 {
-    m_playerPages[m_currentPlayerId]->setPlayerBalance(balance);
+    m_playerPages[playerId]->setPlayerBalance(balance);
+    update();
 }
 
 void MainWindow::handleCardClick(uchar cardId)
 {
-    qDebug() << "HandleCardClick!";
+    //qDebug() << "HandleCardClick!";
     if (m_stateMachine->configuration().contains(m_buyingState) ||
         m_stateMachine->configuration().contains(m_buyOrRerollState))
     {
-        qDebug() << "card is clicked!";
+        //qDebug() << "card is clicked!";
         emit takeCardSound();
         emit cardWidgetClicked(cardId);
     }
@@ -248,7 +264,7 @@ void MainWindow::onRollOneDiceClicked()
     emit buttonClickSound();
 
     uchar dice = DiceRoller{}.rollDice(1);
-    qDebug() << "Roll One Dice button Clicked!";
+    //qDebug() << "Roll One Dice button Clicked!";
     m_playerPages[m_currentPlayerId]->setDiceResult(dice);
 
     processDiceRoll(dice, 0);
@@ -260,7 +276,7 @@ void MainWindow::onRollTwoDiceClicked()
 
     uchar dice1 = DiceRoller{}.rollDice(1);
     uchar dice2 = DiceRoller{}.rollDice(1);
-    qDebug() << "Roll Two Dice button Clicked!";
+    //qDebug() << "Roll Two Dice button Clicked!";
     m_playerPages[m_currentPlayerId]->setDiceResult(dice1, dice2);
 
     processDiceRoll(dice1, dice2);
@@ -269,7 +285,7 @@ void MainWindow::onRollTwoDiceClicked()
 void MainWindow::onSkipClicked()
 {
     emit buttonClickSound();
-    qDebug() << "Skip button Clicked!";
+    //qDebug() << "Skip button Clicked!";
     if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
         m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
         emit buildOneMoreBuilding();
@@ -293,10 +309,21 @@ void MainWindow::centerWindow()
     hide();
 }
 
+QIcon MainWindow::createCircleIcon(const QColor color, qsizetype size)
+{
+    QPixmap iconPixmap(size, size);
+    iconPixmap.fill(Qt::transparent);
+    QPainter painter(&iconPixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(color);
+    painter.drawEllipse(0, 0, size, size);
+    return QIcon(iconPixmap);
+}
 
 PlayerPage* MainWindow::createPlayerPage(uchar playerId)
 {
-    qDebug() << "createPlayerPage starts";
+    //qDebug() << "createPlayerPage starts";
     QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(configPath)) {
         qDebug() << "Config file has found: " << configPath;
@@ -315,7 +342,7 @@ PlayerPage* MainWindow::createPlayerPage(uchar playerId)
         handleCardClick(cardId);
     });
 
-    qDebug() << "createPlayerPage finishes";
+    //qDebug() << "createPlayerPage finishes";
     return playerPage;
 }
 
@@ -350,7 +377,7 @@ void MainWindow::setupStateMachine()
 
 void MainWindow::updateButtonStates()
 {
-    qDebug() << "updateButtonStates starts";
+    //qDebug() << "updateButtonStates starts";
     bool isIncomeState = m_stateMachine->configuration().contains(m_incomeState);
     bool isBuyingState = m_stateMachine->configuration().contains(m_buyingState);
     bool isBuyOrRerollState = m_stateMachine->configuration().contains(m_buyOrRerollState);
@@ -362,5 +389,5 @@ void MainWindow::updateButtonStates()
         m_playerPages[i]->getTwoDiceButton().setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
         m_playerPages[i]->getSkipButton().setEnabled((isBuyOrRerollState || isBuyingState) && isActivePlayer);
     }
-    qDebug() << "updateButtonStates finishes";
+    //qDebug() << "updateButtonStates finishes";
 }

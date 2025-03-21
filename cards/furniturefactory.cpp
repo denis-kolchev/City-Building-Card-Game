@@ -27,7 +27,7 @@ void FurnitureFactory::activate(QVector<std::shared_ptr<Player>> players, Player
             if (it.key()->type() == CardType::Mining) {
                 activePlayer.addCoins(3 * times);
             }
+            qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << 3 * times;
         }
-        qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

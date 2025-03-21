@@ -71,6 +71,6 @@ void CardScrollWidget::turnOff(uchar id)
 
 void CardScrollWidget::handleCardClicked(uchar id)
 {
-    qDebug() << "[CardScrollWidget] Forwarding ID:" << id; // Debug
+    //qDebug() << "[CardScrollWidget] Forwarding ID:" << id; // Debug
     emit this->cardSignalClicked(id);
 }

@@ -41,7 +41,7 @@ StartMenu::StartMenu(QWidget *parent)
 
     setFixedSize(300, 130);
     centerWindow();
-    qDebug() << "3. mainWindow is made correctly";
+    //qDebug() << "3. mainWindow is made correctly";
 }
 
 void StartMenu::centerWindow()

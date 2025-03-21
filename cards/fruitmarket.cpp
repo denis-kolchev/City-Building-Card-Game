@@ -27,7 +27,7 @@ void FruitMarket::activate(QVector<std::shared_ptr<Player>> players, Player& own
             if (it.key()->type() == CardType::Agricultiral) {
                 activePlayer.addCoins(2 * times);
             }
+            qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << 2 * times;
         }
-        qDebug() << m_title << " activated! " << owner.name() << " gains income.\n";
     }
 }

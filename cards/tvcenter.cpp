@@ -38,11 +38,13 @@ void TVCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner,
         if (availableCoins >= MONEY_TO_TAKE) {
             richestPlayer->deductMoney(MONEY_TO_TAKE);
             activePlayer.addCoins(MONEY_TO_TAKE);
-            qDebug() << m_title << " activated! " << owner.name() << " gains " << MONEY_TO_TAKE << " income.\n";
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain coins: " << MONEY_TO_TAKE;
+            qDebug() << "--- " << m_title << " - " << richestPlayer->name() << " loose income: " << MONEY_TO_TAKE;
         } else {
             richestPlayer->deductMoney(availableCoins);
             activePlayer.addCoins(availableCoins);
-            qDebug() << m_title << " activated! " << owner.name() << " gains " << availableCoins << " income.\n";
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain coins: " << availableCoins;
+            qDebug() << "--- " << m_title << " - " << richestPlayer->name() << " loose income: " << availableCoins;
         }
 
     }

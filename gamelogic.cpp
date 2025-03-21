@@ -17,7 +17,7 @@ GameLogic::GameLogic(QObject *parent)
     // read card data from config
     m_cardReader = new CardDataConfigReader(configPath);
     m_cardsToWin = m_cardReader->readFromRange(0, 3);
-    qDebug() << "1. gameLogic is made correctly";
+    //qDebug() << "1. gameLogic is made correctly";
 }
 
 GameLogic::~GameLogic()
@@ -36,7 +36,7 @@ bool GameLogic::isGameIsFinished() {
             return true;
         }
     }
-    qDebug() << "------> The most number of landmarks is: " << mx;
+    //qDebug() << "------> The most number of landmarks is: " << mx;
     return false;
 }
 
@@ -47,18 +47,20 @@ std::shared_ptr<Player> GameLogic::getPlayer(int id) {
 void GameLogic::playTurn(uchar dice1, uchar dice2) {
     auto activePlayer = m_players[m_currentPlayerId];
 
-    if (dice2 == 0) {
-        qDebug() << activePlayer->name() << " rolled a " << dice1 << ".\n";
-    } else {
-        qDebug() << activePlayer->name() << " rolled a " << dice1 << " & " << dice2 << ".\n";
-    }
+    // if (dice2 == 0) {
+    //     qDebug() << activePlayer->name() << " rolled a " << dice1 << ".\n";
+    // } else {
+    //     qDebug() << activePlayer->name() << " rolled a " << dice1 << " & " << dice2 << ".\n";
+    // }
 
     // Trigger cards for all players
     // Active player loss money, get money from other players
     int i = 0;
     for (auto& player : m_players) {
+        qDebug() << "--- old " << player->name() << " balance:" << player->coins();
         player->triggerCards(m_players, *activePlayer, dice1, dice2);
         // Now, build time!
+        qDebug() << "--- new " << player->name() << " balance:" << player->coins();
         emit playerBalanceChanged(player->coins(), i++);
     }
 }
@@ -93,7 +95,7 @@ void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 {
-    qDebug() << "handleCreatePlayers starts";
+    //qDebug() << "handleCreatePlayers starts";
     for (int i = 0; i < playerNames.size(); ++i) {
         auto player = std::make_shared<Player>(playerNames.at(i));
         connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
@@ -103,7 +105,7 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
         player->addCard(m_cardReader->readFromRange(6, 6).at(0));
         m_players.push_back(player);
     }
-    qDebug() << "finishes starts";
+    //qDebug() << "finishes starts";
 }
 
 void GameLogic::handlePlayerHasAmusementPark()

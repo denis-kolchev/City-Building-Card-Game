@@ -34,10 +34,14 @@ void Stadium::activate(QVector<std::shared_ptr<Player>> players, Player& owner, 
             if (player->coins() >= MONEY_TO_TAKE) {
                 player->deductMoney(MONEY_TO_TAKE);
                 activePlayer.addCoins(MONEY_TO_TAKE);
+                qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain coins: " << MONEY_TO_TAKE;
+                qDebug() << "--- " << m_title << " - " << player->name() << " loose income: " << MONEY_TO_TAKE;
             } else {
                 auto availableCoins = player->coins();
                 player->deductMoney(availableCoins);
                 activePlayer.addCoins(availableCoins);
+                qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain coins: " << availableCoins;
+                qDebug() << "--- " << m_title << " - " << player->name() << " loose income: " << availableCoins;
             }
         }
     }

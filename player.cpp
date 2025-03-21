@@ -92,7 +92,6 @@ void Player::triggerCards(QVector<std::shared_ptr<Player>> players,
                 for (uchar value : it.key()->activationValues()) {
                     str += QString::number(value) + " ";
                 }
-                qDebug() << "--- activated: " << it.key()->title() << " " << str;
                 it.key()->activate(players, *this, activePlayer, dice1, dice2);
             }
         }
@@ -101,7 +100,6 @@ void Player::triggerCards(QVector<std::shared_ptr<Player>> players,
     for (auto it = othersTable.begin(), ite = othersTable.end(); it != ite; ++it) {
         for (uchar i = 0; i < it.value(); ++i) {
             if (it.key()->hasActivationValue(dice1 + dice2)) {
-                qDebug() << "--- activated: " << it.key()->title();
                 it.key()->activate(players, *this, activePlayer, dice1, dice2);
             }
         }

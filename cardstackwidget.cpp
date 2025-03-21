@@ -17,7 +17,7 @@ void CardStackWidget::addCard(CardWidget *card)
     m_cards.append(card);
     card->setParent(this); // Set this widget as the parent
     card->show();
-    qDebug() << "Card added. Total cards:" << m_cards.size();
+    //qDebug() << "Card added. Total cards:" << m_cards.size();
     updateGeometry();
     update(); // Trigger a repaint
 }

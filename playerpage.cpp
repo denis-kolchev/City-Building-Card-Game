@@ -64,24 +64,24 @@ void PlayerPage::setupUi()
     m_mainLayout->addWidget(m_buildsScrollArea);
     m_mainLayout->addWidget(actionWidget);
 
-    qDebug() << "Do my objects exist?";
-    qDebug() << "m_landmarkScrollWidget:" << m_landmarkScrollWidget;
-    qDebug() << "m_buildScrollWidget:" << m_buildScrollWidget;
-    qDebug() << "finish existange check";
+    //qDebug() << "Do my objects exist?";
+    //qDebug() << "m_landmarkScrollWidget:" << m_landmarkScrollWidget;
+    //qDebug() << "m_buildScrollWidget:" << m_buildScrollWidget;
+    //qDebug() << "finish existange check";
 
     bool connected1 = connect(m_landmarkScrollWidget, &CardScrollWidget::cardSignalClicked, this, [this](uchar cardId) {
-        qDebug() << "[PlayerPage] Received ID:" << cardId; // Debug
+        //qDebug() << "[PlayerPage] Received ID:" << cardId; // Debug
         emit cardClicked(cardId); // Emit PlayerPage::cardClicked
     });
-    qDebug() << "Build Scroll Widget connected:" << connected1;
+    //qDebug() << "Build Scroll Widget connected:" << connected1;
     bool connected2 = connect(m_buildScrollWidget, &CardScrollWidget::cardSignalClicked, this, [this](uchar cardId) {
-        qDebug() << "[PlayerPage] Received ID:" << cardId; // Debug
+        //qDebug() << "[PlayerPage] Received ID:" << cardId; // Debug
         emit cardClicked(cardId); // Emit PlayerPage::cardClicked
     });
-    qDebug() << "m_landmarkScrollWidget Parent:" << m_landmarkScrollWidget->parent();
-    qDebug() << "m_buildScrollWidget Parent:" << m_buildScrollWidget->parent();
+    //qDebug() << "m_landmarkScrollWidget Parent:" << m_landmarkScrollWidget->parent();
+    //qDebug() << "m_buildScrollWidget Parent:" << m_buildScrollWidget->parent();
 
-    qDebug() << "Build Scroll Widget connected:" << connected2;
+    //qDebug() << "Build Scroll Widget connected:" << connected2;
     connect(m_rollOneDiceButton, &QPushButton::clicked, this, [this]() { emit rollOneDiceClicked(m_playerId); });
     connect(m_rollTwoDiceButton, &QPushButton::clicked, this, [this]() { emit rollTwoDiceClicked(m_playerId); });
     connect(m_skipButton, &QPushButton::clicked, this, [this]() { emit skipClicked(m_playerId); });

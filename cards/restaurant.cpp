@@ -26,11 +26,13 @@ void Restaurant::activate(QVector<std::shared_ptr<Player>> players, Player& owne
         if (available >= nCoinsToTake) {
             activePlayer.deductMoney(nCoinsToTake);
             owner.addCoins(nCoinsToTake);
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << available;
+            qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << available;
         } else {
             activePlayer.deductMoney(available);
             owner.addCoins(available);
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << 2;
+            qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << 2;
         }
-
-        qDebug() << m_title << " activated! " << activePlayer.name() << " pays " << owner.name() << ".\n";
     }
 }

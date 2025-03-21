@@ -33,6 +33,5 @@ void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& ow
     }
 
     owner.addCoins(count);
-
-    qDebug() << m_title << " activated! Landmark effect triggered.\n";
+    qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << count;
 }

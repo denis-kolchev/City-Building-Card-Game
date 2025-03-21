@@ -198,7 +198,7 @@ void CardWidget::turnOff()
 
 void CardWidget::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        qDebug() << "[CardWidget] Clicked ID:" << m_id; // Debug
+        //qDebug() << "[CardWidget] Clicked ID:" << m_id; // Debug
         emit clicked(m_id); // Emit a signal when clicked
     }
 }
