@@ -1,8 +1,9 @@
 #include "player.h"
 #include <QtCore/qdebug.h>
 
-Player::Player(const QString& name, QObject *parent)
+Player::Player(const QString& name, int id, QObject *parent)
     : m_name(name)
+    , m_id(id)
     , m_coins(START_COINS_NUMBER)
     , QObject(parent)
 {
@@ -31,6 +32,7 @@ void Player::addCard(std::shared_ptr<Card> card) {
 
 void Player::addCoins(int amount) {
     m_coins += amount;
+    emit playerBalanceChanged(m_coins, m_id);
 }
 
 void Player::addLandmark(std::shared_ptr<Card> card) {
@@ -43,6 +45,12 @@ int Player::coins() const {
 
 void Player::deductMoney(int amount) {
     m_coins -= amount;
+    emit playerBalanceChanged(m_coins, m_id);
+}
+
+int Player::id()
+{
+    return m_id;
 }
 
 QMap<std::shared_ptr<Card>, uchar> Player::getCardsTable() {

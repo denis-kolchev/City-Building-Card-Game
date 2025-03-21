@@ -32,6 +32,8 @@ void CardScrollWidget::placeCards(const CardList &cards)
         // add a cardWidget to the appropriate stack
         m_stacks[id]->addCard(cardWidget);
     }
+
+    sortCardsById();
     update();
 }
 
@@ -56,6 +58,7 @@ void CardScrollWidget::removeCards(const CardList &cards)
             }
         }
     }
+
     update();
 }
 
@@ -73,4 +76,30 @@ void CardScrollWidget::handleCardClicked(uchar id)
 {
     //qDebug() << "[CardScrollWidget] Forwarding ID:" << id; // Debug
     emit this->cardSignalClicked(id);
+}
+
+void CardScrollWidget::sortCardsById()
+{
+    QList<CardStackWidget*> cardStacks;
+    for (int i = 0; i < m_layout->count(); ++i) {
+        CardStackWidget* stack = qobject_cast<CardStackWidget*>(m_layout->itemAt(i)->widget());
+        if (stack) {
+            cardStacks.append(stack);
+        }
+    }
+
+    std::sort(cardStacks.begin(), cardStacks.end(), [](CardStackWidget* a, CardStackWidget* b) {
+        return a->id() < b->id();
+    });
+
+    while (m_layout->count()) {
+        auto* item = m_layout->takeAt(0);
+        if (item->widget()) {
+            m_layout->removeWidget(item->widget());
+        }
+        delete item;
+    }
+    for (auto* stack : cardStacks) {
+        m_layout->addWidget(stack);
+    }
 }

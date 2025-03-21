@@ -61,7 +61,6 @@ void GameLogic::playTurn(uchar dice1, uchar dice2) {
         player->triggerCards(m_players, *activePlayer, dice1, dice2);
         // Now, build time!
         qDebug() << "--- new " << player->name() << " balance:" << player->coins();
-        emit playerBalanceChanged(player->coins(), i++);
     }
 }
 
@@ -96,11 +95,14 @@ void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 {
     //qDebug() << "handleCreatePlayers starts";
-    for (int i = 0; i < playerNames.size(); ++i) {
-        auto player = std::make_shared<Player>(playerNames.at(i));
+    for (int id = 0; id < playerNames.size(); ++id) {
+        auto player = std::make_shared<Player>(playerNames.at(id), id);
         connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
         connect(player.get(), &Player::hasAmusementPark, this, &GameLogic::handlePlayerHasAmusementPark);
         connect(player.get(), &Player::hasRadioTower, this, &GameLogic::handlePlayerHasRadioTower);
+        connect(player.get(), &Player::playerBalanceChanged, this, [this, player]() {
+            emit playerBalanceChanged(player->coins(), player->id());
+        });
         player->addCard(m_cardReader->readFromRange(4, 4).at(0));
         player->addCard(m_cardReader->readFromRange(6, 6).at(0));
         m_players.push_back(player);
@@ -142,7 +144,6 @@ void GameLogic::handleTryToBuyCard(uchar cardId)
     uchar playerBalance = m_players[m_currentPlayerId]->coins();
     if (cardPrice <= playerBalance) {
         m_players[m_currentPlayerId]->deductMoney(cardPrice);
-        emit playerBalanceChanged(m_players[m_currentPlayerId]->coins(), m_currentPlayerId);
 
         if (card->hasActivationValue(0)) { // player builds Landmark
             m_players[m_currentPlayerId]->addLandmark(card);

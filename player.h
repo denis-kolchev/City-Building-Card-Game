@@ -13,7 +13,7 @@ class Player : public QObject {
     Q_OBJECT
 
 public:
-    Player(const QString& name, QObject *parent = nullptr);
+    Player(const QString& name, int id, QObject *parent = nullptr);
 
     void activateRerollDice();
 
@@ -30,6 +30,8 @@ public:
     int coins() const;
 
     void deductMoney(int amount);
+
+    int id();
 
     QMap<std::shared_ptr<Card>, uchar> getCardsTable();
 
@@ -48,11 +50,14 @@ signals:
 
     void hasRailwayStation();
 
+    void playerBalanceChanged(uchar balance, int playerId);
+
 private:
     QMap<std::shared_ptr<Card>, uchar> m_cardsTable;
     QVector<std::shared_ptr<Card>> m_landmarks;
     QString m_name;
     int m_coins;
+    int m_id;
 };
 
 

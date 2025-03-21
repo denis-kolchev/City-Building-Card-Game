@@ -22,16 +22,31 @@ ShoppingMall::ShoppingMall(const QString& title,
 
 void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     auto allCards = owner.getCardsTable();
-    int count = 0;
+    int diningCount = 0;
+    int shopCount = 0;
     for (auto it = allCards.begin(), ite = allCards.end(); it != ite; ++it) {
-        if ((it.key()->type() == CardType::Dining ||
-             it.key()->type() == CardType::Shop) &&
-             it.key()->hasActivationValue(dice1 + dice2))
-        {
-            count++;
+        if (it.key()->hasActivationValue(dice1 + dice2) && it.key()->type() == CardType::Dining) {
+            diningCount++;
+        }
+        if (&owner == &activePlayer && it.key()->type() == CardType::Shop) {
+            shopCount++;
         }
     }
 
-    owner.addCoins(count);
-    qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << count;
+    owner.addCoins(shopCount);
+
+    if (&owner != &activePlayer) {
+        int balance = activePlayer.coins();
+        if (balance >= diningCount) {
+            activePlayer.deductMoney(diningCount);
+            owner.addCoins(diningCount);
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << diningCount;
+        } else {
+            activePlayer.deductMoney(balance);
+            owner.addCoins(balance);
+            qDebug() << "--- " << m_title << " - " << activePlayer.name() << " loose coins: " << balance;
+        }
+    }
+
+    qDebug() << "--- " << m_title << " - " << owner.name() << " gain income: " << diningCount + shopCount;
 }

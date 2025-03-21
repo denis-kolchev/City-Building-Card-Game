@@ -15,6 +15,8 @@ public:
 
     CardWidget* at(uchar id) const;
 
+    uchar id();
+
     bool isEmpty();
 
     void removeCard();

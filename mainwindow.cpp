@@ -21,7 +21,7 @@ MainWindow::MainWindow(QMainWindow *parent)
     , m_mainLayout(new QHBoxLayout(m_centralWidget))
     , m_reserveCardsArea(new QScrollArea())
     , m_reserveScrollWidget(new CardScrollWidget())
-    , m_reserveLayout(new QHBoxLayout(m_reserveScrollWidget))
+    , m_reserveLayout(new QHBoxLayout())
     , m_tabWidget(new QTabWidget(this))
 {
     m_canPressTwoDiceButton.resize(5, 0);

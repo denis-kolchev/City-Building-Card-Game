@@ -32,6 +32,9 @@ public slots:
     void handleCardClicked(uchar id);
 
 private:
+    void sortCardsById();
+
+private:
     CardStacks m_stacks;
 
     QHBoxLayout* m_layout;

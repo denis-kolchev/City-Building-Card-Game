@@ -38,6 +38,15 @@ bool CardStackWidget::isEmpty()
     return m_cards.empty();
 }
 
+uchar CardStackWidget::id()
+{
+    if (m_cards.isEmpty()) {
+        return m_cards.at(0)->id();
+    } else {
+        return 0;
+    }
+}
+
 void CardStackWidget::removeCard()
 {
     if (!m_cards.isEmpty()) {
