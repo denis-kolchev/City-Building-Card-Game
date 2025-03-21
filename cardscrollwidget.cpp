@@ -5,6 +5,7 @@ CardScrollWidget::CardScrollWidget(QWidget *parent)
 {
     m_layout = new QHBoxLayout(this);
     setLayout(m_layout);
+    m_layout->addStretch();
 }
 
 void CardScrollWidget::placeCards(const CardList &cards)
@@ -25,7 +26,7 @@ void CardScrollWidget::placeCards(const CardList &cards)
         // create a stack for this card type if wasn't made before
         if (!m_stacks.contains(id)) {
             m_stacks[id] = new CardStackWidget();
-            m_layout->addWidget(m_stacks[id]);
+            m_layout->insertWidget(m_layout->count() - 1, m_stacks[id]); // place before stretch
             m_stacks[id]->show();
         }
 
@@ -34,6 +35,7 @@ void CardScrollWidget::placeCards(const CardList &cards)
     }
 
     sortCardsById();
+    m_layout->addStretch();
     update();
 }
 
@@ -84,7 +86,7 @@ void CardScrollWidget::sortCardsById() {
         return a->id() < b->id();
     });
 
-    while (m_layout->count()) {
+    while (m_layout->count() > 1) { // keep the stretch at the end
         auto* item = m_layout->takeAt(0);
         if (item->widget()) {
             m_layout->removeWidget(item->widget());
@@ -93,6 +95,6 @@ void CardScrollWidget::sortCardsById() {
     }
 
     for (auto* stack : cardStacks) {
-        m_layout->addWidget(stack);
+        m_layout->insertWidget(m_layout->count() - 1, stack); // place before stretch
     }
 }
