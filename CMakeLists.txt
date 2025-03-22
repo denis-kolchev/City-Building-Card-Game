@@ -71,6 +71,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
         gameSounds.qrc
         playerpage.h playerpage.cpp
         cardscrollwidget.h cardscrollwidget.cpp
+        gamemanager.h gamemanager.cpp
+        gameapplicationbuilder.h gameapplicationbuilder.cpp
 
     )
 

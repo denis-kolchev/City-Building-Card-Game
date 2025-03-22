@@ -17,7 +17,7 @@ GameLogic::GameLogic(QObject *parent)
     // read card data from config
     m_cardReader = new CardDataConfigReader(configPath);
     m_cardsToWin = m_cardReader->readFromRange(0, 3);
-    //qDebug() << "1. gameLogic is made correctly";
+    //qDebug() << "1. m_gameLogic is made correctly";
 }
 
 GameLogic::~GameLogic()
