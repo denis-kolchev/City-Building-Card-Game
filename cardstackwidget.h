@@ -27,6 +27,11 @@ public:
 
     void turnOff();
 
+public slots:
+    void startCardsHighlighting(int playerBalance);
+
+    void stopCardsHighlighting();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 
@@ -36,6 +41,7 @@ signals:
 private:
     QList<CardWidget*> m_cards;
     int m_cardOverlap = 10; // Horizontal overlap between cards
+    CardWidget* m_lastHighlighted;
 };
 
 #endif // CARDSTACKWIDGET_H

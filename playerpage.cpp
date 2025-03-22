@@ -15,6 +15,20 @@ PlayerPage::PlayerPage(uchar playerId, const QString &configPath, QWidget *paren
 {
     setupUi();
     readCardData(configPath);
+
+    connect(this, &PlayerPage::activateCardsHighlighting, m_landmarkScrollWidget,
+            [this](int playerBalance) { emit m_landmarkScrollWidget->activateCardsHighlighting(playerBalance); });
+
+    connect(this, &PlayerPage::deactivateCardsHighlighting, m_landmarkScrollWidget,
+            [this](){ emit m_landmarkScrollWidget->deactivateCardsHighlighting(); });
+
+    connect(this, &PlayerPage::skipClicked, m_landmarkScrollWidget,
+            [this](){ emit m_landmarkScrollWidget->deactivateCardsHighlighting(); });
+}
+
+int PlayerPage::balance()
+{
+    return m_playerBalance;
 }
 
 void PlayerPage::setupUi()
@@ -109,6 +123,7 @@ void PlayerPage::readCardData(const QString &configPath)
 void PlayerPage::setPlayerBalance(uchar balance)
 {
     m_playerBalanceLabel->setText(QString("Coins: %1").arg(balance));
+    m_playerBalance = static_cast<int>(balance);
 }
 
 void PlayerPage::setDiceResult(uchar dice1, uchar dice2)

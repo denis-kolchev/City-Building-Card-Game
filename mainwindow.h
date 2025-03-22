@@ -51,6 +51,8 @@ public slots:
     void updatePlayerBalanceLabel(uchar balance, int playerId);
 
 signals:
+    void activateCardsHighlighting(int playerBalance);
+
     void buildOneMoreBuilding();
 
     void buttonClickSound();
@@ -66,6 +68,8 @@ signals:
     void checkPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2);
 
     void createPlayers(QList<QString> playerNames);
+
+    void deactivateCardsHighlighting();
 
     void diceRollAccepted(uchar dice1, uchar dice2);
 

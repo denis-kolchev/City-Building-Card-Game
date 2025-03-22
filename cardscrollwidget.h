@@ -26,7 +26,11 @@ public:
     void turnOff(uchar id);
 
 signals:
+    void activateCardsHighlighting(int playerBalance);
+
     void cardSignalClicked(uchar id);
+
+    void deactivateCardsHighlighting();
 
 public slots:
     void handleCardClicked(uchar id);

@@ -17,6 +17,8 @@ class PlayerPage : public QWidget
 public:
     explicit PlayerPage(uchar playerId, const QString &configPath, QWidget *parent = nullptr);
 
+    int balance();
+
     void setPlayerBalance(uchar balance);
 
     void setDiceResult(uchar dice1, uchar dice2 = 0);
@@ -44,6 +46,10 @@ public:
     CardScrollWidget* getBuildScrollWidget();
 
 signals:
+    void activateCardsHighlighting(int playerBalance);
+
+    void deactivateCardsHighlighting();
+
     void rollOneDiceClicked(uchar playerId);
 
     void rollTwoDiceClicked(uchar playerId);
@@ -63,6 +69,7 @@ private:
     void readCardData(const QString &configPath); // initial card set maybe shouldn't be here
 
     uchar m_playerId;
+    int m_playerBalance;
     QVBoxLayout *m_mainLayout;
     QScrollArea *m_landmarksScrollArea;
     QScrollArea *m_buildsScrollArea;

@@ -64,6 +64,23 @@ int CardStackWidget::cardCount() const
     return m_cards.size();
 }
 
+void CardStackWidget::startCardsHighlighting(int playerBalance)
+{
+    if (m_cards.back()->price() > playerBalance) {
+        return;
+    }
+
+    m_lastHighlighted = m_cards.back();
+    m_lastHighlighted->startOutlineHighlight();
+}
+
+void CardStackWidget::stopCardsHighlighting()
+{
+    if (m_lastHighlighted) {
+        m_lastHighlighted->stopOutlineHighlight();
+    }
+}
+
 void CardStackWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);

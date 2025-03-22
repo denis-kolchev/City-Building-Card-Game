@@ -34,6 +34,16 @@ MainWindow::MainWindow(QMainWindow *parent)
     m_mainLayout->addWidget(m_tabWidget);
 
     m_centralWidget->setLayout(m_mainLayout);
+
+    connect(this, &MainWindow::activateCardsHighlighting, m_reserveScrollWidget,
+            [this](int playerBalance) { emit m_reserveScrollWidget->activateCardsHighlighting(playerBalance); });
+
+    connect(this, &MainWindow::deactivateCardsHighlighting, m_reserveScrollWidget,
+            [this](){ emit m_reserveScrollWidget->deactivateCardsHighlighting(); });
+
+    connect(this, &MainWindow::skipClicked, m_reserveScrollWidget,
+            [this](){ emit m_reserveScrollWidget->deactivateCardsHighlighting(); });
+
     setCentralWidget(m_centralWidget);
 
     setWindowTitle("City Building Card Game");
@@ -59,6 +69,7 @@ bool MainWindow::askForReroll(QWidget* parent)
 
 void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
+    emit deactivateCardsHighlighting();
     m_playerPages.at(m_currentPlayerId)->placeCards(CardList{card});
     m_reserveScrollWidget->removeCards(CardList{card});
 
@@ -94,14 +105,18 @@ void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)
             bool wantsReroll = askForReroll(this);
             if (wantsReroll) {
                 emit rollButtonClickedWithCanReroll(dice1, dice2);
+                emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
             } else {
                 emit diceRollAccepted(dice1, dice2);
+                emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
             }
         } else {
             emit diceRollAccepted(dice1, dice2);
+            emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
         }
     } else {
         emit diceRollAccepted(dice1, dice2);
+        emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
     }
 }
 
@@ -149,9 +164,17 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
     QVector<QString> playerNames(m_numPlayers);
     for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
         PlayerPage* playerPage = createPlayerPage(i);
-        //qDebug() << "append playerPage to m_playerPages starts";
+
         m_playerPages.append(playerPage);
         m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
+
+        connect(this, &MainWindow::activateCardsHighlighting, m_playerPages[m_currentPlayerId],
+                [this](int playerBalance) { emit m_playerPages[m_currentPlayerId]->activateCardsHighlighting(playerBalance);
+        });
+
+        connect(this, &MainWindow::deactivateCardsHighlighting, m_playerPages[m_currentPlayerId],
+                [this]() { emit m_playerPages[m_currentPlayerId]->deactivateCardsHighlighting();
+        });
 
         if (i == 0) {
             m_tabWidget->setTabIcon(i, createCircleIcon(QColor(72, 181, 163)));
@@ -209,6 +232,7 @@ void MainWindow::unlockDiceReroll()
 
 void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
 {
+    emit deactivateCardsHighlighting();
     emit cardTurnSound();
 
     auto id = card->id();

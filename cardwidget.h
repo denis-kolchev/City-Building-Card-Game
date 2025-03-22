@@ -9,10 +9,15 @@
 #include <QPixmap>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPropertyAnimation>
 
 class CardWidget : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY(QColor outlineColor
+                   READ outlineColor
+                   WRITE setOutlineColor
+                   NOTIFY outlineColorChanged)
 public:
     explicit CardWidget(QPixmap imagePath,
                         QSet<uchar> triggerNumbers,
@@ -24,9 +29,21 @@ public:
                         uchar id,
                         QWidget *parent = nullptr);
 
+    QColor baseOutlineColor() const;
+
     void landmarkUnlocked();
 
     uchar id();
+
+    QColor outlineColor() const;
+
+    int price();
+
+    void setOutlineColor(const QColor &color);
+
+    void startOutlineHighlight();
+
+    void stopOutlineHighlight();
 
     void turnOn();
 
@@ -39,6 +56,8 @@ protected:
 
 signals:
     void clicked(uchar cardId);
+
+    void outlineColorChanged();
 
 private:
     QColor blueColor() const;
@@ -77,9 +96,12 @@ private:
     QString m_price;
     QString m_expension;
     QColor m_backgroundColor;
+    QColor m_baseOutlineColor;
     QColor m_outlineColor;
     CardType m_cardType;
     uchar m_id;
+
+    QPropertyAnimation *m_outlineAnimation;
 };
 
 #endif // CARDWIDGET_H

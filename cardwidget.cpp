@@ -21,6 +21,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_expension(expension)
     , m_cardType(cardType)
     , m_id(id)
+    , m_outlineAnimation(new QPropertyAnimation(this, "outlineColor"))
     , QWidget(parent)
 {
     QMap<CardType, QString> emojiMap = {
@@ -64,20 +65,22 @@ CardWidget::CardWidget(QPixmap imagePath,
 
     if (blueTypes.find(cardType) != blueTypes.end()) {
         m_backgroundColor = blueColor();
-        m_outlineColor = blueOutlineColor();
+        m_baseOutlineColor = blueOutlineColor();
     } else if (greenTypes.find(cardType) != greenTypes.end()) {
         m_backgroundColor = greenColor();
-        m_outlineColor = greenOutlineColor();
+        m_baseOutlineColor = greenOutlineColor();
     } else if (redTypes.find(cardType) != redTypes.end()) {
         m_backgroundColor = redColor();
-        m_outlineColor = redOutlineColor();
+        m_baseOutlineColor = redOutlineColor();
     } else if (purpleTypes.find(cardType) != purpleTypes.end() && triggerNumbers.find(0) != triggerNumbers.end()) {
         m_backgroundColor = greyColor();
-        m_outlineColor = greyOutlineColor();
+        m_baseOutlineColor = greyOutlineColor();
     } else {
         m_backgroundColor = purpleColor();
-        m_outlineColor = purpleOutlineColor();
+        m_baseOutlineColor = purpleOutlineColor();
     }
+
+    m_outlineColor = baseOutlineColor();
 
     m_description = replaceSubstringWithEmoji(m_description, "coffee shop", emojiMap[CardType::Dining]);
     m_description = replaceSubstringWithEmoji(m_description, "store", emojiMap[CardType::Shop]);
@@ -85,6 +88,11 @@ CardWidget::CardWidget(QPixmap imagePath,
     m_description = replaceSubstringWithEmoji(m_description, "farm", emojiMap[CardType::Farm]);
     m_description = replaceSubstringWithEmoji(m_description, "mining", emojiMap[CardType::Mining]);
     m_description = replaceSubstringWithEmoji(m_description, "agricultiral", emojiMap[CardType::Agricultiral]);
+
+    m_outlineAnimation->setDuration(1000); // duration of animation
+    m_outlineAnimation->setLoopCount(-1); // while(true)
+    m_outlineAnimation->setStartValue(outlineColor().lighter(150)); // light color
+    m_outlineAnimation->setEndValue(outlineColor().darker(150)); // dark color
 
     //int w = 200, h = 300;
     int w = 150, h = 250;
@@ -151,8 +159,44 @@ CardWidget::CardWidget(QPixmap imagePath,
     setLayout(mainLayout);
 }
 
-uchar CardWidget::id() {
+QColor CardWidget::baseOutlineColor() const
+{
+    return m_baseOutlineColor;
+}
+
+uchar CardWidget::id()
+{
     return m_id;
+}
+
+QColor CardWidget::outlineColor() const
+{
+    return m_outlineColor;
+}
+
+int CardWidget::price()
+{
+    return m_price.toInt();
+}
+
+void CardWidget::setOutlineColor(const QColor &color)
+{
+    if (m_outlineColor != color) {
+        m_outlineColor = color;
+        update(); // Перерисовка виджета
+        emit outlineColorChanged();
+    }
+}
+
+void CardWidget::startOutlineHighlight()
+{
+    m_outlineAnimation->start();
+}
+
+void CardWidget::stopOutlineHighlight()
+{
+    m_outlineAnimation->stop();
+    m_outlineColor = baseOutlineColor();
 }
 
 void CardWidget::turnOn()
@@ -196,14 +240,16 @@ void CardWidget::turnOff()
     update();
 }
 
-void CardWidget::mousePressEvent(QMouseEvent* event) {
+void CardWidget::mousePressEvent(QMouseEvent* event)
+{
     if (event->button() == Qt::LeftButton) {
         //qDebug() << "[CardWidget] Clicked ID:" << m_id; // Debug
         emit clicked(m_id); // Emit a signal when clicked
     }
 }
 
-void CardWidget::paintEvent(QPaintEvent* event) {
+void CardWidget::paintEvent(QPaintEvent* event)
+{
     QWidget::paintEvent(event);
 
     QPainter painter(this);
@@ -221,7 +267,8 @@ void CardWidget::paintEvent(QPaintEvent* event) {
     painter.drawPath(path);
 }
 
-QColor CardWidget::blueColor() const {
+QColor CardWidget::blueColor() const
+{
     // QColor(239, 83, 80);
     // QColor(100, 181, 246);
     // QColor(129, 199, 132);
@@ -240,68 +287,81 @@ QColor CardWidget::blueColor() const {
     //return QColor(25, 118, 210);
 }
 
-QColor CardWidget::blueOutlineColor() const {
+QColor CardWidget::blueOutlineColor() const
+{
     return QColor(91, 163, 194); // pastele
     //return QColor(5, 98, 190);
 }
 
-QColor CardWidget::goldColor() const {
+QColor CardWidget::goldColor() const
+{
     return QColor(225, 207, 51); // pastele
     //return QColor(251, 192, 45);
 }
 
-QColor CardWidget::goldOutlineColor() const {
+QColor CardWidget::goldOutlineColor() const
+{
     return QColor(205, 187, 31); // pastele
     //return QColor(231, 172, 25);
 }
 
-QColor CardWidget::greenColor() const {
+QColor CardWidget::greenColor() const
+{
     return QColor(72, 181, 163); // pastele
     //return QColor(56, 142, 60);
 }
 
-QColor CardWidget::greenOutlineColor() const {
+QColor CardWidget::greenOutlineColor() const
+{
     return QColor(52, 161, 143); // pastele
     //return QColor(36, 132, 40);
 }
 
-QColor CardWidget::greyColor() const {
+QColor CardWidget::greyColor() const
+{
     return QColor(192, 186, 153); // pastele
     //return QColor(97, 97, 97);
 }
 
-QColor CardWidget::greyOutlineColor() const {
+QColor CardWidget::greyOutlineColor() const
+{
     return QColor(172, 166, 133); // pastele
     //return QColor(77, 77, 77);
 }
 
-QColor CardWidget::purpleColor() const {
+QColor CardWidget::purpleColor() const
+{
     return QColor(165, 137, 193); // pastele
     //return QColor(123, 31, 162);
 }
 
-QColor CardWidget::purpleOutlineColor() const {
+QColor CardWidget::purpleOutlineColor() const
+{
     return QColor(135, 117, 173); // pastele
     //return QColor(103, 11, 142);
 }
 
-QColor CardWidget::redColor() const {
+QColor CardWidget::redColor() const
+{
     return QColor(252, 169, 133); // pastele
     //return QColor(211, 47, 47);
 }
 
-QColor CardWidget::redOutlineColor() const {
+QColor CardWidget::redOutlineColor() const
+{
     return QColor(232, 149, 113); // pastele
     //return QColor(191, 27, 27);
 }
 
-QString CardWidget::replaceSubstringWithEmoji(const QString &input, const QString &substring, const QString &emoji) {
+QString CardWidget::replaceSubstringWithEmoji(const QString &input, const QString &substring, const QString &emoji)
+{
     QString result = input;
     result.replace(substring, emoji);
     return result;
 }
 
-QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set) {
+QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set)
+{
     if (set.isEmpty()) {
         return QString();
     }

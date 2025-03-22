@@ -32,6 +32,11 @@ void CardScrollWidget::placeCards(const CardList &cards)
 
         // add a cardWidget to the appropriate stack
         m_stacks[id]->addCard(cardWidget);
+
+        connect(this, &CardScrollWidget::activateCardsHighlighting,
+                m_stacks[id], &CardStackWidget::startCardsHighlighting);
+        connect(this, &CardScrollWidget::deactivateCardsHighlighting,
+                m_stacks[id], &CardStackWidget::stopCardsHighlighting);
     }
 
     sortCardsById();
