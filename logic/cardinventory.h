@@ -31,6 +31,10 @@ public:
 
     const QMap<std::shared_ptr<Card>, int>& redCards() const;
 
+signals:
+    void cardAdded(std::shared_ptr<Card> card);
+
+    void cardRemoved(std::shared_ptr<Card> card);
 
 private:
     void categorizeCard(std::shared_ptr<Card> card);

@@ -23,6 +23,8 @@ public:
 
     ~MainWindow();
 
+    CardScrollWidget* getReserveScrollWidget() const;
+
 public slots:
     bool askForReroll(QWidget* parent);
 

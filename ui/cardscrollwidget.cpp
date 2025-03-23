@@ -44,6 +44,11 @@ void CardScrollWidget::placeCards(const CardList &cards)
     update();
 }
 
+void CardScrollWidget::addCard(std::shared_ptr<Card> card)
+{
+    placeCards({card});
+}
+
 void CardScrollWidget::removeCards(const CardList &cards)
 {
     for (qsizetype i = 0; i < cards.size(); ++i) {
@@ -67,6 +72,11 @@ void CardScrollWidget::removeCards(const CardList &cards)
     }
 
     update();
+}
+
+void CardScrollWidget::removeCard(std::shared_ptr<Card> card)
+{
+    removeCards({card});
 }
 
 void CardScrollWidget::turnOn(uchar id)

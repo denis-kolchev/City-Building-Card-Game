@@ -33,7 +33,11 @@ signals:
     void deactivateCardsHighlighting();
 
 public slots:
+    void addCard(std::shared_ptr<Card> card);
+
     void handleCardClicked(uchar id);
+
+    void removeCard(std::shared_ptr<Card> card);
 
 private:
     void sortCardsById();

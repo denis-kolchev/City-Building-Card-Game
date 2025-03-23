@@ -4,26 +4,32 @@ void CardInventory::addCard(std::shared_ptr<Card> card)
 {
     auto it = m_cards.find(card);
     if (it != m_cards.end()) {
+        // places card on the existing stack
         m_cards[card] = it.value() + 1;
     } else {
+        // creates a new stack
         m_cards.insert(card, 1);
         categorizeCard(card);
     }
+    emit cardAdded(card); // notify UI about inventory changes
 }
 
 void CardInventory::removeCard(std::shared_ptr<Card> card)
 {
     auto it = m_cards.find(card);
     if (it == m_cards.end()) {
-        return;
+        return; // such card doesn't exist
     }
 
     if (it.value() > 1) {
+        // removes a card from stack
         m_cards[card] = it.value() - 1;
     } else {
+        // removes the whole stack of card
         m_cards.remove(card);
         uncategorizeCard(card);
     }
+    emit cardRemoved(card); // notify UI about inventory changes
 }
 
 int CardInventory::countCard(std::shared_ptr<Card> card) const

@@ -35,6 +35,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     m_centralWidget->setLayout(m_mainLayout);
 
+    // Animation of cards when in buy state depending on palyer balance
     connect(this, &MainWindow::activateCardsHighlighting, m_reserveScrollWidget,
             [this](int playerBalance) { emit m_reserveScrollWidget->activateCardsHighlighting(playerBalance); });
 
@@ -43,7 +44,9 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     connect(this, &MainWindow::skipClicked, m_reserveScrollWidget,
             [this](){ emit m_reserveScrollWidget->deactivateCardsHighlighting(); });
+    // Animation end
 
+    // handle card clickes
     connect(m_reserveScrollWidget, &CardScrollWidget::cardSignalClicked,
             this, &MainWindow::handleCardClick);
 
@@ -55,6 +58,11 @@ MainWindow::MainWindow(QMainWindow *parent)
 
 MainWindow::~MainWindow()
 {
+}
+
+CardScrollWidget* MainWindow::getReserveScrollWidget() const
+{
+    return m_reserveScrollWidget;
 }
 
 bool MainWindow::askForReroll(QWidget* parent)

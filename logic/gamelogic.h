@@ -38,6 +38,8 @@ public:
 
     ~GameLogic();
 
+    std::shared_ptr<CardInventory> bank() const;
+
     int currentPlayerId() const;
 
     bool isGameIsFinished();

@@ -16,11 +16,18 @@ GameLogic::~GameLogic()
 {
 }
 
-int GameLogic::currentPlayerId() const {
+std::shared_ptr<CardInventory> GameLogic::bank() const
+{
+    return m_bank;
+}
+
+int GameLogic::currentPlayerId() const
+{
     return m_currentPlayerId;
 }
 
-bool GameLogic::isGameIsFinished() {
+bool GameLogic::isGameIsFinished()
+{
     int mx = 0;
     for (auto player : m_players) {
         mx = fmax(mx, player->getLandmarks().size());
@@ -31,11 +38,13 @@ bool GameLogic::isGameIsFinished() {
     return false;
 }
 
-std::shared_ptr<Player> GameLogic::getPlayer(int id) {
+std::shared_ptr<Player> GameLogic::getPlayer(int id)
+{
     return m_players[id];
 }
 
-void GameLogic::playTurn(uchar dice1, uchar dice2) {
+void GameLogic::playTurn(uchar dice1, uchar dice2)
+{
     for (auto& player : m_players) {
         qDebug() << "--- old " << player->name() << " balance:" << player->coins();
         player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
@@ -79,8 +88,13 @@ void GameLogic::handleCardDataReceived(QVector<std::shared_ptr<Card>> data)
 
 void GameLogic::handleConfigDataReady()
 {
+    // usufull to check if some player won the game.
+    // TODO Seems like it should be just id-s, not real cards
     emit requestCardData(0, 3, std::make_shared<CardsToWinHandler>(m_cardsToWin));
 
+    // request cards to fill in the bank (so players could buy them)
+    // every std::shared_ptr<CardInventory> somehow should know cardScrollWidget
+    // to which they should place their cards
     const int mxBaseCards = 6;
     for (int i = 0; i < mxBaseCards; ++i) {
         emit requestCardData(4, 9, std::make_shared<BankCardsHandler>(m_bank));
