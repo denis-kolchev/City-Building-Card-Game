@@ -8,9 +8,9 @@ CardDataConfigReader::CardDataConfigReader(QString configFilePath)
     : m_settings(configFilePath, QSettings::IniFormat), m_configFilePath(configFilePath)
 {
     // Still needs to change this code somehow
-    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
+    m_configFilePath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
+    if (QFile::exists(m_configFilePath)) {
+        qDebug() << "Config file has found: " << m_configFilePath;
         emit configDataReady();
     } else {
         qDebug() << "File not found!";

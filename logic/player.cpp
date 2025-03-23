@@ -4,6 +4,7 @@ Player::Player(const QString& name, int id, QObject *parent)
     : m_name(name)
     , m_id(id)
     , m_coins(START_COINS_NUMBER)
+    , m_cardInventory(new CardInventory())
     , QObject(parent)
 {
 }

@@ -19,35 +19,35 @@ MainWindow::MainWindow(QMainWindow *parent)
     , m_finalState(new QFinalState())
     , m_centralWidget(new QWidget(this))
     , m_mainLayout(new QHBoxLayout(m_centralWidget))
-    , m_reserveCardsArea(new QScrollArea())
-    , m_reserveScrollWidget(new CardScrollWidget())
-    , m_reserveLayout(new QHBoxLayout())
+    , m_bankCardsArea(new QScrollArea())
+    , m_bankScrollWidget(new CardScrollWidget())
+    , m_bankLayout(new QHBoxLayout())
     , m_tabWidget(new QTabWidget(this))
     , m_canPressTwoDiceButton(5, 0)
     , m_canBuildAgainIfDubleRollDice(5, 0)
     , m_canRerollDice(5, 0)
 {
-    m_reserveCardsArea->setWidget(m_reserveScrollWidget);
-    m_reserveCardsArea->setWidgetResizable(true);
+    m_bankCardsArea->setWidget(m_bankScrollWidget);
+    m_bankCardsArea->setWidgetResizable(true);
 
-    m_mainLayout->addWidget(m_reserveCardsArea);
+    m_mainLayout->addWidget(m_bankCardsArea);
     m_mainLayout->addWidget(m_tabWidget);
 
     m_centralWidget->setLayout(m_mainLayout);
 
     // Animation of cards when in buy state depending on palyer balance
-    connect(this, &MainWindow::activateCardsHighlighting, m_reserveScrollWidget,
-            [this](int playerBalance) { emit m_reserveScrollWidget->activateCardsHighlighting(playerBalance); });
+    connect(this, &MainWindow::activateCardsHighlighting, m_bankScrollWidget,
+            [this](int playerBalance) { emit m_bankScrollWidget->activateCardsHighlighting(playerBalance); });
 
-    connect(this, &MainWindow::deactivateCardsHighlighting, m_reserveScrollWidget,
-            [this](){ emit m_reserveScrollWidget->deactivateCardsHighlighting(); });
+    connect(this, &MainWindow::deactivateCardsHighlighting, m_bankScrollWidget,
+            [this](){ emit m_bankScrollWidget->deactivateCardsHighlighting(); });
 
-    connect(this, &MainWindow::skipClicked, m_reserveScrollWidget,
-            [this](){ emit m_reserveScrollWidget->deactivateCardsHighlighting(); });
+    connect(this, &MainWindow::skipClicked, m_bankScrollWidget,
+            [this](){ emit m_bankScrollWidget->deactivateCardsHighlighting(); });
     // Animation end
 
     // handle card clickes
-    connect(m_reserveScrollWidget, &CardScrollWidget::cardSignalClicked,
+    connect(m_bankScrollWidget, &CardScrollWidget::cardSignalClicked,
             this, &MainWindow::handleCardClick);
 
     setCentralWidget(m_centralWidget);
@@ -60,9 +60,9 @@ MainWindow::~MainWindow()
 {
 }
 
-CardScrollWidget* MainWindow::getReserveScrollWidget() const
+CardScrollWidget* MainWindow::getBankScrollWidget() const
 {
-    return m_reserveScrollWidget;
+    return m_bankScrollWidget;
 }
 
 bool MainWindow::askForReroll(QWidget* parent)
@@ -82,7 +82,7 @@ void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
 {
     emit deactivateCardsHighlighting();
     m_playerPages.at(m_currentPlayerId)->placeCards(CardList{card});
-    m_reserveScrollWidget->removeCards(CardList{card});
+    m_bankScrollWidget->removeCards(CardList{card});
 
     if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
         m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
@@ -138,9 +138,9 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 
 #ifdef false
     // Should go to the function which hendles changes of the bank
-    // bank is a new name for reserve
+    // bank is a new name for bank
     try {
-        std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
+        std::sort(bankCards.begin(), bankCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
             return a->id() < b->id();
         });
     } catch (const std::out_of_range& e) {

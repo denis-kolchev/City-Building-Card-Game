@@ -4,12 +4,14 @@
 #include "../logic/cards/card.h"
 
 #include <QMap>
+#include <QObject>
 #include <QSet>
 
 #include <memory>
 
-class CardInventory
+class CardInventory : public QObject
 {
+    Q_OBJECT
 public:
     void addCard(std::shared_ptr<Card> card);
 

@@ -20,10 +20,10 @@ void GameApplication::run()
 void GameApplication::setupConnections()
 {
     QObject::connect(m_gameLogic->bank().get(), &CardInventory::cardAdded,
-                     m_mainWindow->getReserveScrollWidget(), &CardScrollWidget::addCard);
+                     m_mainWindow->getBankScrollWidget(), &CardScrollWidget::addCard);
 
     QObject::connect(m_gameLogic->bank().get(), &CardInventory::cardRemoved,
-                     m_mainWindow->getReserveScrollWidget(), &CardScrollWidget::removeCard);
+                     m_mainWindow->getBankScrollWidget(), &CardScrollWidget::removeCard);
 
     QObject::connect(m_configReader.get(), &CardDataConfigReader::configDataReady,
                      m_gameLogic.get(), &GameLogic::handleConfigDataReady);

@@ -23,7 +23,7 @@ public:
 
     ~MainWindow();
 
-    CardScrollWidget* getReserveScrollWidget() const;
+    CardScrollWidget* getBankScrollWidget() const;
 
 public slots:
     bool askForReroll(QWidget* parent);
@@ -117,9 +117,9 @@ private:
 
     QWidget *m_centralWidget; // this
     QHBoxLayout *m_mainLayout; // m_centralWidget
-    QScrollArea *m_reserveCardsArea;
-    CardScrollWidget* m_reserveScrollWidget;
-    QHBoxLayout* m_reserveLayout; // reserveScrollWidget
+    QScrollArea *m_bankCardsArea;
+    CardScrollWidget* m_bankScrollWidget;
+    QHBoxLayout* m_bankLayout; // bankScrollWidget
 
     QVector<PlayerPage*> m_playerPages;
 

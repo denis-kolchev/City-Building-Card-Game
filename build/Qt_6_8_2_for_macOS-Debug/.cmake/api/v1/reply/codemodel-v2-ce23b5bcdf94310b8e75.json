@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-127ecdc23fa188ef7475.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "CityBuildingCardGame",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "CityBuildingCardGame::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CityBuildingCardGame-Debug-58b104aecf7988b02b5e.json",
+					"name" : "CityBuildingCardGame",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "CityBuildingCardGame_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CityBuildingCardGame_autogen-Debug-fec039406a394248ad19.json",
+					"name" : "CityBuildingCardGame_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "CityBuildingCardGame_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CityBuildingCardGame_autogen_timestamp_deps-Debug-5c2be2f6cb6833ebbe90.json",
+					"name" : "CityBuildingCardGame_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/deniskolchev/QtProjects/city-building-card-game/build/Qt_6_8_2_for_macOS-Debug",
+		"source" : "/Users/deniskolchev/QtProjects/city-building-card-game"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

@@ -3,14 +3,15 @@
 void CardInventory::addCard(std::shared_ptr<Card> card)
 {
     auto it = m_cards.find(card);
-    if (it != m_cards.end()) {
-        // places card on the existing stack
-        m_cards[card] = it.value() + 1;
-    } else {
+    if (it == m_cards.end()) {
         // creates a new stack
         m_cards.insert(card, 1);
         categorizeCard(card);
+    } else {
+        // places card on the existing stack
+        m_cards[card] = it.value() + 1;
     }
+
     emit cardAdded(card); // notify UI about inventory changes
 }
 
