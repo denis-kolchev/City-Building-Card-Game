@@ -24,7 +24,7 @@ git https://gitlab.com/Den-One/city-building-card-game.git
 
 ## Gameplay Description
 ### Start Menu
-![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/build_state.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/build_state.jpg?ref_type=heads)
 ### Income State
 ![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/income_state.jpg)
 ### Build State
