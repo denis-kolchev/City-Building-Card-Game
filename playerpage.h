@@ -15,7 +15,7 @@ class PlayerPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit PlayerPage(uchar playerId, const QString &configPath, QWidget *parent = nullptr);
+    explicit PlayerPage(uchar playerId, QWidget *parent = nullptr);
 
     int balance();
 
@@ -65,8 +65,6 @@ public slots:
 
 private:
     void setupUi();
-
-    void readCardData(const QString &configPath); // initial card set maybe shouldn't be here
 
     uchar m_playerId;
     int m_playerBalance;

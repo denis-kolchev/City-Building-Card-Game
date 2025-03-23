@@ -22,7 +22,6 @@
  * checkWinCondition() → Determines if someone has won the game.
  */
 
-#include "cardreserve.h"
 #include "carddataconfigreader.h"
 #include "diceroller.h"
 #include "player.h"
@@ -68,6 +67,10 @@ signals:
 
     void playerBuildNewBuilding(std::shared_ptr<Card> card);
 
+    void requestCardData(int begin, int end, std::shared_ptr<CardDataHandler> handler);
+
+    void requestReadFromRange(int begin, int end);
+
     void tryToBuyCard(uchar cardId, uchar playerBalance);
 
 public slots:
@@ -76,6 +79,10 @@ public slots:
     void processCheckPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2);
 
     void giveCardToPlayer(std::shared_ptr<Card> card);
+
+    void handleCardDataReceived(QVector<std::shared_ptr<Card>> data);
+
+    void handleConfigDataReady();
 
     void handleCreatePlayers(QList<QString> playerNames);
 
@@ -94,11 +101,10 @@ public slots:
     void prepateNextTurn();
 
 private:
-    CardReserve* m_cardReserve;
+    std::shared_ptr<CardInventory> m_bank;
     QVector<std::shared_ptr<Card>> m_cardsToWin;
     QVector<std::shared_ptr<Player>> m_players;
     DiceRoller m_roller;
-    CardDataConfigReader* m_cardReader;
     int m_currentPlayerId;
 };
 

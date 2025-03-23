@@ -25,7 +25,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     , QWidget(parent)
 {
     QMap<CardType, QString> emojiMap = {
-        {CardType::Agricultiral, "\u2600"},
+        {CardType::Agricultural, "\u2600"},
         {CardType::Business, "\u26EA"},
         {CardType::Dining, "\u2615"},
         {CardType::Farm, "\u26F0"},
@@ -43,7 +43,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     }
 
     QSet<CardType> blueTypes = {
-        CardType::Agricultiral,
+        CardType::Agricultural,
         CardType::Farm,
         CardType::Mining,
         CardType::Ship
@@ -87,7 +87,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     m_description = replaceSubstringWithEmoji(m_description, "landmark", emojiMap[CardType::Landmark]);
     m_description = replaceSubstringWithEmoji(m_description, "farm", emojiMap[CardType::Farm]);
     m_description = replaceSubstringWithEmoji(m_description, "mining", emojiMap[CardType::Mining]);
-    m_description = replaceSubstringWithEmoji(m_description, "agricultiral", emojiMap[CardType::Agricultiral]);
+    m_description = replaceSubstringWithEmoji(m_description, "agricultiral", emojiMap[CardType::Agricultural]);
 
     m_outlineAnimation->setDuration(1000); // duration of animation
     m_outlineAnimation->setLoopCount(-1); // while(true)
@@ -203,7 +203,7 @@ void CardWidget::turnOn()
 {
     // So it should be somewhere set in some file
     QSet<CardType> blueTypes = {
-        CardType::Agricultiral,
+        CardType::Agricultural,
         CardType::Farm,
         CardType::Mining,
         CardType::Ship

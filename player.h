@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QObject>
 
+#include "cardinventory.h"
 #include "cards/card.h"
 
 const int START_COINS_NUMBER = 3;
@@ -25,39 +26,48 @@ public:
 
     void addCoins(int amount);
 
-    void addLandmark(std::shared_ptr<Card> card);
-
     int coins() const;
 
     void deductMoney(int amount);
 
     int id();
 
-    QMap<std::shared_ptr<Card>, uchar> getCardsTable();
+    QMap<std::shared_ptr<Card>, int> getCards();
 
-    QMap<std::shared_ptr<Card>, uchar> getCardsTableOfType(CardType type);
+    const QMap<std::shared_ptr<Card>, int>& getBlueCards() const;
 
-    QVector<std::shared_ptr<Card>> getLandmarks();
+    const QMap<std::shared_ptr<Card>, int>& getGreenCards() const;
 
-    uchar howManyCardsOfType(std::shared_ptr<Card> card);
+    const QMap<std::shared_ptr<Card>, int>& getPurpleCards() const;
+
+    const QMap<std::shared_ptr<Card>, int>& getRedCards() const;
+
+    const QMap<std::shared_ptr<Card>, int>& getLandmarks();
+
+    int howManyCardsOfType(std::shared_ptr<Card> card);
 
     QString name() const;
 
-    void triggerCards(QVector<std::shared_ptr<Player>> players, Player& activePlayer, uchar dice1, uchar dice2);
+    void removeCard(std::shared_ptr<Card> card);
+
+    void triggerCards(QVector<std::shared_ptr<Player>> players, Player& activePlayer, int dice1, int dice2);
 
 signals:
+    void playerGetsCard(int playerId, std::shared_ptr<Card> card);
+
+    void playerLoosesCard(int playerId, std::shared_ptr<Card> card);
+
     void hasAmusementPark();
 
     void hasRadioTower();
 
     void hasRailwayStation();
 
-    void playerBalanceChanged(uchar balance, int playerId);
+    void playerBalanceChanged(int balance, int playerId);
 
 private:
-    QMap<std::shared_ptr<Card>, uchar> m_cardsTable;
-    QVector<std::shared_ptr<Card>> m_landmarks;
     QString m_name;
+    std::shared_ptr<CardInventory> m_cardInventory;
     int m_coins;
     int m_id;
 };

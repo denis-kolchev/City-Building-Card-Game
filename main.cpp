@@ -7,6 +7,7 @@ int main(int argc, char *argv[]) {
 
     //  Factory/Builder Pattern
     auto gameApplication = GameApplicationBuilder()
+                               .withConfigReader()
                                .withGameLogic()
                                .withMainWindow()
                                .withStartMenu()

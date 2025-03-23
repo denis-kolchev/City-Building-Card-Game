@@ -37,7 +37,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
         diceroller.h diceroller.cpp
         gamelogic.h gamelogic.cpp
         player.h player.cpp
-        cardreserve.h cardreserve.cpp
+
 
         README.md
 
@@ -48,7 +48,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
         cards/shoppingmall.h cards/shoppingmall.cpp
         cardImages.qrc
         cardwidget.h cardwidget.cpp
-        gamecontroller.h gamecontroller.cpp
+
         cardfactory.h cardfactory.cpp
         carddataconfigreader.h carddataconfigreader.cpp
         cards/railwaystation.h cards/railwaystation.cpp
@@ -71,8 +71,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
         gameSounds.qrc
         playerpage.h playerpage.cpp
         cardscrollwidget.h cardscrollwidget.cpp
-        gamemanager.h gamemanager.cpp
+        gameapplication.h gameapplication.cpp
         gameapplicationbuilder.h gameapplicationbuilder.cpp
+        cardDataHandler/carddatahandler.h
+        cardDataHandler/cardstowinhandler.h cardDataHandler/cardstowinhandler.cpp
+        cardDataHandler/initialplayercardshandler.h cardDataHandler/initialplayercardshandler.cpp
+
+        cardinventory.h cardinventory.cpp
+        cardDataHandler/bankcardshandler.h cardDataHandler/bankcardshandler.cpp
 
     )
 

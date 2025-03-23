@@ -1,66 +1,41 @@
 #include "carddataconfigreader.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QRegularExpression>
 
-CardDataConfigReader::CardDataConfigReader(const QString& configFilePath)
+CardDataConfigReader::CardDataConfigReader(QString configFilePath)
     : m_settings(configFilePath, QSettings::IniFormat), m_configFilePath(configFilePath)
 {
+    // Still needs to change this code somehow
+    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
+    if (QFile::exists(configPath)) {
+        qDebug() << "Config file has found: " << configPath;
+        emit configDataReady();
+    } else {
+        qDebug() << "File not found!";
+    }
+
     if (m_settings.status() != QSettings::NoError) {
         qDebug() << "Error loading file!";
     }
 }
 
-#ifdef false
-QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end) {
-    QVector<std::shared_ptr<Card>> cards;
-
-    QStringList groups = m_settings.childGroups();
-    uchar current = begin;
-    for (const QString& group : groups) {
-        if (!group.startsWith("Card_")) continue;
-
-        uchar cardNumber = group.mid(5).toUShort();
-        if (cardNumber < begin || cardNumber > end) continue;
-
-        m_settings.beginGroup(group);
-        QString title = m_settings.value("title", "Unknown").toString();
-        QString description = m_settings.value("description", "No description").toString();
-        QString imagePath = m_settings.value("image", "").toString();
-        uchar price = static_cast<uchar>(m_settings.value("price", 0).toUInt());
-        QStringList activationStrList = m_settings.value("activationValue", "").toString().split(' ', Qt::SkipEmptyParts);
-
-        QSet<uchar> activationValues;
-        for (const QString& value : activationStrList) {
-            activationValues.insert(value.toUShort());
-        }
-
-        QString typeStr = m_settings.value("type", "Agricultural").toString();
-        CardType type = CardType::Agricultiral;
-        if (typeStr == "Business") type = CardType::Business;
-        else if (typeStr == "Dining") type = CardType::Dining;
-        else if (typeStr == "Farm") type = CardType::Farm;
-        else if (typeStr == "Fruit") type = CardType::Fruit;
-        else if (typeStr == "Landmark") type = CardType::Landmark;
-        else if (typeStr == "Mining") type = CardType::Mining;
-        else if (typeStr == "Production") type = CardType::Production;
-        else if (typeStr == "Ship") type = CardType::Ship;
-        else if (typeStr == "Shop") type = CardType::Shop;
-
-        uchar pack = static_cast<uchar>(m_settings.value("pack", 0).toUInt());
-
-        std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, current);
-        cards.append(card);
-
-        m_settings.endGroup();
-        current++;
-    }
-
-    return cards;
+void CardDataConfigReader::handleReadFromRange(int begin, int end)
+{
+    emit sendCardData(readFromRange(begin, end));
 }
-#endif
 
-QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end) {
+void CardDataConfigReader::requestCardData(int begin,
+                                           int end,
+                                           std::shared_ptr<CardDataHandler> handler)
+{
+    QVector<std::shared_ptr<Card>> cards = readFromRange(begin, end);
+    handler->handleCardData(cards); // Use the handler to process the data (Strategy Pattern)
+}
+
+QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end)
+{
     QVector<std::shared_ptr<Card>> cards;
 
     QFile file(m_configFilePath);
@@ -107,7 +82,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                     QString typeStr = currentCardData.value("type", "Agricultural");
                     CardType type;
                     if (typeStr == "Agricultiral") {
-                        type = CardType::Agricultiral;
+                        type = CardType::Agricultural;
                     } else if (typeStr == "Business") {
                         type = CardType::Business;
                     } else if (typeStr == "Dining") {
@@ -167,7 +142,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
             QString typeStr = currentCardData.value("type", "Agricultural");
             CardType type;
             if (typeStr == "Agricultural") {
-                type = CardType::Agricultiral;
+                type = CardType::Agricultural;
             } else if (typeStr == "Business") {
                 type = CardType::Business;
             } else if (typeStr == "Dining") {

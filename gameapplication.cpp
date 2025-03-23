@@ -1,9 +1,13 @@
-#include "gamemanager.h"
+#include "gameapplication.h"
 
-GameApplication::GameApplication(std::shared_ptr<GameLogic> logic,
+GameApplication::GameApplication(std::shared_ptr<CardDataConfigReader> configReader,
+                                 std::shared_ptr<GameLogic> logic,
                                  std::shared_ptr<MainWindow> window,
                                  std::shared_ptr<StartMenu> menu)
-    : m_gameLogic(logic), m_mainWindow(window), m_startMenu(menu)
+    : m_configReader(configReader)
+    , m_gameLogic(logic)
+    , m_mainWindow(window)
+    , m_startMenu(menu)
 {
     setupConnections();
 }
@@ -15,6 +19,18 @@ void GameApplication::run()
 
 void GameApplication::setupConnections()
 {
+    QObject::connect(m_configReader.get(), &CardDataConfigReader::configDataReady,
+                     m_gameLogic.get(), &GameLogic::handleConfigDataReady);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::requestReadFromRange,
+                     m_configReader.get(), &CardDataConfigReader::handleReadFromRange);
+
+    QObject::connect(m_configReader.get(), &CardDataConfigReader::sendCardData,
+                     m_gameLogic.get(), &GameLogic::handleCardDataReceived);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::requestCardData,
+                     m_configReader.get(), &CardDataConfigReader::requestCardData);
+
     QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
                      m_mainWindow.get(), &MainWindow::handleShowMainWindow);
 

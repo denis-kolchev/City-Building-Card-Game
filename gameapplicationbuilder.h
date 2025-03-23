@@ -2,12 +2,15 @@
 #define GAMEAPPLICATIONBUILDER_H
 
 #include "gamelogic.h"
-#include "gamemanager.h"
+#include "gameapplication.h"
 #include "mainwindow.h"
 #include "startmenu.h"
 
-class GameApplicationBuilder {
+class GameApplicationBuilder
+{
 public:
+    GameApplicationBuilder& withConfigReader();
+
     GameApplicationBuilder& withGameLogic();
 
     GameApplicationBuilder& withMainWindow();
@@ -17,9 +20,10 @@ public:
     std::shared_ptr<GameApplication> build();
 
 private:
-    std::shared_ptr<GameLogic> gameLogic;
-    std::shared_ptr<MainWindow> mainWindow;
-    std::shared_ptr<StartMenu> startMenu;
+    std::shared_ptr<CardDataConfigReader> m_configReader;
+    std::shared_ptr<GameLogic> m_gameLogic;
+    std::shared_ptr<MainWindow> m_mainWindow;
+    std::shared_ptr<StartMenu> m_startMenu;
 };
 
 #endif // GAMEAPPLICATIONBUILDER_H

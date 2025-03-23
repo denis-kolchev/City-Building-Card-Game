@@ -1,23 +1,15 @@
 #include "gamelogic.h"
+#include "cardDataHandler/bankcardshandler.h"
+#include "cardDataHandler/cardstowinhandler.h"
+#include "cardDataHandler/initialplayercardshandler.h"
 #include "carddataconfigreader.h"
 
 #include <QCoreApplication>
 #include <QDir>
 
 GameLogic::GameLogic(QObject *parent)
-    : m_cardReserve(new CardReserve()), m_currentPlayerId(0), QObject(parent)
+    : m_bank(new CardInventory()), m_currentPlayerId(0), QObject(parent)
 {
-    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
-    } else {
-        qDebug() << "File not found!";
-    }
-
-    // read card data from config
-    m_cardReader = new CardDataConfigReader(configPath);
-    m_cardsToWin = m_cardReader->readFromRange(0, 3);
-    //qDebug() << "1. m_gameLogic is made correctly";
 }
 
 GameLogic::~GameLogic()
@@ -36,7 +28,6 @@ bool GameLogic::isGameIsFinished() {
             return true;
         }
     }
-    //qDebug() << "------> The most number of landmarks is: " << mx;
     return false;
 }
 
@@ -45,21 +36,9 @@ std::shared_ptr<Player> GameLogic::getPlayer(int id) {
 }
 
 void GameLogic::playTurn(uchar dice1, uchar dice2) {
-    auto activePlayer = m_players[m_currentPlayerId];
-
-    // if (dice2 == 0) {
-    //     qDebug() << activePlayer->name() << " rolled a " << dice1 << ".\n";
-    // } else {
-    //     qDebug() << activePlayer->name() << " rolled a " << dice1 << " & " << dice2 << ".\n";
-    // }
-
-    // Trigger cards for all players
-    // Active player loss money, get money from other players
-    int i = 0;
     for (auto& player : m_players) {
         qDebug() << "--- old " << player->name() << " balance:" << player->coins();
-        player->triggerCards(m_players, *activePlayer, dice1, dice2);
-        // Now, build time!
+        player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
         qDebug() << "--- new " << player->name() << " balance:" << player->coins();
     }
 }
@@ -72,10 +51,10 @@ void GameLogic::checkCoinBalanceForCard(uchar cardId)
 
 void GameLogic::processCheckPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2)
 {
-    auto cards = m_players[m_currentPlayerId]->getLandmarks(); // ToDO UNITE THESE TWO FUNCTIONS!
-    for (auto card : cards) {
-        if (card->id() == cardId) {
-            card->activate(m_players, *m_players[m_currentPlayerId], *m_players[m_currentPlayerId], dice1, dice1);
+    auto cards = m_players[m_currentPlayerId]->getLandmarks();
+    for (auto it = cards.begin(), ite = cards.end(); it != ite; ++it) {
+        if (it.key()->id() == cardId) {
+            it.key()->activate(m_players, *m_players[m_currentPlayerId], *m_players[m_currentPlayerId], dice1, dice1);
         }
     }
     emit playerCardActivatedBefore(dice1, dice2);
@@ -92,9 +71,25 @@ void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
     emit buildStageFinished(m_currentPlayerId);
 }
 
+void GameLogic::handleCardDataReceived(QVector<std::shared_ptr<Card>> data)
+{
+    m_cardsToWin = data;
+    qDebug() << "Card data received and processed.";
+}
+
+void GameLogic::handleConfigDataReady()
+{
+    emit requestCardData(0, 3, std::make_shared<CardsToWinHandler>(m_cardsToWin));
+
+    const int mxBaseCards = 6;
+    for (int i = 0; i < mxBaseCards; ++i) {
+        emit requestCardData(4, 9, std::make_shared<BankCardsHandler>(m_bank));
+        emit requestCardData(13, 18, std::make_shared<BankCardsHandler>(m_bank));
+    }
+}
+
 void GameLogic::handleCreatePlayers(QList<QString> playerNames)
 {
-    //qDebug() << "handleCreatePlayers starts";
     for (int id = 0; id < playerNames.size(); ++id) {
         auto player = std::make_shared<Player>(playerNames.at(id), id);
         connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
@@ -102,12 +97,16 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
         connect(player.get(), &Player::hasRadioTower, this, &GameLogic::handlePlayerHasRadioTower);
         connect(player.get(), &Player::playerBalanceChanged, this, [this, player]() {
             emit playerBalanceChanged(player->coins(), player->id());
+            emit requestCardData(0, 3, std::make_shared<BankCardsHandler>(m_bank));
+            emit requestCardData(10, 12, std::make_shared<BankCardsHandler>(m_bank));
         });
-        player->addCard(m_cardReader->readFromRange(4, 4).at(0));
-        player->addCard(m_cardReader->readFromRange(6, 6).at(0));
+
         m_players.push_back(player);
     }
-    //qDebug() << "finishes starts";
+
+    auto initialPlayerCardsHandler = std::make_shared<InitialPlayerCardsHandler>(m_players);
+    emit requestCardData(4, 4, initialPlayerCardsHandler); // give to all players card with id 4
+    emit requestCardData(6, 6, initialPlayerCardsHandler); // give to all players card with id 6
 }
 
 void GameLogic::handlePlayerHasAmusementPark()
@@ -128,15 +127,13 @@ void GameLogic::handlePlayerHasRailwayStation()
 void GameLogic::handleRollButtonClicked(uchar dice1, uchar dice2)
 {
     playTurn(dice1, dice2);
-    //emit waitForBuyOrSkip();
 }
 
 void GameLogic::handleTryToBuyCard(uchar cardId)
 {
-    auto card = m_cardReserve->findCardByTitle(cardId);
+    auto card = m_bank->findCardById(cardId);
     if (!card) {
         qDebug() << "Card isn't found!";
-        // need an emit somewhere to rewdraw reserve without a card
         return; // no more cards of this type!
     }
 
@@ -146,12 +143,12 @@ void GameLogic::handleTryToBuyCard(uchar cardId)
         m_players[m_currentPlayerId]->deductMoney(cardPrice);
 
         if (card->hasActivationValue(0)) { // player builds Landmark
-            m_players[m_currentPlayerId]->addLandmark(card);
-            m_cardReserve->removeLandmark(card);
-            emit playerBuildLandmark(card);
-        } else {// player builds from Reserve
             m_players[m_currentPlayerId]->addCard(card);
-            m_cardReserve->removeCard(card);
+            m_bank->removeCard(card);
+            emit playerBuildLandmark(card);
+        } else {
+            m_players[m_currentPlayerId]->addCard(card);
+            m_bank->removeCard(card);
             emit playerBuildNewBuilding(card);
         }
 
@@ -162,7 +159,6 @@ void GameLogic::handleTryToBuyCard(uchar cardId)
 
 void GameLogic::moveToNextPlaer()
 {
-    // Move to the next player
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
     emit buildStageFinished(m_currentPlayerId);
 }
@@ -174,7 +170,5 @@ void GameLogic::prepateNextTurn()
         emit gameIsFinished(m_currentPlayerId);
     }
 
-    // Move to the next player
-    m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
-    buildStageFinished(m_currentPlayerId);
+    moveToNextPlaer();
 }

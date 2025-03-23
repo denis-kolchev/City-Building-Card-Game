@@ -1,11 +1,10 @@
 #include "playerpage.h"
-#include "carddataconfigreader.h"
 
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 
-PlayerPage::PlayerPage(uchar playerId, const QString &configPath, QWidget *parent)
+PlayerPage::PlayerPage(uchar playerId, QWidget *parent)
     : m_playerId(playerId)
     , m_landmarksScrollArea(new QScrollArea())
     , m_buildsScrollArea(new QScrollArea())
@@ -14,7 +13,6 @@ PlayerPage::PlayerPage(uchar playerId, const QString &configPath, QWidget *paren
     , QWidget(parent)
 {
     setupUi();
-    readCardData(configPath);
 
     connect(this, &PlayerPage::activateCardsHighlighting, m_landmarkScrollWidget,
             [this](int playerBalance) { emit m_landmarkScrollWidget->activateCardsHighlighting(playerBalance); });
@@ -99,25 +97,6 @@ void PlayerPage::setupUi()
     connect(m_rollOneDiceButton, &QPushButton::clicked, this, [this]() { emit rollOneDiceClicked(m_playerId); });
     connect(m_rollTwoDiceButton, &QPushButton::clicked, this, [this]() { emit rollTwoDiceClicked(m_playerId); });
     connect(m_skipButton, &QPushButton::clicked, this, [this]() { emit skipClicked(m_playerId); });
-}
-
-// initial card set maybe shouldn't be here
-void PlayerPage::readCardData(const QString &configPath)
-{
-    if (!QFile::exists(configPath)) {
-        qDebug() << "Config file not found:" << configPath;
-        return;
-    }
-
-    CardDataConfigReader cardReader(configPath);
-    auto landmarkCards = cardReader.readFromRange(0, 3); // it's a game logic!
-    m_landmarkScrollWidget->placeCards(landmarkCards);
-
-    // these data also a part of a game logic!
-    // It should be inside of the settings ini file
-    // TODO create such file
-    auto buildCards = cardReader.readFromRange(4, 4) + cardReader.readFromRange(6, 6);
-    m_buildScrollWidget->placeCards(buildCards);
 }
 
 void PlayerPage::setPlayerBalance(uchar balance)

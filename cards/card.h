@@ -7,7 +7,7 @@
 class Player;
 
 enum class CardType {
-    Agricultiral,
+    Agricultural,
     Business,
     Dining,
     Farm,

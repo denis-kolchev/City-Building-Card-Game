@@ -1,5 +1,4 @@
 #include "player.h"
-#include <QtCore/qdebug.h>
 
 Player::Player(const QString& name, int id, QObject *parent)
     : m_name(name)
@@ -26,23 +25,14 @@ void Player::activateOneMoreBuild()
 
 void Player::addCard(std::shared_ptr<Card> card)
 {
-    if (howManyCardsOfType(card) == 0) {
-        m_cardsTable.insert(card, 1);
-        return;
-    }
-
-    m_cardsTable[card]++;
+    m_cardInventory->addCard(card);
+    emit playerGetsCard(m_id, card);
 }
 
 void Player::addCoins(int amount)
 {
     m_coins += amount;
     emit playerBalanceChanged(m_coins, m_id);
-}
-
-void Player::addLandmark(std::shared_ptr<Card> card)
-{
-    m_landmarks.push_back(card);
 }
 
 int Player::coins() const {
@@ -60,34 +50,44 @@ int Player::id()
     return m_id;
 }
 
-QMap<std::shared_ptr<Card>, uchar> Player::getCardsTable()
+QMap<std::shared_ptr<Card>, int> Player::getCards()
 {
-    return m_cardsTable;
+    return m_cardInventory->getCards();
 }
 
-QMap<std::shared_ptr<Card>, uchar> Player::getCardsTableOfType(CardType type)
+const QMap<std::shared_ptr<Card>, int>& Player::getBlueCards() const
 {
-    QMap<std::shared_ptr<Card>, uchar>  cards;
-    for (auto it = m_cardsTable.begin(), ite = m_cardsTable.end(); it != ite; ++it) {
-        if (it.key()->type() == type) {
-            cards.insert(it.key(), it.value());
-        }
-    }
-    return cards;
+    return m_cardInventory->blueCards();
 }
 
-QVector<std::shared_ptr<Card>> Player::getLandmarks()
+const QMap<std::shared_ptr<Card>, int>& Player::getGreenCards() const
 {
-    return m_landmarks;
+    return m_cardInventory->greenCards();
 }
 
-uchar Player::howManyCardsOfType(std::shared_ptr<Card> card)
+const QMap<std::shared_ptr<Card>, int>& Player::getPurpleCards() const
 {
-    if (m_cardsTable.find(card) == m_cardsTable.end()) {
+    return m_cardInventory->purpleCards();
+}
+
+const QMap<std::shared_ptr<Card>, int>& Player::getRedCards() const
+{
+    return m_cardInventory->redCards();
+}
+
+const QMap<std::shared_ptr<Card>, int>& Player::getLandmarks()
+{
+    return m_cardInventory->landmarks();
+}
+
+int Player::howManyCardsOfType(std::shared_ptr<Card> card)
+{
+    auto cards = m_cardInventory->getCards();
+    if (cards.contains(card)) {
         return 0;
     }
 
-    return m_cardsTable.find(card).value();
+    return cards.find(card).value();
 }
 
 QString Player::name() const
@@ -95,46 +95,51 @@ QString Player::name() const
     return m_name;
 }
 
+void Player::removeCard(std::shared_ptr<Card> card)
+{
+    m_cardInventory->removeCard(card);
+    emit playerLoosesCard(m_id, card);
+}
+
 void Player::triggerCards(QVector<std::shared_ptr<Player>> players,
                           Player& activePlayer,
-                          uchar dice1,
-                          uchar dice2)
+                          int dice1,
+                          int dice2)
 {
-    qDebug() << "------ TRIGGERED " << dice1 + dice2 << " CARDS ------";
-    for (auto it = m_landmarks.begin(), ite = m_landmarks.end(); it != ite; ++it) {
-        qDebug() << "--- activated: " << it->get()->title();
-        it->get()->activate(players, *this, activePlayer, dice1, dice2);
-    }
-
-    QMap<std::shared_ptr<Card>, uchar> redCardsTable, othersTable;
-    for (auto it = m_cardsTable.begin(), ite = m_cardsTable.end(); it != ite; ++it) {
-        if (it.key()->type() == CardType::Dining) {
-            redCardsTable.insert(it.key(), it.value());
-        } else {
-            othersTable.insert(it.key(), it.value());
+    const auto& landmarks = m_cardInventory->landmarks();
+    for (auto it = landmarks.begin(), ite = landmarks.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, activePlayer, dice1, dice2);
         }
     }
 
-    for (auto it = redCardsTable.begin(), ite = redCardsTable.end(); it != ite; ++it) {
-        for (uchar i = 0; i < it.value(); ++i) {
-            if (it.key()->hasActivationValue(dice1 + dice2)) {
-                QString str;
-                for (uchar value : it.key()->activationValues()) {
-                    str += QString::number(value) + " ";
-                }
-                it.key()->activate(players, *this, activePlayer, dice1, dice2);
-            }
+    const auto& redCards = m_cardInventory->redCards();
+    for (auto it = redCards.begin(), ite = redCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, activePlayer, dice1, dice2);
         }
     }
 
-    for (auto it = othersTable.begin(), ite = othersTable.end(); it != ite; ++it) {
-        for (uchar i = 0; i < it.value(); ++i) {
-            if (it.key()->hasActivationValue(dice1 + dice2)) {
-                it.key()->activate(players, *this, activePlayer, dice1, dice2);
-            }
+    const auto& greenCards = m_cardInventory->greenCards();
+    for (auto it = greenCards.begin(), ite = greenCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, activePlayer, dice1, dice2);
         }
     }
-    qDebug() << "---------------------------------";
 
-    //emit playerBalanceChanged(m_coins);
+    const auto& blueCards = m_cardInventory->blueCards();
+    for (auto it = blueCards.begin(), ite = blueCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, activePlayer, dice1, dice2);
+        }
+    }
+
+    const auto& purpleCards = m_cardInventory->purpleCards();
+    for (auto it = purpleCards.begin(), ite = purpleCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, activePlayer, dice1, dice2);
+        }
+    }
+
+    emit playerBalanceChanged(m_coins, m_id);
 }

@@ -22,7 +22,7 @@ ShoppingMall::ShoppingMall(const QString& title,
 
 void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
     if (&owner != &activePlayer) {
-        auto diningCards = owner.getCardsTableOfType(CardType::Dining);
+        auto diningCards = owner.getRedCards();
         if (!diningCards.empty()) {
             int diningCount = 0;
             for (auto it = diningCards.begin(), ite = diningCards.end(); it != ite; ++it) {
@@ -40,7 +40,14 @@ void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& ow
     }
 
     if (&owner == &activePlayer) {
-        auto shopCards = activePlayer.getCardsTableOfType(CardType::Shop);
+        auto greenCards = activePlayer.getGreenCards();
+        QMap<std::shared_ptr<Card>, int> shopCards;
+        for (auto it = greenCards.begin(), ite = greenCards.end(); it != ite; ++it) {
+            if (it.key()->type() == CardType::Shop) {
+                shopCards.insert(it.key(), it.value());
+            }
+        }
+
         if (!shopCards.empty()) {
             int shopCount = 0;
             for (auto it = shopCards.begin(), ite = shopCards.end(); it != ite; ++it) {

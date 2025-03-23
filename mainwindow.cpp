@@ -44,6 +44,9 @@ MainWindow::MainWindow(QMainWindow *parent)
     connect(this, &MainWindow::skipClicked, m_reserveScrollWidget,
             [this](){ emit m_reserveScrollWidget->deactivateCardsHighlighting(); });
 
+    connect(m_reserveScrollWidget, &CardScrollWidget::cardSignalClicked,
+            this, &MainWindow::handleCardClick);
+
     setCentralWidget(m_centralWidget);
 
     setWindowTitle("City Building Card Game");
@@ -122,30 +125,12 @@ void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)
 
 void MainWindow::handleShowMainWindow(uchar numPlayers)
 {
-    //qDebug() << "handleShowMainWindow starts";
     m_numPlayers = numPlayers;
     m_currentPlayerId = 0;
 
-    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
-    } else {
-        qDebug() << "File not found!";
-    }
-
-    // define what card should go suppose to do the logic
-    CardDataConfigReader cardReader(configPath);
-    CardList reserveCards;
-    const uchar mx = m_numPlayers;
-    for (uchar i = 0; i < m_numPlayers && i < mx ; ++i) {
-        reserveCards += cardReader.readFromRange(10, 12);
-    }
-    const uchar mxmx = 6;
-    for (uchar i = 0; i < 6 && i < mxmx; ++i) {
-        reserveCards += cardReader.readFromRange(4, 9);
-        reserveCards += cardReader.readFromRange(13, 18);
-    }
-
+#ifdef false
+    // Should go to the function which hendles changes of the bank
+    // bank is a new name for reserve
     try {
         std::sort(reserveCards.begin(), reserveCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
             return a->id() < b->id();
@@ -154,10 +139,7 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
         qCritical() << "Card activation values error:" << e.what();
         // Handle error
     }
-
-    m_reserveScrollWidget->placeCards(reserveCards);
-    connect(m_reserveScrollWidget, &CardScrollWidget::cardSignalClicked,
-        this, &MainWindow::handleCardClick);
+#endif
 
     // Create a view for each player and add it as a tab
     char playerId = 'A';
@@ -195,8 +177,8 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
 
 void MainWindow::processDiceRoll(uchar dice1, uchar dice2)
 {
-    // 3 - id of Radio Tower
-    emit checkPlayerCards(3, m_currentPlayerId, dice1, dice2);
+    const int radioTowerId = 3;
+    emit checkPlayerCards(radioTowerId, m_currentPlayerId, dice1, dice2);
 }
 
 void MainWindow::repaintPlayerPanel(int currentPlayerId)
@@ -340,15 +322,7 @@ QIcon MainWindow::createCircleIcon(const QColor color, qsizetype size)
 
 PlayerPage* MainWindow::createPlayerPage(uchar playerId)
 {
-    //qDebug() << "createPlayerPage starts";
-    QString configPath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
-    if (QFile::exists(configPath)) {
-        qDebug() << "Config file has found: " << configPath;
-    } else {
-        qDebug() << "File not found!";
-    }
-
-    PlayerPage* playerPage = new PlayerPage(playerId, configPath);
+    PlayerPage* playerPage = new PlayerPage(playerId);
     connect(playerPage, &PlayerPage::rollOneDiceClicked, this, &MainWindow::onRollOneDiceClicked);
     connect(playerPage, &PlayerPage::rollTwoDiceClicked, this, &MainWindow::onRollTwoDiceClicked);
     connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::onSkipClicked);

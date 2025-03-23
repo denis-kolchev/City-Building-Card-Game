@@ -10,6 +10,7 @@
 #include <QtWidgets/qscrollarea.h>
 
 #include "carddataconfigreader.h"
+#include "cardinventory.h"
 #include "playerpage.h"
 
 using CardsLayout = QHBoxLayout;

@@ -1,20 +1,30 @@
 #include "gameapplicationbuilder.h"
 
-GameApplicationBuilder& GameApplicationBuilder::withGameLogic() {
-    gameLogic = std::make_shared<GameLogic>();
+GameApplicationBuilder& GameApplicationBuilder::withConfigReader()
+{
+    m_configReader = std::make_shared<CardDataConfigReader>();
     return *this;
 }
 
-GameApplicationBuilder& GameApplicationBuilder::withMainWindow() {
-    mainWindow = std::make_shared<MainWindow>();
+GameApplicationBuilder& GameApplicationBuilder::withGameLogic()
+{
+    m_gameLogic = std::make_shared<GameLogic>();
     return *this;
 }
 
-GameApplicationBuilder& GameApplicationBuilder::withStartMenu() {
-    startMenu = std::make_shared<StartMenu>();
+GameApplicationBuilder& GameApplicationBuilder::withMainWindow()
+{
+    m_mainWindow = std::make_shared<MainWindow>();
     return *this;
 }
 
-std::shared_ptr<GameApplication> GameApplicationBuilder::build() {
-    return std::make_shared<GameApplication>(gameLogic, mainWindow, startMenu);
+GameApplicationBuilder& GameApplicationBuilder::withStartMenu()
+{
+    m_startMenu = std::make_shared<StartMenu>();
+    return *this;
+}
+
+std::shared_ptr<GameApplication> GameApplicationBuilder::build()
+{
+    return std::make_shared<GameApplication>(m_configReader, m_gameLogic, m_mainWindow, m_startMenu);
 }
