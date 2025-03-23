@@ -24,17 +24,17 @@ git https://gitlab.com/Den-One/city-building-card-game.git
 
 ## Gameplay Description
 ### Start Menu
-![alt text](https://gitlab.com/Den-One/city-building-card-game/documents/start_menu.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/build_state.jpg)
 ### Income State
-![alt text](https://gitlab.com/Den-One/city-building-card-game/documents/income_state.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/income_state.jpg)
 ### Build State
-![alt text](https://gitlab.com/Den-One/city-building-card-game/documents/build_state.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/build_state.jpg)
 ### New Player's Card Stack
-![alt text](https://gitlab.com/Den-One/city-building-card-game/documents/display_new_card.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/display_new_card.jpg)
 ### Switch to Another Player
-![alt text](https://gitlab.com/Den-One/city-building-card-game/documents/go_to_next.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/go_to_next.jpg)
 ### Unlock Landmark to Win
-![alt text](https://gitlab.com/Den-One/city-building-card-game/documents/unlock_landmark.jpg)
+![alt text](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/documents/unlock_landmark.jpg)
 
 ## Gameplay Rules
 ### Welcome to the game!
