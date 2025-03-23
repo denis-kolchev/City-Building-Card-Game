@@ -2,7 +2,7 @@
 #define BANKCARDSHANDLER_H
 
 #include "carddatahandler.h"
-#include "../cardinventory.h"
+#include "../logic/cardinventory.h"
 
 class BankCardsHandler : public CardDataHandler {
 public:

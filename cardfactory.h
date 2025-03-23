@@ -1,7 +1,7 @@
 #ifndef CARDFACTORY_H
 #define CARDFACTORY_H
 
-#include "cards/card.h"
+#include "logic/cards/card.h"
 
 #include <memory>
 

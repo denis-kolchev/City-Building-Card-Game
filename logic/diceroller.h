@@ -1,0 +1,18 @@
+#ifndef DICEROLLER_H
+#define DICEROLLER_H
+
+#include <QtTypes>
+
+class DiceRoller
+{
+public:
+    DiceRoller();
+
+    uchar rollDice(uchar diceNumber = 6);
+
+private:
+    const uchar m_diceSidesNumber = 6;
+
+};
+
+#endif // DICEROLLER_H

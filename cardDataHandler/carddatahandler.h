@@ -1,7 +1,7 @@
 #ifndef CARDDATAHANDLER_H
 #define CARDDATAHANDLER_H
 
-#include "../cards/card.h"
+#include "../logic/cards/card.h"
 
 // Strategy Pattern
 class CardDataHandler {

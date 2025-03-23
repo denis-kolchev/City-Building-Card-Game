@@ -2,9 +2,9 @@
 #define GAMEAPPLICATION_H
 
 #include "carddataconfigreader.h"
-#include "gamelogic.h"
-#include "mainwindow.h"
-#include "startmenu.h"
+#include "logic/gamelogic.h"
+#include "ui/mainwindow.h"
+#include "ui/startmenu.h"
 
 class GameApplication {
 public:

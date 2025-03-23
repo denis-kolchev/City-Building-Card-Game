@@ -1,5 +1,5 @@
 #include "initialplayercardshandler.h"
-#include "../player.h"
+#include "../logic/player.h"
 
 #include <QDebug>
 

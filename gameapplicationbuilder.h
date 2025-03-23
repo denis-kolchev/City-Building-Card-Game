@@ -1,10 +1,10 @@
 #ifndef GAMEAPPLICATIONBUILDER_H
 #define GAMEAPPLICATIONBUILDER_H
 
-#include "gamelogic.h"
+#include "logic/gamelogic.h"
 #include "gameapplication.h"
-#include "mainwindow.h"
-#include "startmenu.h"
+#include "ui/mainwindow.h"
+#include "ui/startmenu.h"
 
 class GameApplicationBuilder
 {

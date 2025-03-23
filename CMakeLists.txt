@@ -25,61 +25,60 @@ endif()
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 5)
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(CityBuildingCardGame
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
 
-        diceroller.h diceroller.cpp
-        gamelogic.h gamelogic.cpp
-        player.h player.cpp
-
-
-        README.md
-
-        cards/cafe.h cards/cafe.cpp
-        cards/card.h cards/card.cpp
-        cards/wheatfield.h cards/wheatfield.cpp
-        cards/bakery.h cards/bakery.cpp
-        cards/shoppingmall.h cards/shoppingmall.cpp
-        cardImages.qrc
-        cardwidget.h cardwidget.cpp
-
-        cardfactory.h cardfactory.cpp
-        carddataconfigreader.h carddataconfigreader.cpp
-        cards/railwaystation.h cards/railwaystation.cpp
-        cards/amusementpark.h cards/amusementpark.cpp
-        cards/radiotower.h cards/radiotower.cpp
-        cards/animalfarm.h cards/animalfarm.cpp
-        cards/shop.h cards/shop.cpp
-        cards/forest.h cards/forest.cpp
-        cards/stadium.h cards/stadium.cpp
-        cards/businesscenter.h cards/businesscenter.cpp
-        cards/tvcenter.h cards/tvcenter.cpp
-        cards/cheesefactory.h cards/cheesefactory.cpp
-        cards/furniturefactory.h cards/furniturefactory.cpp
-        cards/mine.h cards/mine.cpp
-        cards/restaurant.h cards/restaurant.cpp
-        cards/appleorchard.h cards/appleorchard.cpp
-        cards/fruitmarket.h cards/fruitmarket.cpp
-        startmenu.h startmenu.cpp
-        cardstackwidget.h cardstackwidget.cpp
-        gameSounds.qrc
-        playerpage.h playerpage.cpp
-        cardscrollwidget.h cardscrollwidget.cpp
-        gameapplication.h gameapplication.cpp
-        gameapplicationbuilder.h gameapplicationbuilder.cpp
         cardDataHandler/carddatahandler.h
+        cardDataHandler/bankcardshandler.h cardDataHandler/bankcardshandler.cpp
         cardDataHandler/cardstowinhandler.h cardDataHandler/cardstowinhandler.cpp
         cardDataHandler/initialplayercardshandler.h cardDataHandler/initialplayercardshandler.cpp
 
-        cardinventory.h cardinventory.cpp
-        cardDataHandler/bankcardshandler.h cardDataHandler/bankcardshandler.cpp
+        logic/cards/cafe.h logic/cards/cafe.cpp
+        logic/cards/card.h logic/cards/card.cpp
+        logic/cards/wheatfield.h logic/cards/wheatfield.cpp
+        logic/cards/bakery.h logic/cards/bakery.cpp
+        logic/cards/shoppingmall.h logic/cards/shoppingmall.cpp
+        logic/cards/railwaystation.h logic/cards/railwaystation.cpp
+        logic/cards/amusementpark.h logic/cards/amusementpark.cpp
+        logic/cards/radiotower.h logic/cards/radiotower.cpp
+        logic/cards/animalfarm.h logic/cards/animalfarm.cpp
+        logic/cards/shop.h logic/cards/shop.cpp
+        logic/cards/forest.h logic/cards/forest.cpp
+        logic/cards/stadium.h logic/cards/stadium.cpp
+        logic/cards/businesscenter.h logic/cards/businesscenter.cpp
+        logic/cards/tvcenter.h logic/cards/tvcenter.cpp
+        logic/cards/cheesefactory.h logic/cards/cheesefactory.cpp
+        logic/cards/furniturefactory.h logic/cards/furniturefactory.cpp
+        logic/cards/mine.h logic/cards/mine.cpp
+        logic/cards/restaurant.h logic/cards/restaurant.cpp
+        logic/cards/appleorchard.h logic/cards/appleorchard.cpp
+        logic/cards/fruitmarket.h logic/cards/fruitmarket.cpp
 
+        logic/diceroller.h logic/diceroller.cpp
+        logic/cardinventory.h logic/cardinventory.cpp
+        logic/gamelogic.h logic/gamelogic.cpp
+        logic/player.h logic/player.cpp
+
+        ui/cardscrollwidget.h ui/cardscrollwidget.cpp
+        ui/cardstackwidget.h ui/cardstackwidget.cpp
+        ui/cardwidget.h ui/cardwidget.cpp
+        ui/mainwindow.h ui/mainwindow.cpp
+        ui/playerpage.h ui/playerpage.cpp
+        ui/startmenu.h ui/startmenu.cpp
+
+        carddataconfigreader.h carddataconfigreader.cpp
+        cardfactory.h cardfactory.cpp
+        gameapplication.h gameapplication.cpp
+        gameapplicationbuilder.h gameapplicationbuilder.cpp
+
+        cardImages.qrc
+        gameSounds.qrc
+
+        README.md
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"
@@ -137,6 +136,6 @@ install(TARGETS CityBuildingCardGame
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(QT_VERSION_MAJOR EQUAL 5)
+if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(CityBuildingCardGame)
 endif()
