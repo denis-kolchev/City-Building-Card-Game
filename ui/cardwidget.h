@@ -101,7 +101,7 @@ private:
     CardType m_cardType;
     uchar m_id;
 
-    QPropertyAnimation *m_outlineAnimation;
+    std::shared_ptr<QPropertyAnimation> m_outlineAnimation;
 };
 
 #endif // CARDWIDGET_H

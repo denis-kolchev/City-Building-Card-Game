@@ -36,8 +36,6 @@ public slots:
 
     void displayPlayerLoosesCard(int playerId, std::shared_ptr<Card> card);
 
-    void displayPlayerNewCard(std::shared_ptr<Card> card);
-
     void displayWorningWindow(QString message);
 
     void finishGame(int currentPlayerId);

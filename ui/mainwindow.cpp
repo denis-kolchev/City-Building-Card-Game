@@ -96,7 +96,7 @@ void MainWindow::displayBankLoosesCard(std::shared_ptr<Card> card)
 
 void MainWindow::displayPlayerGetsCard(int playerId, std::shared_ptr<Card> card)
 {
-    // emit deactivateCardsHighlighting(); problem with playerId
+    emit deactivateCardsHighlighting(); // problem with playerId
     // TODO stop handling playerID
     m_playerPages.at(playerId)->placeCards(CardList{card});
 
@@ -111,20 +111,6 @@ void MainWindow::displayPlayerGetsCard(int playerId, std::shared_ptr<Card> card)
 void MainWindow::displayPlayerLoosesCard(int playerId, std::shared_ptr<Card> card)
 {
     m_playerPages[playerId]->removeCards(CardList{card});
-}
-
-void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
-{
-    // emit deactivateCardsHighlighting();
-    // m_playerPages.at(m_currentPlayerId)->placeCards(CardList{card});
-    // m_bankScrollWidget->removeCards(CardList{card});
-
-    // if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
-    //     m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
-    //     emit buildOneMoreBuilding();
-    // } else {
-    //     emit updatedPlayersPanel();
-    // }
 }
 
 void MainWindow::displayWorningWindow(QString message)
@@ -193,12 +179,12 @@ void MainWindow::handleShowMainWindow(uchar numPlayers)
         m_playerPages.append(playerPage);
         m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
 
-        connect(this, &MainWindow::activateCardsHighlighting, m_playerPages[m_currentPlayerId],
-                [this](int playerBalance) { emit m_playerPages[m_currentPlayerId]->activateCardsHighlighting(playerBalance);
+        connect(this, &MainWindow::activateCardsHighlighting, m_playerPages[i],
+                [this, i](int playerBalance) { emit m_playerPages[i]->activateCardsHighlighting(playerBalance);
         });
 
-        connect(this, &MainWindow::deactivateCardsHighlighting, m_playerPages[m_currentPlayerId],
-                [this]() { emit m_playerPages[m_currentPlayerId]->deactivateCardsHighlighting();
+        connect(this, &MainWindow::deactivateCardsHighlighting, m_playerPages[i],
+                [this, i]() { emit m_playerPages[i]->deactivateCardsHighlighting();
         });
 
         if (i == 0) {

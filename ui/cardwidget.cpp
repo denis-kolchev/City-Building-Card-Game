@@ -21,7 +21,7 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_expension(expension)
     , m_cardType(cardType)
     , m_id(id)
-    , m_outlineAnimation(new QPropertyAnimation(this, "outlineColor"))
+    , m_outlineAnimation(std::make_shared<QPropertyAnimation>(this, "outlineColor"))
     , QWidget(parent)
 {
     QMap<CardType, QString> emojiMap = {
@@ -195,7 +195,9 @@ void CardWidget::startOutlineHighlight()
 
 void CardWidget::stopOutlineHighlight()
 {
-    m_outlineAnimation->stop();
+    if (m_outlineAnimation) {
+        m_outlineAnimation->stop();
+    }
     m_outlineColor = baseOutlineColor();
 }
 

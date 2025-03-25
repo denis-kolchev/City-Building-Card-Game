@@ -15,6 +15,8 @@ class CardDataConfigReader : public QObject
 public:
     CardDataConfigReader(QString configFilePath = "");
 
+    bool isConfigDataReady();
+
 signals:
     // Signal emitted when config data is ready
     void configDataReady();
@@ -35,6 +37,7 @@ private:
     CardFactory m_factory;
     QSettings m_settings;
     QString m_configFilePath;
+    bool m_isConfigDataReady;
 };
 
 #endif // CARDDATACONFIGREADER_H

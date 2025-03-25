@@ -14,6 +14,10 @@ GameApplication::GameApplication(std::shared_ptr<CardDataConfigReader> configRea
 
 void GameApplication::run()
 {
+    if (m_configReader->isConfigDataReady()) {
+        m_configReader->configDataReady();
+    }
+
     m_startMenu->show();
 }
 
@@ -63,9 +67,6 @@ void GameApplication::setupConnections()
 
     QObject::connect(m_mainWindow.get(), &MainWindow::cardWidgetClicked,
                      m_gameLogic.get(), &GameLogic::handleTryToBuyCard);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerBuildNewBuilding,
-                     m_mainWindow.get(), &MainWindow::displayPlayerNewCard);
 
     QObject::connect(m_mainWindow.get(), &MainWindow::updatedPlayersPanel,
                      m_gameLogic.get(), &GameLogic::prepateNextTurn);

@@ -135,12 +135,13 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
             emit playerLoosesCard(playerId, card);
         });
 
-        emit requestCardData(0, 3, std::make_shared<BankCardsHandler>(m_bank));
         emit requestCardData(10, 12, std::make_shared<BankCardsHandler>(m_bank));
         emit requestCardData(4, 4, std::make_shared<InitialPlayerCardsHandler>(player)); // give to player a card with id 4
         emit requestCardData(6, 6, std::make_shared<InitialPlayerCardsHandler>(player)); // give to player a card with id 6
         m_players.push_back(player);
     }
+
+    emit requestCardData(0, 3, std::make_shared<BankCardsHandler>(m_bank));
 }
 
 void GameLogic::handlePlayerHasAmusementPark()

@@ -6,21 +6,29 @@
 #include <QTimer>
 
 CardDataConfigReader::CardDataConfigReader(QString configFilePath)
-    : m_settings(configFilePath, QSettings::IniFormat), m_configFilePath(configFilePath)
+    : m_settings(configFilePath, QSettings::IniFormat)
+    , m_configFilePath(configFilePath)
+    , m_isConfigDataReady(false)
 {
     // Still needs to change this code somehow
     m_configFilePath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(m_configFilePath)) {
         qDebug() << "Config file has found: " << m_configFilePath;
+        m_isConfigDataReady = true;
         // Call timer, cause slot might not be created yet
-        QTimer::singleShot(0, this, emit &CardDataConfigReader::configDataReady);
     } else {
+        m_isConfigDataReady = false;
         qDebug() << "File not found!";
     }
 
     if (m_settings.status() != QSettings::NoError) {
         qDebug() << "Error loading file!";
     }
+}
+
+bool CardDataConfigReader::isConfigDataReady()
+{
+    return m_isConfigDataReady;
 }
 
 void CardDataConfigReader::handleReadFromRange(int begin, int end)
