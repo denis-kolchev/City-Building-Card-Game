@@ -28,6 +28,14 @@ public:
 public slots:
     bool askForReroll(QWidget* parent);
 
+    void displayBankGetsCard(std::shared_ptr<Card> card);
+
+    void displayBankLoosesCard(std::shared_ptr<Card> card);
+
+    void displayPlayerGetsCard(int playerId, std::shared_ptr<Card> card);
+
+    void displayPlayerLoosesCard(int playerId, std::shared_ptr<Card> card);
+
     void displayPlayerNewCard(std::shared_ptr<Card> card);
 
     void displayWorningWindow(QString message);
@@ -85,7 +93,7 @@ signals:
 
     void updatedPlayersPanel();
 
-private slots:
+private slots:    
     void handleCardClick(uchar cardId);
 
     void onRollOneDiceClicked();

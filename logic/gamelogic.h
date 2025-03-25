@@ -23,6 +23,7 @@
  */
 
 #include "../carddataconfigreader.h"
+#include "bank.h"
 #include "diceroller.h"
 #include "player.h"
 
@@ -38,8 +39,6 @@ public:
 
     ~GameLogic();
 
-    std::shared_ptr<CardInventory> bank() const;
-
     int currentPlayerId() const;
 
     bool isGameIsFinished();
@@ -54,6 +53,14 @@ signals:
     void gameIsFinished(int playerId);
 
     void playerCardActivatedBefore(uchar dice1, uchar dice2);
+
+    void bankGetsCard(std::shared_ptr<Card> card);
+
+    void bankLoosesCard(std::shared_ptr<Card> card);
+
+    void playerGetsCard(int playerId, std::shared_ptr<Card> card);
+
+    void playerLoosesCard(int playerId, std::shared_ptr<Card> card);
 
     void playerHasAmusementPark();
 
@@ -103,7 +110,7 @@ public slots:
     void prepateNextTurn();
 
 private:
-    std::shared_ptr<CardInventory> m_bank;
+    std::shared_ptr<Bank> m_bank;
     QVector<std::shared_ptr<Card>> m_cardsToWin;
     QVector<std::shared_ptr<Player>> m_players;
     DiceRoller m_roller;

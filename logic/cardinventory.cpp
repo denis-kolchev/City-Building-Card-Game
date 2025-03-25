@@ -11,8 +11,6 @@ void CardInventory::addCard(std::shared_ptr<Card> card)
         // places card on the existing stack
         m_cards[card] = it.value() + 1;
     }
-
-    emit cardAdded(card); // notify UI about inventory changes
 }
 
 void CardInventory::removeCard(std::shared_ptr<Card> card)
@@ -30,7 +28,6 @@ void CardInventory::removeCard(std::shared_ptr<Card> card)
         m_cards.remove(card);
         uncategorizeCard(card);
     }
-    emit cardRemoved(card); // notify UI about inventory changes
 }
 
 int CardInventory::countCard(std::shared_ptr<Card> card) const
@@ -86,7 +83,7 @@ void CardInventory::categorizeCard(std::shared_ptr<Card> card)
         if (it != m_landmarks.end()) {
             m_landmarks[it.key()] = it.value() + 1;
         } else {
-            m_landmarks.insert(it.key(), it.value());
+            m_landmarks.insert(card, it.value());
         }
         return;
     }

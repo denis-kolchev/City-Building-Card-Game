@@ -16,6 +16,8 @@ class Player : public QObject {
 public:
     Player(const QString& name, int id, QObject *parent = nullptr);
 
+    ~Player();
+
     void activateRerollDice();
 
     void activateRollTwoDice();

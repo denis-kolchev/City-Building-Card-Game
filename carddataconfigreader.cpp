@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QRegularExpression>
+#include <QTimer>
 
 CardDataConfigReader::CardDataConfigReader(QString configFilePath)
     : m_settings(configFilePath, QSettings::IniFormat), m_configFilePath(configFilePath)
@@ -11,7 +12,8 @@ CardDataConfigReader::CardDataConfigReader(QString configFilePath)
     m_configFilePath = QCoreApplication::applicationDirPath() + "/CardsDataConfig.ini";
     if (QFile::exists(m_configFilePath)) {
         qDebug() << "Config file has found: " << m_configFilePath;
-        emit configDataReady();
+        // Call timer, cause slot might not be created yet
+        QTimer::singleShot(0, this, emit &CardDataConfigReader::configDataReady);
     } else {
         qDebug() << "File not found!";
     }

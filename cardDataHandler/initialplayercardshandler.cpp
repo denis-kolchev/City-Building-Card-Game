@@ -3,17 +3,16 @@
 
 #include <QDebug>
 
-InitialPlayerCardsHandler::InitialPlayerCardsHandler(QVector<std::shared_ptr<Player>>& players)
-    : m_players(players)
+InitialPlayerCardsHandler::InitialPlayerCardsHandler(std::shared_ptr<Player>& player)
+    : m_player(player)
 {
 }
 
 void InitialPlayerCardsHandler::handleCardData(QVector<std::shared_ptr<Card>> data)
 {
     for (const auto& card : data) {
-        for (const auto& player : m_players) {
-            player->addCard(card);
-        }
+        m_player->addCard(card);
     }
+
     qDebug() << "Initial player cards received and processed.";
 }

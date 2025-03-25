@@ -66,9 +66,13 @@ static constexpr auto qt_meta_stringdata_ZN10MainWindowE = QtMocHelpers::stringD
     "askForReroll",
     "QWidget*",
     "parent",
-    "displayPlayerNewCard",
+    "displayBankGetsCard",
     "std::shared_ptr<Card>",
     "card",
+    "displayBankLoosesCard",
+    "displayPlayerGetsCard",
+    "displayPlayerLoosesCard",
+    "displayPlayerNewCard",
     "displayWorningWindow",
     "message",
     "finishGame",
@@ -103,7 +107,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN10MainWindowE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-      35,   14, // methods
+      39,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -111,43 +115,47 @@ Q_CONSTINIT static const uint qt_meta_data_ZN10MainWindowE[] = {
       16,       // signalCount
 
  // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,  224,    2, 0x06,    1 /* Public */,
-       4,    0,  227,    2, 0x06,    3 /* Public */,
-       5,    0,  228,    2, 0x06,    4 /* Public */,
-       6,    0,  229,    2, 0x06,    5 /* Public */,
-       7,    0,  230,    2, 0x06,    6 /* Public */,
-       8,    0,  231,    2, 0x06,    7 /* Public */,
-       9,    1,  232,    2, 0x06,    8 /* Public */,
-      11,    4,  235,    2, 0x06,   10 /* Public */,
-      15,    1,  244,    2, 0x06,   15 /* Public */,
-      17,    0,  247,    2, 0x06,   17 /* Public */,
-      18,    2,  248,    2, 0x06,   18 /* Public */,
-      19,    2,  253,    2, 0x06,   21 /* Public */,
-      20,    2,  258,    2, 0x06,   24 /* Public */,
-      21,    0,  263,    2, 0x06,   27 /* Public */,
-      22,    0,  264,    2, 0x06,   28 /* Public */,
-      23,    0,  265,    2, 0x06,   29 /* Public */,
+       1,    1,  248,    2, 0x06,    1 /* Public */,
+       4,    0,  251,    2, 0x06,    3 /* Public */,
+       5,    0,  252,    2, 0x06,    4 /* Public */,
+       6,    0,  253,    2, 0x06,    5 /* Public */,
+       7,    0,  254,    2, 0x06,    6 /* Public */,
+       8,    0,  255,    2, 0x06,    7 /* Public */,
+       9,    1,  256,    2, 0x06,    8 /* Public */,
+      11,    4,  259,    2, 0x06,   10 /* Public */,
+      15,    1,  268,    2, 0x06,   15 /* Public */,
+      17,    0,  271,    2, 0x06,   17 /* Public */,
+      18,    2,  272,    2, 0x06,   18 /* Public */,
+      19,    2,  277,    2, 0x06,   21 /* Public */,
+      20,    2,  282,    2, 0x06,   24 /* Public */,
+      21,    0,  287,    2, 0x06,   27 /* Public */,
+      22,    0,  288,    2, 0x06,   28 /* Public */,
+      23,    0,  289,    2, 0x06,   29 /* Public */,
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-      24,    1,  266,    2, 0x0a,   30 /* Public */,
-      27,    1,  269,    2, 0x0a,   32 /* Public */,
-      30,    1,  272,    2, 0x0a,   34 /* Public */,
-      32,    1,  275,    2, 0x0a,   36 /* Public */,
-      34,    2,  278,    2, 0x0a,   38 /* Public */,
-      35,    1,  283,    2, 0x0a,   41 /* Public */,
-      37,    2,  286,    2, 0x0a,   43 /* Public */,
-      38,    1,  291,    2, 0x0a,   46 /* Public */,
-      39,    0,  294,    2, 0x0a,   48 /* Public */,
-      40,    0,  295,    2, 0x0a,   49 /* Public */,
-      41,    1,  296,    2, 0x0a,   50 /* Public */,
-      42,    0,  299,    2, 0x0a,   52 /* Public */,
-      43,    2,  300,    2, 0x0a,   53 /* Public */,
-      45,    1,  305,    2, 0x08,   56 /* Private */,
-      46,    0,  308,    2, 0x08,   58 /* Private */,
-      47,    0,  309,    2, 0x08,   59 /* Private */,
-      48,    0,  310,    2, 0x08,   60 /* Private */,
-      49,    2,  311,    2, 0x08,   61 /* Private */,
-      49,    1,  316,    2, 0x28,   64 /* Private | MethodCloned */,
+      24,    1,  290,    2, 0x0a,   30 /* Public */,
+      27,    1,  293,    2, 0x0a,   32 /* Public */,
+      30,    1,  296,    2, 0x0a,   34 /* Public */,
+      31,    2,  299,    2, 0x0a,   36 /* Public */,
+      32,    2,  304,    2, 0x0a,   39 /* Public */,
+      33,    1,  309,    2, 0x0a,   42 /* Public */,
+      34,    1,  312,    2, 0x0a,   44 /* Public */,
+      36,    1,  315,    2, 0x0a,   46 /* Public */,
+      38,    2,  318,    2, 0x0a,   48 /* Public */,
+      39,    1,  323,    2, 0x0a,   51 /* Public */,
+      41,    2,  326,    2, 0x0a,   53 /* Public */,
+      42,    1,  331,    2, 0x0a,   56 /* Public */,
+      43,    0,  334,    2, 0x0a,   58 /* Public */,
+      44,    0,  335,    2, 0x0a,   59 /* Public */,
+      45,    1,  336,    2, 0x0a,   60 /* Public */,
+      46,    0,  339,    2, 0x0a,   62 /* Public */,
+      47,    2,  340,    2, 0x0a,   63 /* Public */,
+      49,    1,  345,    2, 0x08,   66 /* Private */,
+      50,    0,  348,    2, 0x08,   68 /* Private */,
+      51,    0,  349,    2, 0x08,   69 /* Private */,
+      52,    0,  350,    2, 0x08,   70 /* Private */,
+      53,    2,  351,    2, 0x08,   71 /* Private */,
+      53,    1,  356,    2, 0x28,   74 /* Private | MethodCloned */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int,    3,
@@ -170,23 +178,27 @@ Q_CONSTINIT static const uint qt_meta_data_ZN10MainWindowE[] = {
  // slots: parameters
     QMetaType::Bool, 0x80000000 | 25,   26,
     QMetaType::Void, 0x80000000 | 28,   29,
-    QMetaType::Void, QMetaType::QString,   31,
-    QMetaType::Void, QMetaType::Int,   33,
+    QMetaType::Void, 0x80000000 | 28,   29,
+    QMetaType::Void, QMetaType::Int, 0x80000000 | 28,   12,   29,
+    QMetaType::Void, QMetaType::Int, 0x80000000 | 28,   12,   29,
+    QMetaType::Void, 0x80000000 | 28,   29,
+    QMetaType::Void, QMetaType::QString,   35,
+    QMetaType::Void, QMetaType::Int,   37,
     QMetaType::Void, QMetaType::UChar, QMetaType::UChar,   13,   14,
-    QMetaType::Void, QMetaType::UChar,   36,
+    QMetaType::Void, QMetaType::UChar,   40,
     QMetaType::Void, QMetaType::UChar, QMetaType::UChar,   13,   14,
-    QMetaType::Void, QMetaType::Int,   33,
+    QMetaType::Void, QMetaType::Int,   37,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, 0x80000000 | 28,   29,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::UChar, QMetaType::Int,   44,   12,
+    QMetaType::Void, QMetaType::UChar, QMetaType::Int,   48,   12,
     QMetaType::Void, QMetaType::UChar,   10,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::QIcon, QMetaType::QColor, 0x80000000 | 51,   50,   52,
-    QMetaType::QIcon, QMetaType::QColor,   50,
+    QMetaType::QIcon, QMetaType::QColor, 0x80000000 | 55,   54,   56,
+    QMetaType::QIcon, QMetaType::QColor,   54,
 
        0        // eod
 };
@@ -248,6 +260,20 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         // method 'askForReroll'
         QtPrivate::TypeAndForceComplete<bool, std::false_type>,
         QtPrivate::TypeAndForceComplete<QWidget *, std::false_type>,
+        // method 'displayBankGetsCard'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<std::shared_ptr<Card>, std::false_type>,
+        // method 'displayBankLoosesCard'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<std::shared_ptr<Card>, std::false_type>,
+        // method 'displayPlayerGetsCard'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>,
+        QtPrivate::TypeAndForceComplete<std::shared_ptr<Card>, std::false_type>,
+        // method 'displayPlayerLoosesCard'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>,
+        QtPrivate::TypeAndForceComplete<std::shared_ptr<Card>, std::false_type>,
         // method 'displayPlayerNewCard'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<std::shared_ptr<Card>, std::false_type>,
@@ -327,25 +353,29 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 15: _t->updatedPlayersPanel(); break;
         case 16: { bool _r = _t->askForReroll((*reinterpret_cast< std::add_pointer_t<QWidget*>>(_a[1])));
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = std::move(_r); }  break;
-        case 17: _t->displayPlayerNewCard((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[1]))); break;
-        case 18: _t->displayWorningWindow((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 19: _t->finishGame((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 20: _t->handlePlayerCardActivatedBefore((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uchar>>(_a[2]))); break;
-        case 21: _t->handleShowMainWindow((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1]))); break;
-        case 22: _t->processDiceRoll((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uchar>>(_a[2]))); break;
-        case 23: _t->repaintPlayerPanel((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 24: _t->unlockBuildAgainIfDubleRollDice(); break;
-        case 25: _t->unlockDiceReroll(); break;
-        case 26: _t->unlockPlayerLandmark((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[1]))); break;
-        case 27: _t->unlockRollTwoDiceButton(); break;
-        case 28: _t->updatePlayerBalanceLabel((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
-        case 29: _t->handleCardClick((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1]))); break;
-        case 30: _t->onRollOneDiceClicked(); break;
-        case 31: _t->onRollTwoDiceClicked(); break;
-        case 32: _t->onSkipClicked(); break;
-        case 33: { QIcon _r = _t->createCircleIcon((*reinterpret_cast< std::add_pointer_t<QColor>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<qsizetype>>(_a[2])));
+        case 17: _t->displayBankGetsCard((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[1]))); break;
+        case 18: _t->displayBankLoosesCard((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[1]))); break;
+        case 19: _t->displayPlayerGetsCard((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[2]))); break;
+        case 20: _t->displayPlayerLoosesCard((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[2]))); break;
+        case 21: _t->displayPlayerNewCard((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[1]))); break;
+        case 22: _t->displayWorningWindow((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 23: _t->finishGame((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 24: _t->handlePlayerCardActivatedBefore((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uchar>>(_a[2]))); break;
+        case 25: _t->handleShowMainWindow((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1]))); break;
+        case 26: _t->processDiceRoll((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uchar>>(_a[2]))); break;
+        case 27: _t->repaintPlayerPanel((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 28: _t->unlockBuildAgainIfDubleRollDice(); break;
+        case 29: _t->unlockDiceReroll(); break;
+        case 30: _t->unlockPlayerLandmark((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<Card>>>(_a[1]))); break;
+        case 31: _t->unlockRollTwoDiceButton(); break;
+        case 32: _t->updatePlayerBalanceLabel((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
+        case 33: _t->handleCardClick((*reinterpret_cast< std::add_pointer_t<uchar>>(_a[1]))); break;
+        case 34: _t->onRollOneDiceClicked(); break;
+        case 35: _t->onRollTwoDiceClicked(); break;
+        case 36: _t->onSkipClicked(); break;
+        case 37: { QIcon _r = _t->createCircleIcon((*reinterpret_cast< std::add_pointer_t<QColor>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<qsizetype>>(_a[2])));
             if (_a[0]) *reinterpret_cast< QIcon*>(_a[0]) = std::move(_r); }  break;
-        case 34: { QIcon _r = _t->createCircleIcon((*reinterpret_cast< std::add_pointer_t<QColor>>(_a[1])));
+        case 38: { QIcon _r = _t->createCircleIcon((*reinterpret_cast< std::add_pointer_t<QColor>>(_a[1])));
             if (_a[0]) *reinterpret_cast< QIcon*>(_a[0]) = std::move(_r); }  break;
         default: ;
         }
@@ -498,14 +528,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 35)
+        if (_id < 39)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 35;
+        _id -= 39;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 35)
+        if (_id < 39)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 35;
+        _id -= 39;
     }
     return _id;
 }

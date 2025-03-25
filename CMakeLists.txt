@@ -79,6 +79,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         gameSounds.qrc
 
         README.md
+        logic/bank.h logic/bank.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"

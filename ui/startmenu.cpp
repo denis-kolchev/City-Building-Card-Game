@@ -41,6 +41,8 @@ StartMenu::StartMenu(QWidget *parent)
 
     setFixedSize(300, 130);
     centerWindow();
+    //TODO should call it when placment of cards is finished
+    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     //qDebug() << "3. mainWindow is made correctly";
 }
 

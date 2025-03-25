@@ -2,16 +2,16 @@
 #define BANKCARDSHANDLER_H
 
 #include "carddatahandler.h"
-#include "../logic/cardinventory.h"
+#include "../logic/bank.h"
 
 class BankCardsHandler : public CardDataHandler {
 public:
-    explicit BankCardsHandler(std::shared_ptr<CardInventory>& bank);
+    explicit BankCardsHandler(std::shared_ptr<Bank>& bank);
 
     void handleCardData(QVector<std::shared_ptr<Card>> data) override;
 
 private:
-    std::shared_ptr<CardInventory>& m_bank;
+    std::shared_ptr<Bank>& m_bank;
 };
 
 #endif // BANKCARDSHANDLER_H

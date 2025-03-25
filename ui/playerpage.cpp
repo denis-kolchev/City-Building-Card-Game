@@ -141,6 +141,20 @@ void PlayerPage::placeCards(CardList cards)
     update();
 }
 
+void PlayerPage::removeCards(CardList cards)
+{
+    // Cards logic. Again!
+    for (qsizetype i = 0; i < cards.size(); ++i) {
+        if (cards[i]->id() <= 3 && cards[i]->id() >= 0) {
+            m_landmarkScrollWidget->removeCards(CardList{cards[i]});
+        } else if (cards[i]->id() <= 18 && cards[i]->id() >= 4) {
+            m_buildScrollWidget->removeCards(CardList{cards[i]});
+        }
+    }
+    updateGeometry();
+    update();
+}
+
 QPushButton& PlayerPage::getOneDiceButton()
 {
     return *m_rollOneDiceButton;

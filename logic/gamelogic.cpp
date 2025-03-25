@@ -1,6 +1,5 @@
 #include "gamelogic.h"
 #include "../cardDataHandler/bankcardshandler.h"
-#include "../cardDataHandler/cardstowinhandler.h"
 #include "../cardDataHandler/initialplayercardshandler.h"
 #include "../carddataconfigreader.h"
 
@@ -8,17 +7,18 @@
 #include <QDir>
 
 GameLogic::GameLogic(QObject *parent)
-    : m_bank(new CardInventory()), m_currentPlayerId(0), QObject(parent)
+    : m_bank(new Bank()), m_currentPlayerId(0), QObject(parent)
 {
+    connect(m_bank.get(), &Bank::bankGetsCard, this, [this](std::shared_ptr<Card> card) {
+        emit bankGetsCard(card);
+    });
+    connect(m_bank.get(), &Bank::bankLoosesCard, this, [this](std::shared_ptr<Card> card) {
+        emit bankLoosesCard(card);
+    });
 }
 
 GameLogic::~GameLogic()
 {
-}
-
-std::shared_ptr<CardInventory> GameLogic::bank() const
-{
-    return m_bank;
 }
 
 int GameLogic::currentPlayerId() const
@@ -45,10 +45,26 @@ std::shared_ptr<Player> GameLogic::getPlayer(int id)
 
 void GameLogic::playTurn(uchar dice1, uchar dice2)
 {
-    for (auto& player : m_players) {
-        qDebug() << "--- old " << player->name() << " balance:" << player->coins();
-        player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
-        qDebug() << "--- new " << player->name() << " balance:" << player->coins();
+    for (const auto& player : std::as_const(m_players)) {
+        if (player != nullptr) {
+            player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
+        }
+        // if (player == nullptr) {
+        //     qDebug() << "player is nullptr 1!";
+        // }
+        // qDebug() << "--- old " << player->name() << " balance:" << player->coins();
+        // if (player == nullptr) {
+        //     qDebug() << "player is nullptr 2!";
+        // }
+        // player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
+        // if (player == nullptr) {
+        //     // Why it's nullptr here?
+        //     qDebug() << "player is nullptr 3!";
+        // }
+        // qDebug() << "--- new " << player->name() << " balance:" << player->coins();
+        // if (player == nullptr) {
+        //     qDebug() << "player is nullptr 4!";
+        // }
     }
 }
 
@@ -90,7 +106,7 @@ void GameLogic::handleConfigDataReady()
 {
     // usufull to check if some player won the game.
     // TODO Seems like it should be just id-s, not real cards
-    emit requestCardData(0, 3, std::make_shared<CardsToWinHandler>(m_cardsToWin));
+    //emit requestCardData(0, 3, std::make_shared<CardsToWinHandler>(m_cardsToWin));
 
     // request cards to fill in the bank (so players could buy them)
     // every std::shared_ptr<CardInventory> somehow should know cardScrollWidget
@@ -111,16 +127,20 @@ void GameLogic::handleCreatePlayers(QList<QString> playerNames)
         connect(player.get(), &Player::hasRadioTower, this, &GameLogic::handlePlayerHasRadioTower);
         connect(player.get(), &Player::playerBalanceChanged, this, [this, player]() {
             emit playerBalanceChanged(player->coins(), player->id());
-            emit requestCardData(0, 3, std::make_shared<BankCardsHandler>(m_bank));
-            emit requestCardData(10, 12, std::make_shared<BankCardsHandler>(m_bank));
+        });
+        connect(player.get(), &Player::playerGetsCard, this, [this](int playerId, std::shared_ptr<Card> card) {
+            emit playerGetsCard(playerId, card);
+        });
+        connect(player.get(), &Player::playerLoosesCard, this, [this](int playerId, std::shared_ptr<Card> card) {
+            emit playerLoosesCard(playerId, card);
         });
 
+        emit requestCardData(0, 3, std::make_shared<BankCardsHandler>(m_bank));
+        emit requestCardData(10, 12, std::make_shared<BankCardsHandler>(m_bank));
+        emit requestCardData(4, 4, std::make_shared<InitialPlayerCardsHandler>(player)); // give to player a card with id 4
+        emit requestCardData(6, 6, std::make_shared<InitialPlayerCardsHandler>(player)); // give to player a card with id 6
         m_players.push_back(player);
     }
-
-    auto initialPlayerCardsHandler = std::make_shared<InitialPlayerCardsHandler>(m_players);
-    emit requestCardData(4, 4, initialPlayerCardsHandler); // give to all players card with id 4
-    emit requestCardData(6, 6, initialPlayerCardsHandler); // give to all players card with id 6
 }
 
 void GameLogic::handlePlayerHasAmusementPark()

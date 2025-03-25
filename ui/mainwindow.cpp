@@ -78,18 +78,53 @@ bool MainWindow::askForReroll(QWidget* parent)
     return msgBox.exec() == QMessageBox::Yes;
 }
 
-void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
+void MainWindow::displayBankGetsCard(std::shared_ptr<Card> card)
 {
-    emit deactivateCardsHighlighting();
-    m_playerPages.at(m_currentPlayerId)->placeCards(CardList{card});
-    m_bankScrollWidget->removeCards(CardList{card});
+    if (card->activationValues().contains(0)) {
+        for (int i = 0; i < m_numPlayers; ++i) {
+            m_playerPages[i]->placeCards(CardList{card});
+        }
+    } else {
+        m_bankScrollWidget->placeCards(CardList{card});
+    }
+}
 
-    if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
-        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
+void MainWindow::displayBankLoosesCard(std::shared_ptr<Card> card)
+{
+    m_bankScrollWidget->removeCards(CardList{card});
+}
+
+void MainWindow::displayPlayerGetsCard(int playerId, std::shared_ptr<Card> card)
+{
+    // emit deactivateCardsHighlighting(); problem with playerId
+    // TODO stop handling playerID
+    m_playerPages.at(playerId)->placeCards(CardList{card});
+
+    if (m_canBuildAgainIfDubleRollDice[playerId]) {
+        m_canBuildAgainIfDubleRollDice[playerId] = false;
         emit buildOneMoreBuilding();
     } else {
         emit updatedPlayersPanel();
     }
+}
+
+void MainWindow::displayPlayerLoosesCard(int playerId, std::shared_ptr<Card> card)
+{
+    m_playerPages[playerId]->removeCards(CardList{card});
+}
+
+void MainWindow::displayPlayerNewCard(std::shared_ptr<Card> card)
+{
+    // emit deactivateCardsHighlighting();
+    // m_playerPages.at(m_currentPlayerId)->placeCards(CardList{card});
+    // m_bankScrollWidget->removeCards(CardList{card});
+
+    // if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
+    //     m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
+    //     emit buildOneMoreBuilding();
+    // } else {
+    //     emit updatedPlayersPanel();
+    // }
 }
 
 void MainWindow::displayWorningWindow(QString message)
@@ -104,8 +139,8 @@ void MainWindow::displayWorningWindow(QString message)
 
 void MainWindow::finishGame(int currentPlayerId)
 {
-    QMessageBox::information(this, "Game Over", QString("Player %1 wins!").arg(char(currentPlayerId + 'A')));
-    close(); // Optionally close the game
+    //QMessageBox::information(this, "Game Over", QString("Player %1 wins!").arg(char(currentPlayerId + 'A')));
+    //close(); // Optionally close the game
 }
 
 void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)

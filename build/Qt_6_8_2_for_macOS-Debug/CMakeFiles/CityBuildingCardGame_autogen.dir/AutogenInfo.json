@@ -536,6 +536,12 @@
 			null
 		],
 		[
+			"/Users/deniskolchev/QtProjects/city-building-card-game/logic/bank.h",
+			"MU",
+			"V5QSWVS6RF/moc_bank.cpp",
+			null
+		],
+		[
 			"/Users/deniskolchev/QtProjects/city-building-card-game/logic/cardinventory.h",
 			"MU",
 			"V5QSWVS6RF/moc_cardinventory.cpp",
@@ -821,6 +827,11 @@
 		],
 		[
 			"/Users/deniskolchev/QtProjects/city-building-card-game/gameapplicationbuilder.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/deniskolchev/QtProjects/city-building-card-game/logic/bank.cpp",
 			"MU",
 			null
 		],

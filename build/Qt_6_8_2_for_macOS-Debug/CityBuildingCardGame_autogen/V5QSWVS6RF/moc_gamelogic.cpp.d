@@ -1013,6 +1013,7 @@
   /Users/deniskolchev/QtProjects/city-building-card-game/cardDataHandler/carddatahandler.h \
   /Users/deniskolchev/QtProjects/city-building-card-game/carddataconfigreader.h \
   /Users/deniskolchev/QtProjects/city-building-card-game/cardfactory.h \
+  /Users/deniskolchev/QtProjects/city-building-card-game/logic/bank.h \
   /Users/deniskolchev/QtProjects/city-building-card-game/logic/cardinventory.h \
   /Users/deniskolchev/QtProjects/city-building-card-game/logic/cards/card.h \
   /Users/deniskolchev/QtProjects/city-building-card-game/logic/diceroller.h \

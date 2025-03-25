@@ -4,14 +4,12 @@
 #include "../logic/cards/card.h"
 
 #include <QMap>
-#include <QObject>
 #include <QSet>
 
 #include <memory>
 
-class CardInventory : public QObject
+class CardInventory
 {
-    Q_OBJECT
 public:
     void addCard(std::shared_ptr<Card> card);
 
@@ -32,11 +30,6 @@ public:
     const QMap<std::shared_ptr<Card>, int>& purpleCards() const;
 
     const QMap<std::shared_ptr<Card>, int>& redCards() const;
-
-signals:
-    void cardAdded(std::shared_ptr<Card> card);
-
-    void cardRemoved(std::shared_ptr<Card> card);
 
 private:
     void categorizeCard(std::shared_ptr<Card> card);

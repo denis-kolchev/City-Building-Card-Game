@@ -1434,6 +1434,8 @@ CityBuildingCardGame_autogen/timestamp: \
 	/Users/deniskolchev/QtProjects/city-building-card-game/gameapplication.h \
 	/Users/deniskolchev/QtProjects/city-building-card-game/gameapplicationbuilder.cpp \
 	/Users/deniskolchev/QtProjects/city-building-card-game/gameapplicationbuilder.h \
+	/Users/deniskolchev/QtProjects/city-building-card-game/logic/bank.cpp \
+	/Users/deniskolchev/QtProjects/city-building-card-game/logic/bank.h \
 	/Users/deniskolchev/QtProjects/city-building-card-game/logic/cardinventory.cpp \
 	/Users/deniskolchev/QtProjects/city-building-card-game/logic/cardinventory.h \
 	/Users/deniskolchev/QtProjects/city-building-card-game/logic/cards/amusementpark.cpp \

@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include <QDebug>
+
 Player::Player(const QString& name, int id, QObject *parent)
     : m_name(name)
     , m_id(id)
@@ -7,6 +9,11 @@ Player::Player(const QString& name, int id, QObject *parent)
     , m_cardInventory(new CardInventory())
     , QObject(parent)
 {
+}
+
+Player::~Player()
+{
+    qDebug() << "Player is destroyed";
 }
 
 void Player::activateRerollDice()
