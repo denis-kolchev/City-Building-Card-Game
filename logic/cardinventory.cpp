@@ -35,7 +35,7 @@ int CardInventory::countCard(std::shared_ptr<Card> card) const
     return m_cards.value(card, 0);
 }
 
-std::shared_ptr<Card> CardInventory::findCardById(int cardId) const
+std::shared_ptr<Card> CardInventory::findCardById(CardId cardId) const
 {
     for (auto it = m_cards.begin(); it != m_cards.end(); ++it) {
         if (it.key()->id() == cardId) {
@@ -83,7 +83,7 @@ void CardInventory::categorizeCard(std::shared_ptr<Card> card)
         if (it != m_landmarks.end()) {
             m_landmarks[it.key()] = it.value() + 1;
         } else {
-            m_landmarks.insert(card, it.value());
+            m_landmarks.insert(card, 1);
         }
         return;
     }

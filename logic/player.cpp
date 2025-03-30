@@ -2,11 +2,13 @@
 
 #include <QDebug>
 
-Player::Player(const QString& name, int id, QObject *parent)
+Player::Player(QString name, int id, QObject *parent)
     : m_name(name)
     , m_id(id)
     , m_coins(START_COINS_NUMBER)
     , m_cardInventory(new CardInventory())
+    , m_canRerollDice(false)
+    , m_canPurchaseTwice(false)
     , QObject(parent)
 {
 }
@@ -16,19 +18,48 @@ Player::~Player()
     qDebug() << "Player is destroyed";
 }
 
-void Player::activateRerollDice()
+void Player::activateCards(QVector<std::shared_ptr<Player>>& players,
+                          std::shared_ptr<Player>& activePlayer,
+                          int dice1,
+                          int dice2)
 {
-    emit hasRadioTower();
-}
+    const auto& landmarks = m_cardInventory->landmarks();
+    for (auto it = landmarks.begin(), ite = landmarks.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            qDebug() << "it value: " << it.value();
+            it.key()->activate(players, *this, *activePlayer, dice1, dice2);
+        }
+    }
 
-void Player::activateRollTwoDice()
-{
-    emit hasRailwayStation();
-}
+    const auto& redCards = m_cardInventory->redCards();
+    for (auto it = redCards.begin(), ite = redCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, *activePlayer, dice1, dice2);
+        }
+    }
 
-void Player::activateOneMoreBuild()
-{
-    emit hasAmusementPark();
+    const auto& greenCards = m_cardInventory->greenCards();
+    for (auto it = greenCards.begin(), ite = greenCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, *activePlayer, dice1, dice2);
+        }
+    }
+
+    const auto& blueCards = m_cardInventory->blueCards();
+    for (auto it = blueCards.begin(), ite = blueCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, *activePlayer, dice1, dice2);
+        }
+    }
+
+    const auto& purpleCards = m_cardInventory->purpleCards();
+    for (auto it = purpleCards.begin(), ite = purpleCards.end(); it != ite; ++it) {
+        for (int i = 0; i < it.value(); ++i) {
+            it.key()->activate(players, *this, *activePlayer, dice1, dice2);
+        }
+    }
+
+    emit playerBalanceChanged(m_id, m_coins);
 }
 
 void Player::addCard(std::shared_ptr<Card> card)
@@ -40,22 +71,42 @@ void Player::addCard(std::shared_ptr<Card> card)
 void Player::addCoins(int amount)
 {
     m_coins += amount;
-    emit playerBalanceChanged(m_coins, m_id);
+    emit playerBalanceChanged(m_id, m_coins);
 }
 
-int Player::coins() const {
+int Player::balance() const {
     return m_coins;
+}
+
+bool Player::canRerollDice()
+{
+    return m_canRerollDice;
+}
+
+bool Player::canRollTwoDice()
+{
+    return m_canRollTwoDice;
+}
+
+bool Player::canPurchaseTwice()
+{
+    return m_canPurchaseTwice;
 }
 
 void Player::deductMoney(int amount)
 {
     m_coins -= amount;
-    emit playerBalanceChanged(m_coins, m_id);
+    emit playerBalanceChanged(m_id, m_coins);
 }
 
 int Player::id()
 {
     return m_id;
+}
+
+std::shared_ptr<Card> Player::findCardById(CardId cardId)
+{
+    return m_cardInventory->findCardById(cardId);
 }
 
 QMap<std::shared_ptr<Card>, int> Player::getCards()
@@ -88,6 +139,11 @@ const QMap<std::shared_ptr<Card>, int>& Player::getLandmarks()
     return m_cardInventory->landmarks();
 }
 
+bool Player::hasCard(CardId cardId)
+{
+    return m_cardInventory->findCardById(cardId) != nullptr;
+}
+
 int Player::howManyCardsOfType(std::shared_ptr<Card> card)
 {
     auto cards = m_cardInventory->getCards();
@@ -109,45 +165,17 @@ void Player::removeCard(std::shared_ptr<Card> card)
     emit playerLoosesCard(m_id, card);
 }
 
-void Player::triggerCards(QVector<std::shared_ptr<Player>> players,
-                          Player& activePlayer,
-                          int dice1,
-                          int dice2)
+void Player::setCanPurchaseTwice(bool canPurchaseTwice)
 {
-    const auto& landmarks = m_cardInventory->landmarks();
-    for (auto it = landmarks.begin(), ite = landmarks.end(); it != ite; ++it) {
-        for (int i = 0; i < it.value(); ++i) {
-            it.key()->activate(players, *this, activePlayer, dice1, dice2);
-        }
-    }
+    m_canPurchaseTwice = canPurchaseTwice;
+}
 
-    const auto& redCards = m_cardInventory->redCards();
-    for (auto it = redCards.begin(), ite = redCards.end(); it != ite; ++it) {
-        for (int i = 0; i < it.value(); ++i) {
-            it.key()->activate(players, *this, activePlayer, dice1, dice2);
-        }
-    }
+void Player::setCanRerollDice(bool canReroll)
+{
+    m_canRerollDice = canReroll;
+}
 
-    const auto& greenCards = m_cardInventory->greenCards();
-    for (auto it = greenCards.begin(), ite = greenCards.end(); it != ite; ++it) {
-        for (int i = 0; i < it.value(); ++i) {
-            it.key()->activate(players, *this, activePlayer, dice1, dice2);
-        }
-    }
-
-    const auto& blueCards = m_cardInventory->blueCards();
-    for (auto it = blueCards.begin(), ite = blueCards.end(); it != ite; ++it) {
-        for (int i = 0; i < it.value(); ++i) {
-            it.key()->activate(players, *this, activePlayer, dice1, dice2);
-        }
-    }
-
-    const auto& purpleCards = m_cardInventory->purpleCards();
-    for (auto it = purpleCards.begin(), ite = purpleCards.end(); it != ite; ++it) {
-        for (int i = 0; i < it.value(); ++i) {
-            it.key()->activate(players, *this, activePlayer, dice1, dice2);
-        }
-    }
-
-    emit playerBalanceChanged(m_coins, m_id);
+void Player::setCanRollTwoDice(bool canRollTwoDice)
+{
+    m_canRollTwoDice = canRollTwoDice;
 }

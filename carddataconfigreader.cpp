@@ -31,20 +31,25 @@ bool CardDataConfigReader::isConfigDataReady()
     return m_isConfigDataReady;
 }
 
-void CardDataConfigReader::handleReadFromRange(int begin, int end)
+void CardDataConfigReader::handleReadFromRange(CardId begin, CardId end)
 {
     emit sendCardData(readFromRange(begin, end));
 }
 
-void CardDataConfigReader::requestCardData(int begin,
-                                           int end,
-                                           std::shared_ptr<CardDataHandler> handler)
+void CardDataConfigReader::handleRequestCardData(CardId begin,
+                                                 CardId end,
+                                                 std::shared_ptr<CardDataHandler> handler)
 {
-    QVector<std::shared_ptr<Card>> cards = readFromRange(begin, end);
-    handler->handleCardData(cards); // Use the handler to process the data (Strategy Pattern)
+    auto cards = readFromRange(begin, end);
+
+    handler->handleCardData(cards);
+    // for (auto card : cards) {
+    //     //handler->addCard(card); // Use the handler to process the data (Strategy Pattern)
+
+    // }
 }
 
-QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, uchar end)
+QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(CardId begin, CardId end)
 {
     QVector<std::shared_ptr<Card>> cards;
 
@@ -69,7 +74,7 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
     QString currentSection;
     QMap<QString, QString> currentCardData;
 
-    uchar i = begin;
+    int i = int(begin);
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
         if (line.isEmpty() || line.startsWith(';') || line.startsWith('#')) continue;
@@ -78,12 +83,12 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
         if (sectionMatch.hasMatch()) {
             if (!currentSection.isEmpty()) {
                 // Convert collected data into a Card object
-                uchar cardNumber = currentSection.toUShort();
-                if (cardNumber >= begin && cardNumber <= end) {
+                int cardNumber = currentSection.toUShort();
+                if (cardNumber >= int(begin) && cardNumber <= int(end)) {
                     QString title = currentCardData.value("title", "Unknown");
                     QString description = currentCardData.value("description", "No description");
                     QString imagePath = currentCardData.value("image", "");
-                    QSet<uchar> activationValues;
+                    QSet<int> activationValues;
 
                     for (const QString& value : currentCardData.value("activationValue", "").split(' ', Qt::SkipEmptyParts)) {
                         activationValues.insert(value.toUShort());
@@ -113,10 +118,10 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                         type = CardType::Shop;
                     }
 
-                    uchar pack = currentCardData.value("pack", "0").toUShort();
-                    uchar price = currentCardData.value("price", "0").toUShort();
+                    int pack = currentCardData.value("pack", "0").toUShort();
+                    int price = currentCardData.value("price", "0").toUShort();
 
-                    std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, i);
+                    std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, CardId(i));
                     cards.append(card);
                     i++; // Increment i after processing each card
                 }
@@ -138,12 +143,12 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
 
     // Process the last card in the file
     if (!currentSection.isEmpty()) {
-        uchar cardNumber = currentSection.toUShort();
-        if (cardNumber >= begin && cardNumber <= end) {
+        int cardNumber = currentSection.toUShort();
+        if (cardNumber >= int(begin) && cardNumber <= int(end)) {
             QString title = currentCardData.value("title", "Unknown");
             QString description = currentCardData.value("description", "No description");
             QString imagePath = currentCardData.value("image", "");
-            QSet<uchar> activationValues;
+            QSet<int> activationValues;
 
             for (const QString& value : currentCardData.value("activationValue", "").split(' ', Qt::SkipEmptyParts)) {
                 activationValues.insert(value.toUShort());
@@ -173,10 +178,10 @@ QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(uchar begin, 
                 type = CardType::Shop;
             }
 
-            uchar pack = currentCardData.value("pack", "0").toUShort();
-            uchar price = currentCardData.value("price", "0").toUShort();
+            int pack = currentCardData.value("pack", "0").toUShort();
+            int price = currentCardData.value("price", "0").toUShort();
 
-            std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, i);
+            std::shared_ptr<Card> card = m_factory.createCard(title, description, imagePath, activationValues, type, pack, price, CardId(i));
             cards.append(card);
             i++; // Increment i after processing the last card
         }

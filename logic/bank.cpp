@@ -16,7 +16,7 @@ void Bank::addCard(std::shared_ptr<Card> card)
     emit bankGetsCard(card); // notify UI about inventory changes
 }
 
-std::shared_ptr<Card> Bank::findCardById(int cardId)
+std::shared_ptr<Card> Bank::findCardById(CardId cardId)
 {
     return m_cardInventory->findCardById(cardId);
 }

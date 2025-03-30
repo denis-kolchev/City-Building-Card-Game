@@ -2,9 +2,34 @@
 #define CARD_H
 
 #include <QSet>
+#include <memory>
 #include <QString>
 
 class Player;
+
+enum class CardId : int
+{
+    RailwayStation      = 0,
+    ShoppingMall        = 1,
+    AmusementPark       = 2,
+    RadioTower          = 3,
+    WheatField          = 4,
+    AnimalFarm          = 5,
+    Bakery              = 6,
+    Cafe                = 7,
+    Shop                = 8,
+    Forest              = 9,
+    Stadium             = 10,
+    TVCenter            = 11,
+    BusinessCenter      = 12,
+    CheeseFactory       = 13,
+    FurnitureFactory    = 14,
+    Mine                = 15,
+    Restaurant          = 16,
+    AppleOrchard        = 17,
+    FruitMarket         = 18,
+    None                = 19,
+};
 
 enum class CardType {
     Agricultural,
@@ -24,29 +49,33 @@ public:
     Card(const QString& title,
          const QString& description,
          const QString& imagePath,
-         const QSet<uchar> &activationValues,
+         const QSet<int> &activationValues,
          CardType type,
-         uchar pack,
-         uchar price,
-         uchar id);
+         int pack,
+         int price,
+         CardId id);
 
     virtual ~Card() = default;
 
-    virtual void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) = 0;
+    virtual void activate(QVector<std::shared_ptr<Player>>& players,
+                          Player& owner,
+                          Player& activePlayer,
+                          int dice1,
+                          int dice2) = 0;
 
-    QSet<uchar> activationValues() const;
+    QSet<int> activationValues() const;
 
     QString description() const;
 
-    uchar id() const;
+    CardId id() const;
 
     QString imagePath() const;
 
-    bool hasActivationValue(uchar diceRoll) const;
+    bool hasActivationValue(int diceRoll) const;
 
-    uchar pack() const;
+    int pack() const;
 
-    uchar price() const;
+    int price() const;
 
     QString title() const;
 
@@ -57,11 +86,11 @@ protected:
     QString m_title;
     QString m_description;
     QString m_imagePath;
-    QSet<uchar> m_activationValues;
+    QSet<int> m_activationValues;
     CardType m_type;
-    uchar m_pack;
-    uchar m_price;
-    uchar m_id;
+    int m_pack;
+    int m_price;
+    CardId m_id;
 };
 
 #endif // CARD_H

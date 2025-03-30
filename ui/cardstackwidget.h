@@ -13,9 +13,9 @@ public:
 
     void addCard(CardWidget *card);
 
-    CardWidget* at(uchar id) const;
+    CardWidget* at(CardId id) const;
 
-    uchar id();
+    CardId id();
 
     bool isEmpty();
 

@@ -32,11 +32,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
 
-        cardDataHandler/carddatahandler.h
-        cardDataHandler/bankcardshandler.h cardDataHandler/bankcardshandler.cpp
-        cardDataHandler/cardstowinhandler.h cardDataHandler/cardstowinhandler.cpp
-        cardDataHandler/initialplayercardshandler.h cardDataHandler/initialplayercardshandler.cpp
-
         logic/cards/cafe.h logic/cards/cafe.cpp
         logic/cards/card.h logic/cards/card.cpp
         logic/cards/wheatfield.h logic/cards/wheatfield.cpp
@@ -58,6 +53,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         logic/cards/appleorchard.h logic/cards/appleorchard.cpp
         logic/cards/fruitmarket.h logic/cards/fruitmarket.cpp
 
+        logic/carddatahandler.h logic/carddatahandler.cpp
         logic/diceroller.h logic/diceroller.cpp
         logic/cardinventory.h logic/cardinventory.cpp
         logic/gamelogic.h logic/gamelogic.cpp
@@ -80,6 +76,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         README.md
         logic/bank.h logic/bank.cpp
+        logic/icardcontainer.h
+        logic/icardcontainer.h
+        logic/carddatahandler.h
+        logic/bankcardshandler.h logic/bankcardshandler.cpp
+        logic/initialplayercardshandler.h logic/initialplayercardshandler.cpp
+        logic/carddatahandler.h
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"

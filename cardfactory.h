@@ -13,11 +13,11 @@ public:
     std::shared_ptr<Card> createCard(const QString& title,
                                      const QString& description,
                                      const QString& imagePath,
-                                     const QSet<uchar>& activationValues,
+                                     const QSet<int>& activationValues,
                                      CardType type,
-                                     uchar pack,
-                                     uchar price,
-                                     uchar id);
+                                     int pack,
+                                     int price,
+                                     CardId id);
 };
 
 #endif // CARDFACTORY_H

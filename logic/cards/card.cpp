@@ -4,11 +4,11 @@
 Card::Card(const QString& title,
            const QString& description,
            const QString& imagePath,
-           const QSet<uchar>& activationValues,
+           const QSet<int>& activationValues,
            CardType type,
-           uchar pack,
-           uchar price,
-           uchar id)
+           int pack,
+           int price,
+           CardId id)
     : m_title(title)
     , m_description(description)
     , m_imagePath(imagePath)
@@ -20,7 +20,7 @@ Card::Card(const QString& title,
 {
 }
 
-QSet<uchar> Card::activationValues() const {
+QSet<int> Card::activationValues() const {
     return m_activationValues;
 }
 
@@ -28,7 +28,7 @@ QString Card::description() const {
     return m_description;
 }
 
-uchar Card::id() const {
+CardId Card::id() const {
     return m_id;
 }
 
@@ -36,15 +36,15 @@ QString Card::imagePath() const {
     return m_imagePath;
 }
 
-bool Card::hasActivationValue(uchar diceRoll) const {
+bool Card::hasActivationValue(int diceRoll) const {
     return m_activationValues.find(diceRoll) != m_activationValues.end();
 }
 
-uchar Card::pack() const {
+int Card::pack() const {
     return m_pack;
 }
 
-uchar Card::price() const {
+int Card::price() const {
     return m_price;
 }
 

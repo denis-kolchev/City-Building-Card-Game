@@ -3,11 +3,11 @@
 ShoppingMall::ShoppingMall(const QString& title,
                            const QString& description,
                            const QString& imagePath,
-                           const QSet<uchar>& activationValues,
+                           const QSet<int>& activationValues,
                            CardType type,
-                           uchar pack,
-                           uchar price,
-                           uchar id)
+                           int pack,
+                           int price,
+                           CardId id)
     : Card(title,
            description,
            imagePath,
@@ -20,7 +20,12 @@ ShoppingMall::ShoppingMall(const QString& title,
 }
 
 
-void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
+void ShoppingMall::activate(QVector<std::shared_ptr<Player>>& players,
+                            Player& owner,
+                            Player& activePlayer,
+                            int dice1,
+                            int dice2)
+{
     if (&owner != &activePlayer) {
         auto diningCards = owner.getRedCards();
         if (!diningCards.empty()) {
@@ -30,7 +35,7 @@ void ShoppingMall::activate(QVector<std::shared_ptr<Player>> players, Player& ow
                     diningCount += it.value(); // amount of cars in stack
                 }
             }
-            int moneyToTake = std::min(activePlayer.coins(), diningCount);
+            int moneyToTake = std::min(activePlayer.balance(), diningCount);
             activePlayer.deductMoney(moneyToTake);
             owner.addCoins(moneyToTake);
 

@@ -24,11 +24,11 @@ CardFactory::CardFactory() {}
 std::shared_ptr<Card> CardFactory::createCard(const QString& title,
                                               const QString& description,
                                               const QString& imagePath,
-                                              const QSet<uchar>& activationValues,
+                                              const QSet<int>& activationValues,
                                               CardType type,
-                                              uchar pack,
-                                              uchar price,
-                                              uchar id)
+                                              int pack,
+                                              int price,
+                                              CardId id)
 {
     if (title == "Railway Station") {
         return std::make_shared<RailwayStation>(title, description, imagePath, activationValues, type, pack, price, id);

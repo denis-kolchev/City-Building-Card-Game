@@ -123,3 +123,218 @@ side in your city.
 This turn structure ensures a dynamic and engaging gameplay experience, balancing 
 strategy, resource management, and competition!
 
+**All Signals Structure**
+
+The whole list of all player signals from mainWindow
+ui signals:
+0 somebody clicked Dice 1 roll - 1
+0 somebody clicked Dice 2 roll - 2
+0 somebody clicked skip - 3
+0 somebody clicked cardwiget - 4
+
+ui slots:
+7 wait a response in small window
+if yes - sendIsUsed radio tower 10
+if no - 9
+12 update player balance 13
+
+Logic slots:
+1, 2 roll the dice, if no double - 5
+1, 2, if park and double - 14
+5 - check if current palyer has RadioTower
+5- if has, ask to reroll - 6
+ activate all palyers all cards if possible -
+5. 8 if no, incometime 9
+10 setRadioTowerIsUsedup
+9 activatecards 11, 12
+15 activate second roll 16
+
+logic signals:
+6 askToRerollCurrentPlayer - 7
+11 sendplayernewvalance 12
+14 send activate second buy 15
+
+---------- application level ----------
+
+connect(m_mainWindow.get(), &MainWindow::rollDiceButtonClicked, m_gameLogic.get(), &GameLogic::handleRollOneDiceButtonClicked);
+connect(m_mainWindow.get(), &MainWindow::skipButtonClicked, m_gameLogic.get(), &GameLogic::handleSkipButtonClicked);
+connect(m_mainWindow.get(), &MainWindow::cardWigetClicked, m_gameLogic.get(), &GameLogic::handleCardWigetClicked);
+
+connect(m_gameLogic.get(), &GameLogic::updatePlayerBalance, m_mainWindow.get(), &MainWindow::handleUpdatePlayerBalance);
+connect(m_gameLogic.get(), &GameLogic::updateDiceResult, m_mainWindow.get(), &MainWindow::handleUpdateDiceResult);
+connect(m_gameLogic.get(), &GameLogic::incomeStateFinished, m_mainWindow.get(), &MainWindow::handleIncomeStateFinished);
+connect(m_gameLogic.get(), &GameLogic::buyTwice, m_mainWindow.get(), &MainWindow::handleBuyTwice);
+
+
+class Player
+{
+bool isAskedToReroll();
+bool containsCard(CardId);
+
+private:
+    bool m_askedToReroll;
+    bool m_decisionToReroll;
+};
+
+---------- MainWindow: ----------
+
+signals:
+connect(diceOneButton, &QPushButton::clicked, [this]() {
+    enum rollOneDiceButtonClicked(); // 1
+});
+
+connect(diceTwoButton, &QPushButton::clicked, [this]() {
+    enum rollTwoDiceButtonClicked(); // 2
+});
+
+connect(skipButton, &QPushButton::clicked, [this]() {
+    enum skipButtonClicked(); // 3
+});
+
+connect(cardWidget, &QScrollWidget::cardWigetClicked, [this](int cardId) {
+    enum cardWigetClicked(cardWidgetId); // 4
+});
+
+
+public slots:
+void handleUpdatePlayerBalance(int playerId, int balance);
+
+void handleUpdateDiceResult(int diceResult);
+
+
+---------- GameLogic: ----------
+
+signals:
+void updatePlayerBalance(int playerId, int balance);
+
+void updateDiceResult(int diceResult);
+
+void buyTwice(int playerId);
+
+slots:
+void GameLogic::rollDiceButtonClicked(int rollsNumber)
+{
+    auto currentPlayer = m_players[m_currentPlayer];
+    if (currentPlayer.contains(CardId::RadioTower) && currentPlayer.askedToReroll()) {
+        currentPlayer->setAsckedToReroll(true);
+        emit askToReroll(currentPlayer);
+        return;
+    }
+    
+    int const maxRollNumber = 2;
+    vector<int> rollResults(maxRollNumber, 0);
+    for (int i = 0; i < rollsNumber; ++i) {
+        rollResults[i] = DiceRoller{}.rollDice(1);
+    }
+    
+    emit updateRollResult(vector<int> rollResults);
+    
+    startIncomeState(vector<int> rollResults);
+}
+
+void GameLogic::startIncomeState(vector<int> rollresults)
+{
+    if (rollResults[0] == rollResults[1] && currentPlayer.contains(CardId::AmusmentPark) && !currentPlayer.buyTwice()) {
+        currentPlayer->setBuyTwice(true);
+    }
+
+    activateCards(vector<int> rollResults) {
+        for (int i = 0; i < m_players.size(); ++i) {
+            m_players[i].activateCards() {
+                emit balanceChanged(i);
+            };            
+        }
+    };
+    
+    emit incomeStateFinished();
+}
+
+void GameLogic::handleSkipButtonClicked()
+{
+    if (currentPlayer.buyTWice()) {
+        currentPlayer->setBuyTwice(false);
+        emit buyTwice(currentPlayer->id());
+        return;
+    }
+    
+    setNextPlayerTurn() {
+        m_currentPlayerId = (m_currentPlayerId + 1 >= m_players.size()) ? 0 : m_currentPlayerId + 1;
+        emit setPlayerTurn(m_currentPlayerId);
+    }
+}
+
+void GameLogic::handleCardWigetClicked(int cardId)
+{
+    auto currentPlayer = m_players[m_currentPlayerId];
+    auto card = m_bank.find(cardId);
+    if (currentPlayer.balance() >= card.price()) {
+        currentPlayer.addCard(card);
+        m_bank.removeCard(card);
+    }
+}
+
+
+Income is written
+
+-3. Before the start, wait from configData to read all data to partialy initialize the bank
+-2. Before start, wait from startMenu signal about players count.
+-1. For some players count, initialize all connections and data about players
+
+0. Ini all solutions with specific cards to false.
+
+Income State
+1. Click on button "dice 1 roll" or "dice 2 rolls"
+2. Check currentPlayer has RadioTower & wasn't asked before, if has ask to reroll.
+3. MainWindow shows the window and send a signal with the answer of reroll.
+4. Handler of result decies what to call, rollDiceButtonClicked to repeat or startIncomeState.
+5. incomeState checks do player need to have buy twice ability
+6. income state activates cards and after their work for each player, they update each player result, taking their id
+7. signal to MainWindow income state is finished, so rewdraw it all.
+
+Buy State
+8 Click on card widget or skip button.
+9.1. If clicked skip button, checks buyTwice, and if so, sets it not to buy and do nothing.
+9.2. if clicked skip button and it wasn't set to buy twice, so just setNextPlayerTurn, so send a signal with new palyer id
+9.3. If clicked card Widget, send id of that widget from mainWindow.
+10.0. checks if current player can buy that card with that id, if so, BuyCard or sendSignal cantByCard to MainWindow
+10.1. gameLogic puts that card by id to player and takes it from bank, emiting 2 signals about these changes with that id.
+10.2. checks if all cards to win are bought, and if so, send a signal about it!
+11. checks if player can buy twice, if so, puts it false for another time and call singal incomestate is finished, or emit buyStateFinished
+12. Handle buy state finished as internal signal and send startNextPlayerTurn(m_playerId)
+13. while taking another player, reset to zero all grey cards abilities
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

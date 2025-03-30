@@ -14,6 +14,17 @@
 
 using CardsLayout = QHBoxLayout;
 
+#ifdef false
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+public:
+    explicit MainWindow(QMainWindow *parent = nullptr);
+
+    ~MainWindow();
+};
+#endif
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,103 +34,83 @@ public:
 
     ~MainWindow();
 
-    CardScrollWidget* getBankScrollWidget() const;
-
 public slots:
-    bool askForReroll(QWidget* parent);
+    void handleFinishIncomeState(int playerId); // set purchase state
 
-    void displayBankGetsCard(std::shared_ptr<Card> card);
+    void handleFinishPurchaseState(int playerId); // set wait state
 
-    void displayBankLoosesCard(std::shared_ptr<Card> card);
+    void handleFinishWaitState(int playerId); // set income state
 
-    void displayPlayerGetsCard(int playerId, std::shared_ptr<Card> card);
+    void handleGameWon(int playerId);
 
-    void displayPlayerLoosesCard(int playerId, std::shared_ptr<Card> card);
+    void handleRequestDiceRerollConfirmation(int playerId, QVector<int> rools);
 
-    void displayWorningWindow(QString message);
+    void handleShowMainWindow(int playersCount);
 
-    void finishGame(int currentPlayerId);
+    void handleSwitchToPlayerTurn(int playerId); // set incomestate
 
-    void handlePlayerCardActivatedBefore(uchar dice1, uchar dice2);
+    void receiveBankLoosesCard(std::shared_ptr<Card> card);
 
-    void handleShowMainWindow(uchar numPlayers);
+    void receiveBankGetsCard(std::shared_ptr<Card> card);
 
-    void processDiceRoll(uchar dice1, uchar dice2);
+    void receiveCardPurchaseFailed(int playerId, CardId cardId, QString message);
 
-    void repaintPlayerPanel(int currentPlayerId);
+    void receiveDiceRollResult(QVector<int> rolls);
 
-    void unlockBuildAgainIfDubleRollDice();
+    void receivePlayerBalanceChanged(int playerId, int balance);
 
-    void unlockDiceReroll();
+    void receivePlayerGetsCard(int playerId, std::shared_ptr<Card> card);
 
-    void unlockPlayerLandmark(std::shared_ptr<Card> card);
+    void receivePlayerLoosesCard(int playerId, std::shared_ptr<Card> card);
 
-    void unlockRollTwoDiceButton();
-
-    void updatePlayerBalanceLabel(uchar balance, int playerId);
+    void receiveRollTwoDiceAvailable(int playerId);
 
 signals:
-    void activateCardsHighlighting(int playerBalance);
+    void cardClickedForPurchase(CardId cardId);
 
-    void buildOneMoreBuilding();
+    void createPlayers(int playerCount);
 
-    void buttonClickSound();
+    void rollDiceButtonClicked(int diceRollCount);
 
-    void buyButtonClicked();
+    void sendDiceRerollResponse(QVector<int> rollResults, bool confirmed);
 
-    void cardFailSound();
-
-    void cardTurnSound();
-
-    void cardWidgetClicked(uchar cardId);
-
-    void checkPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2);
-
-    void createPlayers(QList<QString> playerNames);
-
-    void deactivateCardsHighlighting();
-
-    void diceRollAccepted(uchar dice1, uchar dice2);
-
-    void rollButtonClicked(uchar dice1, uchar dice2);
-
-    void rollButtonClickedWithCanReroll(uchar dice1, uchar dice2);
-
-    void skipClicked();
-
-    void takeCardSound();
-
-    void updatedPlayersPanel();
-
-private slots:    
-    void handleCardClick(uchar cardId);
-
-    void onRollOneDiceClicked();
-
-    void onRollTwoDiceClicked();
-
-    void onSkipClicked();
-
-    QIcon createCircleIcon(const QColor color, qsizetype size = 32);
+    void skipButtonClicked();
 
 private:
     void centerWindow();
 
+    QIcon createCircleIcon(const QColor color, qsizetype size = 32);
+
     PlayerPage* createPlayerPage(uchar playerId);
 
-    void setupStateMachine();
+    void setupStateMachines();
 
-    void updateButtonStates();
+    void setupTransitionsForPlayer(int playerId);
+
+private slots:
+    void handleCardClick(CardId id);
+
+signals:
+    void setIncomeState(int playerId);
+
+    void setPurchaseState(int playerId);
+
+    void setWaitState(int playerId);
 
 private:
-    int m_numPlayers;
-    int m_currentPlayerId;
+    struct PlayerStateMachine {
+        QState *m_waitState;
+        QState *m_incomeState;
+        QState *m_purchaseState;
+        QStateMachine *m_stateMachine;
 
-    QStateMachine *m_stateMachine;
-    QState *m_incomeState;
-    QState *m_buyingState;
-    QState *m_buyOrRerollState;
-    QFinalState *m_finalState;
+        // Transitions
+        QSignalTransition* toWaitState;
+        QSignalTransition* toIncomeState;
+        QSignalTransition* toPurchaseState;
+    };
+
+    QVector<PlayerStateMachine> m_playerStateMachines;
 
     QWidget *m_centralWidget; // this
     QHBoxLayout *m_mainLayout; // m_centralWidget
@@ -129,9 +120,12 @@ private:
 
     QVector<PlayerPage*> m_playerPages;
 
-    QVector<int> m_canPressTwoDiceButton;
-    QVector<int> m_canBuildAgainIfDubleRollDice;
-    QVector<int> m_canRerollDice;
     QTabWidget *m_tabWidget;
+    //QLabel* m_diceResult;
+
+    QColor m_activePlayerColor = QColor(72, 181, 163);
+    QColor m_inactivePlayerColor = QColor(252, 169, 133);
 };
+
+
 #endif // MAINWINDOW_H

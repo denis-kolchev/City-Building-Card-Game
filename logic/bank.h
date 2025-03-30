@@ -2,22 +2,23 @@
 #define BANK_H
 
 #include "cardinventory.h"
+#include "icardcontainer.h"
 
 #include <QObject>
 
-class Bank : public QObject
+class Bank : public QObject, public ICardContainer
 {
     Q_OBJECT
 public:
     explicit Bank(QObject *parent = nullptr);
 
-    ~Bank();
+    ~Bank() override;
 
-    void addCard(std::shared_ptr<Card> card);
+    void addCard(std::shared_ptr<Card> card) override;
 
-    std::shared_ptr<Card> findCardById(int cardId);
+    std::shared_ptr<Card> findCardById(CardId cardId);
 
-    void removeCard(std::shared_ptr<Card> card);
+    void removeCard(std::shared_ptr<Card> card) override;
 
 signals:
     void bankGetsCard(std::shared_ptr<Card> card);

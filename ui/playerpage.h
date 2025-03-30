@@ -15,13 +15,13 @@ class PlayerPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit PlayerPage(uchar playerId, QWidget *parent = nullptr);
+    explicit PlayerPage(int playerId, QWidget *parent = nullptr);
 
     int balance();
 
-    void setPlayerBalance(uchar balance);
+    void setPlayerBalance(int balance);
 
-    void setDiceResult(uchar dice1, uchar dice2 = 0);
+    void setDiceResult(int dice1, int dice2 = 0);
 
     void setRollButtonsEnabled(bool rollOneEnabled, bool rollTwoEnabled);
 
@@ -31,9 +31,9 @@ public:
 
     void removeCards(CardList cards);
 
-    void turnOnCardStack(uchar id);
+    void turnOnCardStack(CardId id);
 
-    void turnOffCardStack(uchar id);
+    void turnOffCardStack(CardId id);
 
     QPushButton& getOneDiceButton();
 
@@ -50,23 +50,23 @@ signals:
 
     void deactivateCardsHighlighting();
 
-    void rollOneDiceClicked(uchar playerId);
+    void rollOneDiceClicked(int playerId);
 
-    void rollTwoDiceClicked(uchar playerId);
+    void rollTwoDiceClicked(int playerId);
 
-    void skipClicked(uchar playerId);
+    void skipClicked(int playerId);
 
-    void cardClicked(uchar id);
+    void cardClicked(CardId id);
 
 public slots:
-    void handleCardClicked(uchar id);
+    void handleCardClicked(CardId id);
 
     void buttonBlocked();
 
 private:
     void setupUi();
 
-    uchar m_playerId;
+    int m_playerId;
     int m_playerBalance;
     QVBoxLayout *m_mainLayout;
     QScrollArea *m_landmarksScrollArea;

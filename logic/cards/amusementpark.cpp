@@ -3,11 +3,11 @@
 AmusementPark::AmusementPark(const QString& title,
                              const QString& description,
                              const QString& imagePath,
-                             const QSet<uchar>& activationValues,
+                             const QSet<int>& activationValues,
                              CardType type,
-                             uchar pack,
-                             uchar price,
-                             uchar id)
+                             int pack,
+                             int price,
+                             CardId id)
     : Card(title,
            description,
            imagePath,
@@ -19,9 +19,14 @@ AmusementPark::AmusementPark(const QString& title,
 {
 }
 
-void AmusementPark::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
+void AmusementPark::activate(QVector<std::shared_ptr<Player>>& players,
+                             Player& owner,
+                             Player& activePlayer,
+                             int dice1,
+                             int dice2)
+{
     if (dice1 == dice2 && &owner == &activePlayer) {
-        activePlayer.activateOneMoreBuild();
-        qDebug() << "--- " << m_title << " - " << owner.name() << " can buy once again";
+        //activePlayer.activateOneMoreBuild();
+        //qDebug() << "--- " << m_title << " - " << owner.name() << " can buy once again";
     }
 }

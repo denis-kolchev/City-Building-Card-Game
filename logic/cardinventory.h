@@ -11,13 +11,15 @@
 class CardInventory
 {
 public:
+    CardInventory() = default;
+
     void addCard(std::shared_ptr<Card> card);
 
     void removeCard(std::shared_ptr<Card> card);
 
     int countCard(std::shared_ptr<Card> card) const;
 
-    std::shared_ptr<Card> findCardById(int cardId) const;
+    std::shared_ptr<Card> findCardById(CardId cardId) const;
 
     const QMap<std::shared_ptr<Card>, int>& getCards() const;
 

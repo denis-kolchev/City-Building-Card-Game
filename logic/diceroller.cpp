@@ -6,13 +6,13 @@ DiceRoller::DiceRoller()
 {
 }
 
-uchar DiceRoller::rollDice(uchar diceNumber)
+int DiceRoller::rollDice(int diceNumber)
 {
-    uchar total = 0;
-    uchar maxDiceNumber = (UCHAR_MAX / m_diceSidesNumber > diceNumber) ? diceNumber : 42;
-    for (uchar i = 0; i < diceNumber; ++i) {
+    int total = 0;
+    int maxDiceNumber = (INT_MAX / m_diceSidesNumber > diceNumber) ? diceNumber : 42;
+    for (int i = 0; i < diceNumber; ++i) {
         int roll = QRandomGenerator::global()->bounded(1, m_diceSidesNumber + 1);
-        total += static_cast<uchar>(roll);
+        total += static_cast<int>(roll);
     }
     return total;
 }

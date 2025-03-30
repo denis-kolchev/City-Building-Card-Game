@@ -11,13 +11,17 @@ public:
     Forest(const QString& title,
            const QString& description,
            const QString& imagePath,
-           const QSet<uchar>& activationValues,
+           const QSet<int>& activationValues,
            CardType type,
-           uchar pack,
-           uchar price,
-           uchar id);
+           int pack,
+           int price,
+           CardId id);
 
-    void activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) override;
+    void activate(QVector<std::shared_ptr<Player>>& players,
+                  Player& owner,
+                  Player& activePlayer,
+                  int dice1,
+                  int dice2);
 };
 
 #endif // FOREST_H

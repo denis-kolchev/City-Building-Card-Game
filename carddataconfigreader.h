@@ -1,7 +1,7 @@
 #ifndef CARDDATACONFIGREADER_H
 #define CARDDATACONFIGREADER_H
 
-#include "cardDataHandler/carddatahandler.h"
+#include "logic/carddatahandler.h"
 #include "cardfactory.h"
 
 #include <QSettings>
@@ -19,19 +19,19 @@ public:
 
 signals:
     // Signal emitted when config data is ready
-    void configDataReady();
+    void configDataReadyToRead();
 
     // Emitted with the requested card
     void sendCardData(QVector<std::shared_ptr<Card>> data);
 
 public slots:
     // Slot to handle range requests
-    void handleReadFromRange(int begin, int end);
+    void handleReadFromRange(CardId begin, CardId end);
 
-    void requestCardData(int begin, int end, std::shared_ptr<CardDataHandler> handler);
+    void handleRequestCardData(CardId begin, CardId end, std::shared_ptr<CardDataHandler> handler);
 
 private:
-    QVector<std::shared_ptr<Card>> readFromRange(uchar begin, uchar end);
+    QVector<std::shared_ptr<Card>> readFromRange(CardId begin, CardId end);
 
 private:
     CardFactory m_factory;

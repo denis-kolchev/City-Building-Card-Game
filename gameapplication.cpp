@@ -15,7 +15,7 @@ GameApplication::GameApplication(std::shared_ptr<CardDataConfigReader> configRea
 void GameApplication::run()
 {
     if (m_configReader->isConfigDataReady()) {
-        m_configReader->configDataReady();
+        emit m_configReader->configDataReadyToRead();
     }
 
     m_startMenu->show();
@@ -23,76 +23,72 @@ void GameApplication::run()
 
 void GameApplication::setupConnections()
 {
-    QObject::connect(m_gameLogic.get(), &GameLogic::bankGetsCard,
-                     m_mainWindow.get(), &MainWindow::displayBankGetsCard);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::bankLoosesCard,
-                     m_mainWindow.get(), &MainWindow::displayBankLoosesCard);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerGetsCard,
-                     m_mainWindow.get(), &MainWindow::displayPlayerGetsCard);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerLoosesCard,
-                     m_mainWindow.get(), &MainWindow::displayPlayerLoosesCard);
-
-    QObject::connect(m_configReader.get(), &CardDataConfigReader::configDataReady,
-                     m_gameLogic.get(), &GameLogic::handleConfigDataReady);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::requestReadFromRange,
-                     m_configReader.get(), &CardDataConfigReader::handleReadFromRange);
-
-    QObject::connect(m_configReader.get(), &CardDataConfigReader::sendCardData,
-                     m_gameLogic.get(), &GameLogic::handleCardDataReceived);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::requestCardData,
-                     m_configReader.get(), &CardDataConfigReader::requestCardData);
 
     QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
                      m_mainWindow.get(), &MainWindow::handleShowMainWindow);
 
+    QObject::connect(m_configReader.get(), &CardDataConfigReader::configDataReadyToRead,
+                     m_gameLogic.get(), &GameLogic::handleConfigDataReadyToRead);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::requestCardData,
+                     m_configReader.get(), &CardDataConfigReader::handleRequestCardData);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::gameWon,
+                     m_mainWindow.get(), &MainWindow::handleGameWon);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::requestDiceRerollConfirmation,
+                     m_mainWindow.get(), &MainWindow::handleRequestDiceRerollConfirmation);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendBankGetsCard,
+                     m_mainWindow.get(), &MainWindow::receiveBankGetsCard);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendBankLoosesCard,
+                     m_mainWindow.get(), &MainWindow::receiveBankLoosesCard);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendCardPurchaseFailed,
+                     m_mainWindow.get(), &MainWindow::receiveCardPurchaseFailed);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendDiceRollResult,
+                     m_mainWindow.get(), &MainWindow::receiveDiceRollResult);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendPlayerBalanceChanged,
+                     m_mainWindow.get(), &MainWindow::receivePlayerBalanceChanged);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendPlayerGetsCard,
+                     m_mainWindow.get(), &MainWindow::receivePlayerGetsCard);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendPlayerLoosesCard,
+                     m_mainWindow.get(), &MainWindow::receivePlayerLoosesCard);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::sendRollTwoDiceAvailable,
+                     m_mainWindow.get(), &MainWindow::receiveRollTwoDiceAvailable);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::switchToPlayerTurn,
+                     m_mainWindow.get(), &MainWindow::handleSwitchToPlayerTurn);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::finishIncomeState,
+                     m_mainWindow.get(), &MainWindow::handleFinishIncomeState);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::finishPurchaseState,
+                     m_mainWindow.get(), &MainWindow::handleFinishPurchaseState);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::finishWaitState,
+                     m_mainWindow.get(), &MainWindow::handleFinishWaitState);
+
+    // mainWindow signals
+    QObject::connect(m_mainWindow.get(), &MainWindow::cardClickedForPurchase,
+                     m_gameLogic.get(), &GameLogic::handleCardClickedForPurchase);
+
     QObject::connect(m_mainWindow.get(), &MainWindow::createPlayers,
                      m_gameLogic.get(), &GameLogic::handleCreatePlayers);
 
-    QObject::connect(m_mainWindow.get(), &MainWindow::diceRollAccepted,
-                     m_gameLogic.get(), &GameLogic::handleRollButtonClicked);
+    QObject::connect(m_mainWindow.get(), &MainWindow::rollDiceButtonClicked,
+                     m_gameLogic.get(), &GameLogic::handleRollDiceButtonClicked);
 
-    QObject::connect(m_mainWindow.get(), &MainWindow::checkPlayerCards,
-                     m_gameLogic.get(), &GameLogic::processCheckPlayerCards);
+    QObject::connect(m_mainWindow.get(), &MainWindow::sendDiceRerollResponse,
+                     m_gameLogic.get(), &GameLogic::receiveDiceRerollResponse);
 
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerCardActivatedBefore,
-                     m_mainWindow.get(), &MainWindow::handlePlayerCardActivatedBefore);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::buildStageFinished,
-                     m_mainWindow.get(), &MainWindow::repaintPlayerPanel);
-
-    QObject::connect(m_mainWindow.get(), &MainWindow::cardWidgetClicked,
-                     m_gameLogic.get(), &GameLogic::handleTryToBuyCard);
-
-    QObject::connect(m_mainWindow.get(), &MainWindow::updatedPlayersPanel,
-                     m_gameLogic.get(), &GameLogic::prepateNextTurn);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerBalanceChanged,
-                     m_mainWindow.get(), &MainWindow::updatePlayerBalanceLabel);
-
-    QObject::connect(m_mainWindow.get(), &MainWindow::skipClicked,
-                     m_gameLogic.get(), &GameLogic::moveToNextPlaer);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerHasRailwayStation,
-                     m_mainWindow.get(), &MainWindow::unlockRollTwoDiceButton);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerHasAmusementPark,
-                     m_mainWindow.get(), &MainWindow::unlockBuildAgainIfDubleRollDice);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerHasRadioTower,
-                     m_mainWindow.get(), &MainWindow::unlockDiceReroll);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerBuildLandmark,
-                     m_mainWindow.get(), &MainWindow::unlockPlayerLandmark);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::gameIsFinished,
-                     m_mainWindow.get(), &MainWindow::finishGame);
-
-    QObject::connect(m_gameLogic.get(), &GameLogic::playerHasNotEnoughCoins,
-                     m_mainWindow.get(), &MainWindow::displayWorningWindow);
+    QObject::connect(m_mainWindow.get(), &MainWindow::skipButtonClicked,
+                     m_gameLogic.get(), &GameLogic::handleSkipButtonClicked);
 
 }

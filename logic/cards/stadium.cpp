@@ -3,11 +3,11 @@
 Stadium::Stadium(const QString& title,
                  const QString& description,
                  const QString& imagePath,
-                 const QSet<uchar>& activationValues,
+                 const QSet<int>& activationValues,
                  CardType type,
-                 uchar pack,
-                 uchar price,
-                 uchar id)
+                 int pack,
+                 int price,
+                 CardId id)
     : Card(title,
            description,
            imagePath,
@@ -19,8 +19,13 @@ Stadium::Stadium(const QString& title,
 {
 }
 
-void Stadium::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
-    uchar MONEY_TO_TAKE = 2;
+void Stadium::activate(QVector<std::shared_ptr<Player>>& players,
+                       Player& owner,
+                       Player& activePlayer,
+                       int dice1,
+                       int dice2)
+{
+    int MONEY_TO_TAKE = 2;
     if (hasActivationValue(dice1 + dice2) && &owner == &activePlayer) {
         if (players.size() == 0) {
             return;
@@ -31,13 +36,13 @@ void Stadium::activate(QVector<std::shared_ptr<Player>> players, Player& owner, 
                 continue;
             }
 
-            if (player->coins() >= MONEY_TO_TAKE) {
+            if (player->balance() >= MONEY_TO_TAKE) {
                 player->deductMoney(MONEY_TO_TAKE);
                 activePlayer.addCoins(MONEY_TO_TAKE);
                 qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain coins: " << MONEY_TO_TAKE;
                 qDebug() << "--- " << m_title << " - " << player->name() << " loose income: " << MONEY_TO_TAKE;
             } else {
-                auto availableCoins = player->coins();
+                auto availableCoins = player->balance();
                 player->deductMoney(availableCoins);
                 activePlayer.addCoins(availableCoins);
                 qDebug() << "--- " << m_title << " - " << activePlayer.name() << " gain coins: " << availableCoins;

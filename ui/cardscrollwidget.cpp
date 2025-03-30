@@ -8,6 +8,11 @@ CardScrollWidget::CardScrollWidget(QWidget *parent)
     m_layout->addStretch();
 }
 
+CardStacks CardScrollWidget::getStacks()
+{
+    return m_stacks;
+}
+
 void CardScrollWidget::placeCards(const CardList &cards)
 {
     for (qsizetype i = 0; i < cards.size(); ++i) {
@@ -20,8 +25,8 @@ void CardScrollWidget::placeCards(const CardList &cards)
                                                 cards[i]->type(),
                                                 cards[i]->id());
 
-        uchar id = cards[i]->id();
-        connect(cardWidget, &CardWidget::clicked, this, &CardScrollWidget::handleCardClicked);
+        CardId id = cards[i]->id();
+        connect(cardWidget, &CardWidget::clicked, this, &CardScrollWidget::cardSignalClicked);
 
         // create a stack for this card type if wasn't made before
         if (!m_stacks.contains(id)) {
@@ -52,7 +57,7 @@ void CardScrollWidget::addCard(std::shared_ptr<Card> card)
 void CardScrollWidget::removeCards(const CardList &cards)
 {
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        uchar id = cards[i]->id();
+        CardId id = cards[i]->id();
 
         // check if a stack exists
         if (m_stacks.contains(id)) {
@@ -79,20 +84,14 @@ void CardScrollWidget::removeCard(std::shared_ptr<Card> card)
     removeCards({card});
 }
 
-void CardScrollWidget::turnOn(uchar id)
+void CardScrollWidget::turnOn(CardId id)
 {
     m_stacks[id]->turnOn();
 }
 
-void CardScrollWidget::turnOff(uchar id)
+void CardScrollWidget::turnOff(CardId id)
 {
     m_stacks[id]->turnOff();
-}
-
-void CardScrollWidget::handleCardClicked(uchar id)
-{
-    //qDebug() << "[CardScrollWidget] Forwarding ID:" << id; // Debug
-    emit this->cardSignalClicked(id);
 }
 
 void CardScrollWidget::sortCardsById() {

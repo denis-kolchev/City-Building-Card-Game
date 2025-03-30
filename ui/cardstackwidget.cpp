@@ -22,7 +22,7 @@ void CardStackWidget::addCard(CardWidget *card)
     update(); // Trigger a repaint
 }
 
-CardWidget* CardStackWidget::at(uchar id) const
+CardWidget* CardStackWidget::at(CardId id) const
 {
     for (auto card : m_cards) {
         if (card->id() == id) {
@@ -38,12 +38,12 @@ bool CardStackWidget::isEmpty()
     return m_cards.empty();
 }
 
-uchar CardStackWidget::id()
+CardId CardStackWidget::id()
 {
     if (m_cards.isEmpty()) {
         return m_cards.at(0)->id();
     } else {
-        return 0;
+        return CardId::None;
     }
 }
 

@@ -20,20 +20,20 @@ class CardWidget : public QWidget
                    NOTIFY outlineColorChanged)
 public:
     explicit CardWidget(QPixmap imagePath,
-                        QSet<uchar> triggerNumbers,
+                        QSet<int> triggerNumbers,
                         QString title,
                         QString description,
                         QString price,
                         QString expension,
                         CardType cardType,
-                        uchar id,
+                        CardId id,
                         QWidget *parent = nullptr);
 
     QColor baseOutlineColor() const;
 
     void landmarkUnlocked();
 
-    uchar id();
+    CardId id();
 
     QColor outlineColor() const;
 
@@ -55,7 +55,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 
 signals:
-    void clicked(uchar cardId);
+    void clicked(CardId cardId);
 
     void outlineColorChanged();
 
@@ -86,7 +86,9 @@ private:
 
     QString replaceSubstringWithEmoji(const QString &input, const QString &substring, const QString &emoji);
 
-    QString transformQSetToRangeString(const QSet<uchar>& set);
+    void setCardType();
+
+    QString transformQSetToRangeString(const QSet<int>& set);
 
 private:
     QPixmap m_imagePath;
@@ -99,7 +101,7 @@ private:
     QColor m_baseOutlineColor;
     QColor m_outlineColor;
     CardType m_cardType;
-    uchar m_id;
+    CardId m_id;
 
     std::shared_ptr<QPropertyAnimation> m_outlineAnimation;
 };

@@ -3,11 +3,11 @@
 TVCenter::TVCenter(const QString& title,
                    const QString& description,
                    const QString& imagePath,
-                   const QSet<uchar>& activationValues,
+                   const QSet<int>& activationValues,
                    CardType type,
-                   uchar pack,
-                   uchar price,
-                   uchar id)
+                   int pack,
+                   int price,
+                   CardId id)
     : Card(title,
            description,
            imagePath,
@@ -19,9 +19,14 @@ TVCenter::TVCenter(const QString& title,
 {
 }
 
-void TVCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
+void TVCenter::activate(QVector<std::shared_ptr<Player>>& players,
+                        Player& owner,
+                        Player& activePlayer,
+                        int dice1,
+                        int dice2)
+{
     // First, takes money from the richest player
-    uchar MONEY_TO_TAKE = 5;
+    int MONEY_TO_TAKE = 5;
     if (hasActivationValue(dice1 + dice2) && &owner == &activePlayer) {
         if (players.size() == 0) {
             return;
@@ -29,12 +34,12 @@ void TVCenter::activate(QVector<std::shared_ptr<Player>> players, Player& owner,
 
         auto richestPlayer = players.at(0);
         for (auto player : players) {
-            if (player->coins() > richestPlayer->coins() && richestPlayer->name() != activePlayer.name()) {
+            if (player->balance() > richestPlayer->balance() && richestPlayer->name() != activePlayer.name()) {
                 richestPlayer = player;
             }
         }
 
-        int availableCoins = richestPlayer->coins();
+        int availableCoins = richestPlayer->balance();
         if (availableCoins >= MONEY_TO_TAKE) {
             richestPlayer->deductMoney(MONEY_TO_TAKE);
             activePlayer.addCoins(MONEY_TO_TAKE);

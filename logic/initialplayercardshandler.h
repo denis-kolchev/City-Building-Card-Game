@@ -7,8 +7,6 @@ class InitialPlayerCardsHandler : public CardDataHandler {
 public:
     explicit InitialPlayerCardsHandler(std::shared_ptr<Player>& player);
 
-    //void extracted(std::shared_ptr<Card> const &card);
-
     void handleCardData(QVector<std::shared_ptr<Card>> data) override;
 
 private:

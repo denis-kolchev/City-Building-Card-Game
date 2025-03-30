@@ -1,10 +1,10 @@
 #include "mainwindow.h"
-#include "../logic/diceroller.h"
 
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
 #include <QScrollArea>
+#include <QSignalTransition>
 #include <QVector>
 
 #include <QTabWidget>
@@ -12,21 +12,16 @@
 
 MainWindow::MainWindow(QMainWindow *parent)
     : QMainWindow(parent)
-    , m_stateMachine(new QStateMachine(this))
-    , m_incomeState(new QState())
-    , m_buyingState(new QState())
-    , m_buyOrRerollState(new QState())
-    , m_finalState(new QFinalState())
     , m_centralWidget(new QWidget(this))
     , m_mainLayout(new QHBoxLayout(m_centralWidget))
     , m_bankCardsArea(new QScrollArea())
     , m_bankScrollWidget(new CardScrollWidget())
     , m_bankLayout(new QHBoxLayout())
     , m_tabWidget(new QTabWidget(this))
-    , m_canPressTwoDiceButton(5, 0)
-    , m_canBuildAgainIfDubleRollDice(5, 0)
-    , m_canRerollDice(5, 0)
 {
+    connect(m_bankScrollWidget, &CardScrollWidget::cardSignalClicked,
+            this, &MainWindow::cardClickedForPurchase);
+
     m_bankCardsArea->setWidget(m_bankScrollWidget);
     m_bankCardsArea->setWidgetResizable(true);
 
@@ -35,24 +30,9 @@ MainWindow::MainWindow(QMainWindow *parent)
 
     m_centralWidget->setLayout(m_mainLayout);
 
-    // Animation of cards when in buy state depending on palyer balance
-    connect(this, &MainWindow::activateCardsHighlighting, m_bankScrollWidget,
-            [this](int playerBalance) { emit m_bankScrollWidget->activateCardsHighlighting(playerBalance); });
-
-    connect(this, &MainWindow::deactivateCardsHighlighting, m_bankScrollWidget,
-            [this](){ emit m_bankScrollWidget->deactivateCardsHighlighting(); });
-
-    connect(this, &MainWindow::skipClicked, m_bankScrollWidget,
-            [this](){ emit m_bankScrollWidget->deactivateCardsHighlighting(); });
-    // Animation end
-
-    // handle card clickes
-    connect(m_bankScrollWidget, &CardScrollWidget::cardSignalClicked,
-            this, &MainWindow::handleCardClick);
-
     setCentralWidget(m_centralWidget);
 
-    setWindowTitle("City Building Card Game");
+    setWindowTitle(tr("City Building Card Game"));
     resize(1366, 768);
 }
 
@@ -60,265 +40,200 @@ MainWindow::~MainWindow()
 {
 }
 
-CardScrollWidget* MainWindow::getBankScrollWidget() const
+void MainWindow::handleFinishIncomeState(int playerId)
 {
-    return m_bankScrollWidget;
-}
-
-bool MainWindow::askForReroll(QWidget* parent)
-{
-    QString question = QString("Does the Player %1 want to re-roll the dice?")
-    .arg(char(m_currentPlayerId + 'A'));
-
-    QMessageBox msgBox(parent);
-    msgBox.setWindowTitle("Re-roll?");
-    msgBox.setText(question);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-
-    return msgBox.exec() == QMessageBox::Yes;
-}
-
-void MainWindow::displayBankGetsCard(std::shared_ptr<Card> card)
-{
-    if (card->activationValues().contains(0)) {
-        for (int i = 0; i < m_numPlayers; ++i) {
-            m_playerPages[i]->placeCards(CardList{card});
-        }
-    } else {
-        m_bankScrollWidget->placeCards(CardList{card});
+    if (playerId >= 0 && playerId < m_playerPages.size()) {
+        auto& page = m_playerPages[playerId];
+        page->getOneDiceButton().setEnabled(false);
+        page->getTwoDiceButton().setEnabled(false);
+        page->getSkipButton().setEnabled(true);
     }
 }
 
-void MainWindow::displayBankLoosesCard(std::shared_ptr<Card> card)
+void MainWindow::handleFinishPurchaseState(int playerId)
 {
-    m_bankScrollWidget->removeCards(CardList{card});
-}
-
-void MainWindow::displayPlayerGetsCard(int playerId, std::shared_ptr<Card> card)
-{
-    emit deactivateCardsHighlighting(); // problem with playerId
-    // TODO stop handling playerID
-    m_playerPages.at(playerId)->placeCards(CardList{card});
-
-    if (m_canBuildAgainIfDubleRollDice[playerId]) {
-        m_canBuildAgainIfDubleRollDice[playerId] = false;
-        emit buildOneMoreBuilding();
-    } else {
-        emit updatedPlayersPanel();
+    if (playerId >= 0 && playerId < m_playerPages.size()) {
+        auto& page = m_playerPages[playerId];
+        page->getOneDiceButton().setEnabled(false);
+        page->getTwoDiceButton().setEnabled(false);
+        page->getSkipButton().setEnabled(false);
     }
 }
 
-void MainWindow::displayPlayerLoosesCard(int playerId, std::shared_ptr<Card> card)
+void MainWindow::handleFinishWaitState(int playerId)
 {
-    m_playerPages[playerId]->removeCards(CardList{card});
+    if (playerId >= 0 && playerId < m_playerPages.size()) {
+        auto& page = m_playerPages[playerId];
+        page->getOneDiceButton().setEnabled(true);
+        page->getSkipButton().setEnabled(false);
+    }
+
+    for (int pageId = 0; pageId < m_playerPages.size(); ++pageId) {
+        m_tabWidget->setTabIcon(pageId, createCircleIcon(m_inactivePlayerColor));
+    }
+
+    m_tabWidget->setTabIcon(playerId, createCircleIcon(m_activePlayerColor));
+    m_tabWidget->setCurrentIndex(playerId);
+
 }
 
-void MainWindow::displayWorningWindow(QString message)
+void MainWindow::handleGameWon(int playerId)
 {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Warning!"); // Set the title of the window
-    msgBox.setText(message); // Set the message text
-    msgBox.setStandardButtons(QMessageBox::Ok); // Add an "OK" button
-    msgBox.setDefaultButton(QMessageBox::Ok); // Set "OK" as the default button
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(tr("Game Over"));
+    msgBox.setText(QString(tr("Player %1 won!")).arg(char(playerId + 'A')));
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
     msgBox.exec();
+
+    QApplication::quit(); // Close the entire app
 }
 
-void MainWindow::finishGame(int currentPlayerId)
+void MainWindow::handleRequestDiceRerollConfirmation(int playerId, QVector<int> rools)
 {
-    //QMessageBox::information(this, "Game Over", QString("Player %1 wins!").arg(char(currentPlayerId + 'A')));
-    //close(); // Optionally close the game
-}
-
-void MainWindow::handlePlayerCardActivatedBefore(uchar dice1, uchar dice2)
-{
-    if (m_stateMachine->configuration().contains(m_incomeState)) {
-        if (m_canRerollDice[m_currentPlayerId]) {
-            m_canRerollDice[m_currentPlayerId] = false;
-            bool wantsReroll = askForReroll(this);
-            if (wantsReroll) {
-                emit rollButtonClickedWithCanReroll(dice1, dice2);
-                emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
-            } else {
-                emit diceRollAccepted(dice1, dice2);
-                emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
-            }
-        } else {
-            emit diceRollAccepted(dice1, dice2);
-            emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
-        }
+    QString diceText;
+    if (rools[1] != 0) {
+        diceText = QString("%1 + %2 = %3").arg(rools[0]).arg(rools[1]).arg(rools[0] + rools[1]);
     } else {
-        emit diceRollAccepted(dice1, dice2);
-        emit activateCardsHighlighting(m_playerPages[m_currentPlayerId]->balance());
+        diceText = QString("%1").arg(rools[0]);
     }
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(tr("Reroll Request"));
+    msgBox.setText(
+        QString("Player %1, would you like to reroll the dice? (Current: %2)")
+            .arg(char(playerId + 'A'))
+            .arg(diceText)
+    );
+
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
+
+    msgBox.addButton(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::NoButton);
+
+    msgBox.exec();
+
+    bool isConfirmed = (msgBox.clickedButton() == msgBox.button(QMessageBox::Yes));
+    emit sendDiceRerollResponse(rools, isConfirmed);
 }
 
-void MainWindow::handleShowMainWindow(uchar numPlayers)
+void MainWindow::handleShowMainWindow(int playersCount)
 {
-    m_numPlayers = numPlayers;
-    m_currentPlayerId = 0;
-
-#ifdef false
-    // Should go to the function which hendles changes of the bank
-    // bank is a new name for bank
-    try {
-        std::sort(bankCards.begin(), bankCards.end(), [](const std::shared_ptr<Card>& a, const std::shared_ptr<Card>& b) {
-            return a->id() < b->id();
-        });
-    } catch (const std::out_of_range& e) {
-        qCritical() << "Card activation values error:" << e.what();
-        // Handle error
-    }
-#endif
-
-    // Create a view for each player and add it as a tab
-    char playerId = 'A';
-    QVector<QString> playerNames(m_numPlayers);
-    for (int i = 0; i < m_numPlayers; ++i, ++playerId) {
-        PlayerPage* playerPage = createPlayerPage(i);
-
+    // Create a tab for each player
+    char playerName = 'A';
+    QVector<QString> playerNames(playersCount);
+    for (int i = 0; i < playerNames.size(); ++i, ++playerName) {
+        auto* playerPage = createPlayerPage(i);
+        m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerName));
+        m_tabWidget->setTabIcon(i, createCircleIcon(m_inactivePlayerColor)); // red (inactive)
         m_playerPages.append(playerPage);
-        m_tabWidget->addTab(playerPage, QString("Player %1").arg(playerId));
-
-        connect(this, &MainWindow::activateCardsHighlighting, m_playerPages[i],
-                [this, i](int playerBalance) { emit m_playerPages[i]->activateCardsHighlighting(playerBalance);
-        });
-
-        connect(this, &MainWindow::deactivateCardsHighlighting, m_playerPages[i],
-                [this, i]() { emit m_playerPages[i]->deactivateCardsHighlighting();
-        });
-
-        if (i == 0) {
-            m_tabWidget->setTabIcon(i, createCircleIcon(QColor(72, 181, 163)));
-        } else {
-            m_tabWidget->setTabIcon(i, createCircleIcon(QColor(252, 169, 133)));
-        }
-
-        //qDebug() << "added playerPage to tab";
-        playerNames[i] = QString("Player %1").arg(playerId);
     }
 
-    emit createPlayers(playerNames.toList());
-    setupStateMachine();
-    updateButtonStates();
+    m_tabWidget->setTabIcon(0, createCircleIcon(m_activePlayerColor));
+
+    emit createPlayers(playersCount);
+
+    setupStateMachines();
 
     show();
 }
 
-void MainWindow::processDiceRoll(uchar dice1, uchar dice2)
+void MainWindow::handleSwitchToPlayerTurn(int playerId)
 {
-    const int radioTowerId = 3;
-    emit checkPlayerCards(radioTowerId, m_currentPlayerId, dice1, dice2);
-}
+    // sets set
+    m_tabWidget->setCurrentIndex(playerId);
 
-void MainWindow::repaintPlayerPanel(int currentPlayerId)
-{
-    m_currentPlayerId = currentPlayerId;
-    if (m_tabWidget && currentPlayerId >= 0 && currentPlayerId < m_tabWidget->count()) {
-        m_tabWidget->setCurrentIndex(currentPlayerId);
-    }
-
-    QIcon activeIcon = createCircleIcon(QColor(72, 181, 163), 128);
-    QIcon notActiveIcon = createCircleIcon(QColor(252, 169, 133), 128);
-    for (int playerId = 0; playerId < m_numPlayers; ++playerId) {
-        m_tabWidget->setTabIcon(playerId, notActiveIcon);
-    }
-    m_tabWidget->setTabIcon(currentPlayerId, activeIcon);
-
-    updateButtonStates();
-}
-
-void MainWindow::unlockBuildAgainIfDubleRollDice()
-{
-    if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
-        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = true;
+    if (playerId >= 0 && playerId < m_playerStateMachines.size()) {
+        m_playerStateMachines[playerId].m_stateMachine->postEvent(new QEvent(QEvent::Type(QEvent::User + 2)));
     }
 }
 
-void MainWindow::unlockDiceReroll()
+void MainWindow::receiveBankLoosesCard(std::shared_ptr<Card> card)
 {
-    if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
-        m_canRerollDice[m_currentPlayerId] = true;
+    if (card->activationValues().contains(0)) {
+        return;
+    }
+
+    m_bankScrollWidget->removeCards({card});
+}
+
+void MainWindow::receiveBankGetsCard(std::shared_ptr<Card> card)
+{
+    if (card->activationValues().contains(0)) {
+        for (int playerId = 0; playerId < m_playerPages.size(); ++playerId) {
+            auto playerLandmarks = m_playerPages[playerId]->getLandmarkScrollWidget();
+            if (!playerLandmarks->getStacks().contains(card->id())) {
+                playerLandmarks->addCard(card);
+            }
+        }
+        return;
+    }
+
+    m_bankScrollWidget->placeCards({card});
+}
+
+void MainWindow::receiveCardPurchaseFailed(int playerId, CardId cardId, QString message)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Purchase Failed"));
+    msgBox.setText(
+        QString("Player %1 cannot purchase Card [%2]!\n\n%3")
+            .arg(char(playerId + 'A'))
+            .arg(int(cardId))
+            .arg(message)
+        );
+
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
+
+    msgBox.exec();
+}
+
+void MainWindow::receiveDiceRollResult(QVector<int> rolls)
+{
+    for (auto playePage : m_playerPages) {
+        playePage->setDiceResult(rolls[0], rolls[1]);
     }
 }
 
-void MainWindow::unlockPlayerLandmark(std::shared_ptr<Card> card)
-{
-    emit deactivateCardsHighlighting();
-    emit cardTurnSound();
-
-    auto id = card->id();
-    m_playerPages[m_currentPlayerId]->turnOnCardStack(id);
-
-    if (id == 0) {
-        m_canPressTwoDiceButton[m_currentPlayerId] = true;
-    }
-
-    update();
-    if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
-        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
-        emit buildOneMoreBuilding();
-    } else {
-        emit updatedPlayersPanel(); // the look of it
-    }
-}
-
-void MainWindow::unlockRollTwoDiceButton()
-{
-    if (m_currentPlayerId >= 0 && m_currentPlayerId < m_numPlayers) {
-        m_playerPages[m_currentPlayerId]->setRollButtonsEnabled(true, true);
-    }
-}
-
-void MainWindow::updatePlayerBalanceLabel(uchar balance, int playerId)
+void MainWindow::receivePlayerBalanceChanged(int playerId, int balance)
 {
     m_playerPages[playerId]->setPlayerBalance(balance);
-    update();
 }
 
-void MainWindow::handleCardClick(uchar cardId)
+void MainWindow::receivePlayerGetsCard(int playerId, std::shared_ptr<Card> card)
 {
-    //qDebug() << "HandleCardClick!";
-    if (m_stateMachine->configuration().contains(m_buyingState) ||
-        m_stateMachine->configuration().contains(m_buyOrRerollState))
-    {
-        //qDebug() << "card is clicked!";
-        emit takeCardSound();
-        emit cardWidgetClicked(cardId);
+    auto playerPage = m_playerPages[playerId];
+    if (card->activationValues().contains(0)) {
+        if (playerPage->getLandmarkScrollWidget()->getStacks().contains(card->id())) {
+            playerPage->turnOnCardStack(card->id());
+        }
+        return;
     }
+
+    playerPage->placeCards({card});
 }
 
-void MainWindow::onRollOneDiceClicked()
+void MainWindow::receivePlayerLoosesCard(int playerId, std::shared_ptr<Card> card)
 {
-    emit buttonClickSound();
+    auto playerPage = m_playerPages[playerId];
+    if (card->activationValues().contains(0)) {
+        if (playerPage->getLandmarkScrollWidget()->getStacks().contains(card->id())) {
+            playerPage->turnOffCardStack(card->id());
+        }
+        return;
+    }
 
-    uchar dice = DiceRoller{}.rollDice(1);
-    //qDebug() << "Roll One Dice button Clicked!";
-    m_playerPages[m_currentPlayerId]->setDiceResult(dice);
-
-    processDiceRoll(dice, 0);
+    playerPage->removeCards({card});
 }
 
-void MainWindow::onRollTwoDiceClicked()
+void MainWindow::receiveRollTwoDiceAvailable(int playerId)
 {
-    emit buttonClickSound();
-
-    uchar dice1 = DiceRoller{}.rollDice(1);
-    uchar dice2 = DiceRoller{}.rollDice(1);
-    //qDebug() << "Roll Two Dice button Clicked!";
-    m_playerPages[m_currentPlayerId]->setDiceResult(dice1, dice2);
-
-    processDiceRoll(dice1, dice2);
-}
-
-void MainWindow::onSkipClicked()
-{
-    emit buttonClickSound();
-    //qDebug() << "Skip button Clicked!";
-    if (m_canBuildAgainIfDubleRollDice[m_currentPlayerId]) {
-        m_canBuildAgainIfDubleRollDice[m_currentPlayerId] = false;
-        emit buildOneMoreBuilding();
-    } else {
-        emit skipClicked();
+    if (playerId >= 0 && playerId < m_playerPages.size()) {
+        auto& page = m_playerPages[playerId];
+        page->getTwoDiceButton().setEnabled(true);
     }
 }
 
@@ -352,62 +267,90 @@ QIcon MainWindow::createCircleIcon(const QColor color, qsizetype size)
 PlayerPage* MainWindow::createPlayerPage(uchar playerId)
 {
     PlayerPage* playerPage = new PlayerPage(playerId);
-    connect(playerPage, &PlayerPage::rollOneDiceClicked, this, &MainWindow::onRollOneDiceClicked);
-    connect(playerPage, &PlayerPage::rollTwoDiceClicked, this, &MainWindow::onRollTwoDiceClicked);
-    connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::onSkipClicked);
-    //connect(playerPage, &PlayerPage::)
-
-    connect(playerPage, &PlayerPage::cardClicked, this, [this](uchar cardId) {
-        qDebug() << "[MainWindow] Handling ID:" << cardId; // Debug
-        handleCardClick(cardId);
-    });
-
-    //qDebug() << "createPlayerPage finishes";
+    connect(playerPage, &PlayerPage::rollOneDiceClicked, this, [this]() { emit rollDiceButtonClicked(1); });
+    connect(playerPage, &PlayerPage::rollTwoDiceClicked, this, [this]() { emit rollDiceButtonClicked(2); });
+    connect(playerPage, &PlayerPage::skipClicked, this, &MainWindow::skipButtonClicked);
+    connect(playerPage->getLandmarkScrollWidget(), &CardScrollWidget::cardSignalClicked, this, &MainWindow::cardClickedForPurchase);
     return playerPage;
 }
 
-void MainWindow::setupStateMachine()
+void MainWindow::setupStateMachines()
 {
+    m_playerStateMachines.resize(m_playerPages.size());
 
-    // Define transitions
-    m_incomeState->addTransition(this, &MainWindow::diceRollAccepted, m_buyingState);
-    m_incomeState->addTransition(this, &MainWindow::rollButtonClickedWithCanReroll, m_buyOrRerollState);
-    m_buyingState->addTransition(this, &MainWindow::buildOneMoreBuilding, m_buyingState);
-    m_buyingState->addTransition(this, &MainWindow::skipClicked, m_incomeState);
-    m_buyingState->addTransition(this, &MainWindow::updatedPlayersPanel, m_incomeState);
-    m_buyOrRerollState->addTransition(this, &MainWindow::diceRollAccepted, m_buyingState);
+    for (int playerId = 0; playerId < m_playerPages.size(); ++playerId) {
+        auto& playerStateMachine = m_playerStateMachines[playerId];
 
-    // Add states to the state machine
-    m_stateMachine->addState(m_incomeState);
-    m_stateMachine->addState(m_buyingState);
-    m_stateMachine->addState(m_buyOrRerollState);
-    m_stateMachine->addState(m_finalState);
+        // Create states
+        playerStateMachine.m_stateMachine = new QStateMachine(this);
+        playerStateMachine.m_waitState = new QState(playerStateMachine.m_stateMachine);
+        playerStateMachine.m_incomeState = new QState(playerStateMachine.m_stateMachine);
+        playerStateMachine.m_purchaseState = new QState(playerStateMachine.m_stateMachine);
 
-    // Set the initial state
-    m_stateMachine->setInitialState(m_incomeState);
+        // Configure state behaviors
+        playerStateMachine.m_waitState->assignProperty(&m_playerPages[playerId]->getOneDiceButton(), "enabled", false);
+        playerStateMachine.m_waitState->assignProperty(&m_playerPages[playerId]->getTwoDiceButton(), "enabled", false);
+        playerStateMachine.m_waitState->assignProperty(&m_playerPages[playerId]->getSkipButton(), "enabled", false);
 
-    // Connect state entered signals to update button states
-    connect(m_incomeState, &QState::entered, this, &MainWindow::updateButtonStates);
-    connect(m_buyingState, &QState::entered, this, &MainWindow::updateButtonStates);
-    connect(m_buyOrRerollState, &QState::entered, this, &MainWindow::updateButtonStates);
+        playerStateMachine.m_incomeState->assignProperty(&m_playerPages[playerId]->getOneDiceButton(), "enabled", true);
+        playerStateMachine.m_incomeState->assignProperty(&m_playerPages[playerId]->getTwoDiceButton(), "enabled", false);
+        playerStateMachine.m_incomeState->assignProperty(&m_playerPages[playerId]->getSkipButton(), "enabled", false);
 
-    // Start the state machine
-    m_stateMachine->start();
+        playerStateMachine.m_purchaseState->assignProperty(&m_playerPages[playerId]->getOneDiceButton(), "enabled", false);
+        playerStateMachine.m_purchaseState->assignProperty(&m_playerPages[playerId]->getTwoDiceButton(), "enabled", false);
+        playerStateMachine.m_purchaseState->assignProperty(&m_playerPages[playerId]->getSkipButton(), "enabled", true);
+
+        // Add states to machine
+        playerStateMachine.m_stateMachine->addState(playerStateMachine.m_waitState);
+        playerStateMachine.m_stateMachine->addState(playerStateMachine.m_incomeState);
+        playerStateMachine.m_stateMachine->addState(playerStateMachine.m_purchaseState);
+
+        // Set initial state
+        if (playerId == 0) {
+            playerStateMachine.m_stateMachine->setInitialState(playerStateMachine.m_incomeState);
+        } else {
+            playerStateMachine.m_stateMachine->setInitialState(playerStateMachine.m_waitState);
+        }
+
+        setupTransitionsForPlayer(playerId);
+
+        playerStateMachine.m_stateMachine->start();
+    }
+
 }
 
-void MainWindow::updateButtonStates()
+void MainWindow::setupTransitionsForPlayer(int playerId)
 {
-    //qDebug() << "updateButtonStates starts";
-    bool isIncomeState = m_stateMachine->configuration().contains(m_incomeState);
-    bool isBuyingState = m_stateMachine->configuration().contains(m_buyingState);
-    bool isBuyOrRerollState = m_stateMachine->configuration().contains(m_buyOrRerollState);
+    auto& playerStateMachine = m_playerStateMachines[playerId];
 
-    for (int i = 0; i < m_numPlayers; ++i) {
-        bool isActivePlayer = (i == m_currentPlayerId);
+    // Transition from ANY state to WaitState when signal arrives
+    playerStateMachine.toWaitState = new QSignalTransition(this, &MainWindow::handleFinishPurchaseState);
+    playerStateMachine.toWaitState->setTargetState(playerStateMachine.m_waitState);
+    playerStateMachine.m_stateMachine->addTransition(playerStateMachine.toWaitState);
 
-        m_playerPages[i]->getOneDiceButton().setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer);
-        m_playerPages[i]->getTwoDiceButton().setEnabled((isBuyOrRerollState || isIncomeState) && isActivePlayer & m_canPressTwoDiceButton[m_currentPlayerId]);
-        m_playerPages[i]->getSkipButton().setEnabled((isBuyOrRerollState || isBuyingState) && isActivePlayer);
-    }
-    //qDebug() << "updateButtonStates finishes";
+    // Transition from ANY state to IncomeState when signal arrives
+    playerStateMachine.toIncomeState = new QSignalTransition(this, &MainWindow::handleFinishWaitState);
+    playerStateMachine.toIncomeState->setTargetState(playerStateMachine.m_incomeState);
+    playerStateMachine.m_stateMachine->addTransition(playerStateMachine.toIncomeState);
+
+    // Transition from ANY state to PurchaseState when signal arrives
+    playerStateMachine.toPurchaseState = new QSignalTransition(this, &MainWindow::handleFinishIncomeState);
+    playerStateMachine.toPurchaseState->setTargetState(playerStateMachine.m_purchaseState);
+    playerStateMachine.m_stateMachine->addTransition(playerStateMachine.toPurchaseState);
+}
+
+void MainWindow::handleCardClick(CardId id)
+{
+    emit cardClickedForPurchase(id);
+
+    // if (m_stateMachine->configuration().contains(m_purchaseState)) {
+    //     emit cardClickedForPurchase(id);
+    //     return;
+    // }
+
+    // QMessageBox msgBox(this);
+    // msgBox.setWindowTitle(tr("You can't buy it yet"));
+    // msgBox.setText(QString(tr("You need to press the \"roll dice\" button first.\n\nWait until it becomes active or press it right now.")));
+    // msgBox.setStandardButtons(QMessageBox::Ok);
+    // msgBox.exec();
 }

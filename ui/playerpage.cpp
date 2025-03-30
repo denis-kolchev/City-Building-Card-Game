@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QFile>
 
-PlayerPage::PlayerPage(uchar playerId, QWidget *parent)
+PlayerPage::PlayerPage(int playerId, QWidget *parent)
     : m_playerId(playerId)
     , m_landmarksScrollArea(new QScrollArea())
     , m_buildsScrollArea(new QScrollArea())
@@ -81,12 +81,12 @@ void PlayerPage::setupUi()
     //qDebug() << "m_buildScrollWidget:" << m_buildScrollWidget;
     //qDebug() << "finish existange check";
 
-    bool connected1 = connect(m_landmarkScrollWidget, &CardScrollWidget::cardSignalClicked, this, [this](uchar cardId) {
+    bool connected1 = connect(m_landmarkScrollWidget, &CardScrollWidget::cardSignalClicked, this, [this](CardId cardId) {
         //qDebug() << "[PlayerPage] Received ID:" << cardId; // Debug
         emit cardClicked(cardId); // Emit PlayerPage::cardClicked
     });
     //qDebug() << "Build Scroll Widget connected:" << connected1;
-    bool connected2 = connect(m_buildScrollWidget, &CardScrollWidget::cardSignalClicked, this, [this](uchar cardId) {
+    bool connected2 = connect(m_buildScrollWidget, &CardScrollWidget::cardSignalClicked, this, [this](CardId cardId) {
         //qDebug() << "[PlayerPage] Received ID:" << cardId; // Debug
         emit cardClicked(cardId); // Emit PlayerPage::cardClicked
     });
@@ -99,13 +99,13 @@ void PlayerPage::setupUi()
     connect(m_skipButton, &QPushButton::clicked, this, [this]() { emit skipClicked(m_playerId); });
 }
 
-void PlayerPage::setPlayerBalance(uchar balance)
+void PlayerPage::setPlayerBalance(int balance)
 {
     m_playerBalanceLabel->setText(QString("Coins: %1").arg(balance));
-    m_playerBalance = static_cast<int>(balance);
+    m_playerBalance = balance;
 }
 
-void PlayerPage::setDiceResult(uchar dice1, uchar dice2)
+void PlayerPage::setDiceResult(int dice1, int dice2)
 {
     if (dice2 == 0) {
         m_diceResultLabel->setText(QString("Dice result: %1").arg(dice1));
@@ -131,9 +131,9 @@ void PlayerPage::placeCards(CardList cards)
 {
     // Cards logic. Again!
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        if (cards[i]->id() <= 3 && cards[i]->id() >= 0) {
+        if (cards[i]->id() <= CardId::RadioTower && cards[i]->id() >= CardId::RailwayStation) {
             m_landmarkScrollWidget->placeCards(CardList{cards[i]});
-        } else if (cards[i]->id() <= 18 && cards[i]->id() >= 4) {
+        } else if (cards[i]->id() <= CardId::FruitMarket && cards[i]->id() >= CardId::WheatField) {
             m_buildScrollWidget->placeCards(CardList{cards[i]});
         }
     }
@@ -145,9 +145,9 @@ void PlayerPage::removeCards(CardList cards)
 {
     // Cards logic. Again!
     for (qsizetype i = 0; i < cards.size(); ++i) {
-        if (cards[i]->id() <= 3 && cards[i]->id() >= 0) {
+        if (cards[i]->id() <= CardId::RadioTower && cards[i]->id() >= CardId::RailwayStation) {
             m_landmarkScrollWidget->removeCards(CardList{cards[i]});
-        } else if (cards[i]->id() <= 18 && cards[i]->id() >= 4) {
+        } else if (cards[i]->id() <= CardId::FruitMarket && cards[i]->id() >= CardId::WheatField) {
             m_buildScrollWidget->removeCards(CardList{cards[i]});
         }
     }
@@ -170,25 +170,35 @@ QPushButton& PlayerPage::getSkipButton()
     return *m_skipButton;
 }
 
-void PlayerPage::turnOnCardStack(uchar id)
+void PlayerPage::turnOnCardStack(CardId id)
 {
-    if (id >= 0 && id <= 3) {
+    if (id >= CardId::RailwayStation && id <= CardId::RadioTower) {
         m_landmarkScrollWidget->turnOn(id);
     } else {
         m_buildScrollWidget->turnOn(id);
     }
 }
 
-void PlayerPage::turnOffCardStack(uchar id)
+void PlayerPage::turnOffCardStack(CardId id)
 {
-    if (id >= 0 && id <= 3) {
+    if (id >= CardId::RailwayStation && id <= CardId::RadioTower) {
         m_landmarkScrollWidget->turnOff(id);
     } else {
         m_buildScrollWidget->turnOff(id);
     }
 }
 
-void PlayerPage::handleCardClicked(uchar id)
+CardScrollWidget* PlayerPage::getLandmarkScrollWidget()
+{
+    return m_landmarkScrollWidget;
+}
+
+CardScrollWidget* PlayerPage::getBuildScrollWidget()
+{
+    return m_buildScrollWidget;
+}
+
+void PlayerPage::handleCardClicked(CardId id)
 {
     qDebug() << "PlayerPage::cardClicked";
     emit cardClicked(id); // Emit PlayerPage::cardClicked

@@ -3,11 +3,11 @@
 Cafe::Cafe(const QString& title,
            const QString& description,
            const QString& imagePath,
-           const QSet<uchar>& activationValues,
+           const QSet<int>& activationValues,
            CardType type,
-           uchar pack,
-           uchar price,
-           uchar id)
+           int pack,
+           int price,
+           CardId id)
     : Card(title,
            description,
            imagePath,
@@ -20,14 +20,19 @@ Cafe::Cafe(const QString& title,
 }
 
 
-void Cafe::activate(QVector<std::shared_ptr<Player>> players, Player& owner, Player& activePlayer, uchar dice1, uchar dice2) {
+void Cafe::activate(QVector<std::shared_ptr<Player>>& players,
+                    Player& owner,
+                    Player& activePlayer,
+                    int dice1,
+                    int dice2)
+{
     if (&activePlayer == &owner) {
         return; // active player doesn't get income for ownership of this card
     }
 
     const int MONET_TO_TAKE = 1;
     if (hasActivationValue(dice1 + dice2)) {
-        int available = activePlayer.coins();
+        int available = activePlayer.balance();
         if (available >= MONET_TO_TAKE) {
             activePlayer.deductMoney(MONET_TO_TAKE);
             owner.addCoins(1);

@@ -5,13 +5,13 @@
 #include <QGraphicsDropShadowEffect>
 
 CardWidget::CardWidget(QPixmap imagePath,
-                       QSet<uchar> triggerNumbers,
+                       QSet<int> triggerNumbers,
                        QString title,
                        QString description,
                        QString price,
                        QString expension,
                        CardType cardType,
-                       uchar id,
+                       CardId id,
                        QWidget *parent)
     : m_imagePath(imagePath)
     , m_triggerNumber(transformQSetToRangeString(triggerNumbers))
@@ -24,70 +24,39 @@ CardWidget::CardWidget(QPixmap imagePath,
     , m_outlineAnimation(std::make_shared<QPropertyAnimation>(this, "outlineColor"))
     , QWidget(parent)
 {
-    QMap<CardType, QString> emojiMap = {
-        {CardType::Agricultural, "\u2600"},
-        {CardType::Business, "\u26EA"},
-        {CardType::Dining, "\u2615"},
-        {CardType::Farm, "\u26F0"},
-        {CardType::Fruit, "\u26FA"},
-        {CardType::Landmark, "\u26E9"},
-        {CardType::Mining, "\u2699"},
-        {CardType::Production, "\u267B"},
-        {CardType::Ship, "\u26F4"},
-        {CardType::Shop, "\u26F1"}
-    };
+    setCardType();
 
-    // Use the map to set the title
-    if (emojiMap.contains(m_cardType)) {
-        m_title = emojiMap[m_cardType] + " " + m_title;
-    }
-
-    QSet<CardType> blueTypes = {
-        CardType::Agricultural,
-        CardType::Farm,
-        CardType::Mining,
-        CardType::Ship
-    };
-
-    QSet<CardType> greenTypes = {
-        CardType::Fruit,
-        CardType::Production,
-        CardType::Shop
-    };
-
-    QSet<CardType> redTypes = {
-        CardType::Dining
-    };
-
-    QSet<CardType> purpleTypes = {
-        CardType::Landmark
-    };
-
-    if (blueTypes.find(cardType) != blueTypes.end()) {
+    switch(cardType) {
+    case CardType::Agricultural:
+    case CardType::Farm:
+    case CardType::Mining:
+    case CardType::Ship:
         m_backgroundColor = blueColor();
         m_baseOutlineColor = blueOutlineColor();
-    } else if (greenTypes.find(cardType) != greenTypes.end()) {
+        break;
+    case CardType::Fruit:
+    case CardType::Production:
+    case CardType::Shop:
+    case CardType::Business:
         m_backgroundColor = greenColor();
         m_baseOutlineColor = greenOutlineColor();
-    } else if (redTypes.find(cardType) != redTypes.end()) {
+        break;
+    case CardType::Dining:
         m_backgroundColor = redColor();
         m_baseOutlineColor = redOutlineColor();
-    } else if (purpleTypes.find(cardType) != purpleTypes.end() && triggerNumbers.find(0) != triggerNumbers.end()) {
-        m_backgroundColor = greyColor();
-        m_baseOutlineColor = greyOutlineColor();
-    } else {
+        break;
+    case CardType::Landmark:
         m_backgroundColor = purpleColor();
         m_baseOutlineColor = purpleOutlineColor();
+        break;
+    }
+
+    if (triggerNumbers.contains(0)) {
+        m_backgroundColor = greyColor();
+        m_baseOutlineColor = greyOutlineColor();
     }
 
     m_outlineColor = baseOutlineColor();
-
-    m_description = replaceSubstringWithEmoji(m_description, "coffee shop", emojiMap[CardType::Dining]);
-    m_description = replaceSubstringWithEmoji(m_description, "store", emojiMap[CardType::Shop]);
-    m_description = replaceSubstringWithEmoji(m_description, "landmark", emojiMap[CardType::Landmark]);
-    m_description = replaceSubstringWithEmoji(m_description, "farm", emojiMap[CardType::Farm]);
-    m_description = replaceSubstringWithEmoji(m_description, "mining", emojiMap[CardType::Mining]);
-    m_description = replaceSubstringWithEmoji(m_description, "agricultiral", emojiMap[CardType::Agricultural]);
 
     m_outlineAnimation->setDuration(1000); // duration of animation
     m_outlineAnimation->setLoopCount(-1); // while(true)
@@ -164,7 +133,7 @@ QColor CardWidget::baseOutlineColor() const
     return m_baseOutlineColor;
 }
 
-uchar CardWidget::id()
+CardId CardWidget::id()
 {
     return m_id;
 }
@@ -183,7 +152,7 @@ void CardWidget::setOutlineColor(const QColor &color)
 {
     if (m_outlineColor != color) {
         m_outlineColor = color;
-        update(); // Перерисовка виджета
+        update();
         emit outlineColorChanged();
     }
 }
@@ -362,14 +331,42 @@ QString CardWidget::replaceSubstringWithEmoji(const QString &input, const QStrin
     return result;
 }
 
-QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set)
+void CardWidget::setCardType()
+{
+    QMap<CardType, QString> emojiMap = {
+        {CardType::Agricultural, "\u2600"},
+        {CardType::Business, "\u26EA"},
+        {CardType::Dining, "\u2615"},
+        {CardType::Farm, "\u26F0"},
+        {CardType::Fruit, "\u26FA"},
+        {CardType::Landmark, "\u26E9"},
+        {CardType::Mining, "\u2699"},
+        {CardType::Production, "\u267B"},
+        {CardType::Ship, "\u26F4"},
+        {CardType::Shop, "\u26F1"}
+    };
+
+    // Use the map to set the title
+    if (emojiMap.contains(m_cardType)) {
+        m_title = emojiMap[m_cardType] + " " + m_title;
+    }
+
+    m_description = replaceSubstringWithEmoji(m_description, "coffee shop", emojiMap[CardType::Dining]);
+    m_description = replaceSubstringWithEmoji(m_description, "store", emojiMap[CardType::Shop]);
+    m_description = replaceSubstringWithEmoji(m_description, "landmark", emojiMap[CardType::Landmark]);
+    m_description = replaceSubstringWithEmoji(m_description, "farm", emojiMap[CardType::Farm]);
+    m_description = replaceSubstringWithEmoji(m_description, "mining", emojiMap[CardType::Mining]);
+    m_description = replaceSubstringWithEmoji(m_description, "agricultiral", emojiMap[CardType::Agricultural]);
+}
+
+QString CardWidget::transformQSetToRangeString(const QSet<int>& set)
 {
     if (set.isEmpty()) {
         return QString();
     }
 
     // Convert QSet to QList and sort it
-    QList<uchar> sortedList = set.values();
+    auto sortedList = set.values();
     std::sort(sortedList.begin(), sortedList.end());
 
     QString result;
@@ -378,11 +375,11 @@ QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set)
 
     for (int i = 1; i < sortedList.size(); ++i) {
         int current = sortedList[i];
-        if (current != prev + 1) {
+        if (int(current) != int(prev) + 1) {
             if (start == prev) {
-                result += QString::number(start) + ", ";
+                result += QString::number(int(start)) + ", ";
             } else {
-                result += QString::number(start) + "-" + QString::number(prev) + ", ";
+                result += QString::number(int(start)) + "-" + QString::number(int(prev)) + ", ";
             }
             start = current;
         }
@@ -391,9 +388,9 @@ QString CardWidget::transformQSetToRangeString(const QSet<uchar>& set)
 
     // Handle the last range or single number
     if (start == prev) {
-        result += QString::number(start);
+        result += QString::number(int(start));
     } else {
-        result += QString::number(start) + "-" + QString::number(prev);
+        result += QString::number(int(start)) + "-" + QString::number(int(prev));
     }
 
     return result;
