@@ -1,209 +1,208 @@
 #include "gamelogic.h"
-#include "../cardDataHandler/bankcardshandler.h"
-#include "../cardDataHandler/initialplayercardshandler.h"
 #include "../carddataconfigreader.h"
+#include "bankcardshandler.h"
+#include "initialplayercardshandler.h"
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QMetaMethod>
 
 GameLogic::GameLogic(QObject *parent)
-    : m_bank(new Bank()), m_currentPlayerId(0), QObject(parent)
+    : m_bank(std::make_shared<Bank>())
+    , m_cardToWinIds{ CardId::RailwayStation,
+                     CardId::ShoppingMall,
+                     CardId::AmusementPark,
+                     CardId::RadioTower }
+    , m_currentPlayerId(0)
+    , QObject(parent)
 {
-    connect(m_bank.get(), &Bank::bankGetsCard, this, [this](std::shared_ptr<Card> card) {
-        emit bankGetsCard(card);
-    });
-    connect(m_bank.get(), &Bank::bankLoosesCard, this, [this](std::shared_ptr<Card> card) {
-        emit bankLoosesCard(card);
-    });
+    // banks as part of game logic sends signals to UI
+    connect(m_bank.get(), &Bank::bankGetsCard, this, &GameLogic::sendBankGetsCard);
+    connect(m_bank.get(), &Bank::bankLoosesCard, this, &GameLogic::sendBankLoosesCard);
 }
 
 GameLogic::~GameLogic()
 {
 }
 
-int GameLogic::currentPlayerId() const
+void GameLogic::handleCardClickedForPurchase(CardId cardId)
 {
-    return m_currentPlayerId;
-}
+    auto currentPlayer = m_players[m_currentPlayerId];
+    auto cardData = m_bank->findCardById(cardId);
 
-bool GameLogic::isGameIsFinished()
-{
-    int mx = 0;
-    for (auto player : m_players) {
-        mx = fmax(mx, player->getLandmarks().size());
-        if (player->getLandmarks().size() == m_cardsToWin.size()) {
-            return true;
+    if (!cardData) {
+        return;
+    }
+
+    if (cardData->activationValues().contains(0) || cardData->type() == CardType::Landmark) {
+        // player clicked on purple card or on landmakr which might be purchased only once (game rules)
+        if (currentPlayer->findCardById(cardId)) {
+            emit sendCardPurchaseFailed(m_currentPlayerId, cardId, tr("You can purchase this card only once."));
+            return;
         }
     }
-    return false;
+
+    if (cardData->price() > currentPlayer->balance()) {
+        emit sendCardPurchaseFailed(m_currentPlayerId, cardId, tr("This card is too expensive."));
+        return;
+    }
+
+    // if player has AmusementPark, they can purchase cards twice (game rules)
+    if (currentPlayer->hasCard(CardId::AmusementPark) && currentPlayer->canPurchaseTwice()) {
+        currentPlayer->setCanPurchaseTwice(false);
+        purchaseCard(cardData);
+        return;
+    }
+
+    purchaseCard(cardData);
+    emit finishPurchaseState(m_currentPlayerId);
+    resetPlayerTurnState();
 }
 
-std::shared_ptr<Player> GameLogic::getPlayer(int id)
+void GameLogic::handleConfigDataReadyToRead()
 {
-    return m_players[id];
+    const int mxBaseCards = 6;
+    for (int i = 0; i < mxBaseCards; ++i) {
+        emit requestCardData(CardId::WheatField, CardId::Forest, std::make_shared<BankCardsHandler>(m_bank));
+        emit requestCardData(CardId::CheeseFactory, CardId::FruitMarket, std::make_shared<BankCardsHandler>(m_bank));
+    }
 }
 
-void GameLogic::playTurn(uchar dice1, uchar dice2)
+void GameLogic::handleCreatePlayers(int playerCount)
+{
+    for (int playerId = 0; playerId < playerCount; ++playerId) {
+        auto player = std::make_shared<Player>(
+            QString("Player %1").arg(char(playerId + 'A')),
+            playerId
+        );
+
+        connect(player.get(), &Player::playerGetsCard, this, &GameLogic::sendPlayerGetsCard);
+        connect(player.get(), &Player::playerLoosesCard, this, &GameLogic::sendPlayerLoosesCard);
+        connect(player.get(), &Player::playerBalanceChanged, this, &GameLogic::sendPlayerBalanceChanged);
+
+        // Purple cards are available to buy only once for each player (game rules)
+        // Landmarks are available to buy only once for each player (game rules)
+        emit requestCardData(CardId::Stadium, CardId::BusinessCenter, std::make_shared<BankCardsHandler>(m_bank));
+        emit requestCardData(CardId::RailwayStation, CardId::RadioTower, std::make_shared<BankCardsHandler>(m_bank));
+
+        // When the game starts each players gets card starter pack - wheat field & bakery (game rules)
+        emit requestCardData(CardId::WheatField, CardId::WheatField, std::make_shared<InitialPlayerCardsHandler>(player));
+        emit requestCardData(CardId::Bakery, CardId::Bakery, std::make_shared<InitialPlayerCardsHandler>(player));
+
+        m_players.push_back(player);
+    }
+}
+
+void GameLogic::handleRollDiceButtonClicked(int diceRollCount)
+{
+    rollDice(diceRollCount);
+}
+
+void GameLogic::handleSkipButtonClicked()
+{
+    auto currentPlayer = m_players[m_currentPlayerId];
+    // if player has AmusementPark, they can purchase cards twice (game rules)
+    if (currentPlayer->hasCard(CardId::AmusementPark) && currentPlayer->canPurchaseTwice()) {
+        currentPlayer->setCanPurchaseTwice(false);
+        return;
+    }
+
+    emit finishPurchaseState(m_currentPlayerId);
+    resetPlayerTurnState();
+}
+
+void GameLogic::receiveDiceRerollResponse(QVector<int> rollResults, bool confirmed)
+{
+    if (!confirmed) {
+        activatePlayersCards(rollResults);
+    }
+
+    // if confirmed
+    // wait from player to click roll 1 dice or roll 2 dice buttons again
+}
+
+void GameLogic::activatePlayersCards(QVector<int> rollResults)
 {
     for (const auto& player : std::as_const(m_players)) {
         if (player != nullptr) {
-            player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
+            player->activateCards(m_players, m_players[m_currentPlayerId], rollResults[0], rollResults[1]);
         }
-        // if (player == nullptr) {
-        //     qDebug() << "player is nullptr 1!";
-        // }
-        // qDebug() << "--- old " << player->name() << " balance:" << player->coins();
-        // if (player == nullptr) {
-        //     qDebug() << "player is nullptr 2!";
-        // }
-        // player->triggerCards(m_players, *m_players[m_currentPlayerId], dice1, dice2);
-        // if (player == nullptr) {
-        //     // Why it's nullptr here?
-        //     qDebug() << "player is nullptr 3!";
-        // }
-        // qDebug() << "--- new " << player->name() << " balance:" << player->coins();
-        // if (player == nullptr) {
-        //     qDebug() << "player is nullptr 4!";
-        // }
+    }
+
+    emit finishIncomeState(m_currentPlayerId);
+}
+
+void GameLogic::checkWinCondition()
+{
+    auto currentPlayer = m_players[m_currentPlayerId];
+    auto landmarkCount = std::count_if(m_cardToWinIds.begin(), m_cardToWinIds.end(), [&currentPlayer](auto cardId) {
+        return currentPlayer->findCardById(cardId) != nullptr;
+    });
+
+    if (m_cardToWinIds.size() == landmarkCount) {
+        emit gameWon(m_currentPlayerId);
     }
 }
 
-void GameLogic::checkCoinBalanceForCard(uchar cardId)
-{
-    uchar coins = m_players[m_currentPlayerId]->coins();
-    emit tryToBuyCard(cardId, coins);
-}
-
-void GameLogic::processCheckPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2)
-{
-    auto cards = m_players[m_currentPlayerId]->getLandmarks();
-    for (auto it = cards.begin(), ite = cards.end(); it != ite; ++it) {
-        if (it.key()->id() == cardId) {
-            it.key()->activate(m_players, *m_players[m_currentPlayerId], *m_players[m_currentPlayerId], dice1, dice1);
-        }
-    }
-    emit playerCardActivatedBefore(dice1, dice2);
-}
-
-void GameLogic::giveCardToPlayer(std::shared_ptr<Card> card)
+void GameLogic::purchaseCard(std::shared_ptr<Card> card)
 {
     m_players[m_currentPlayerId]->deductMoney(card->price());
     m_players[m_currentPlayerId]->addCard(card);
+    m_bank->removeCard(card);
 
-    // Move to the next player
+    checkWinCondition();
+}
+
+void GameLogic::resetPlayerTurnState()
+{
+    emit finishPurchaseState(m_currentPlayerId);
     m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
-    emit playerBuildNewBuilding(card);
-    emit buildStageFinished(m_currentPlayerId);
-}
 
-void GameLogic::handleCardDataReceived(QVector<std::shared_ptr<Card>> data)
-{
-    m_cardsToWin = data;
-    qDebug() << "Card data received and processed.";
-}
+    setupCurrentPlayerSpecialAbilities();
 
-void GameLogic::handleConfigDataReady()
-{
-    // usufull to check if some player won the game.
-    // TODO Seems like it should be just id-s, not real cards
-    //emit requestCardData(0, 3, std::make_shared<CardsToWinHandler>(m_cardsToWin));
-
-    // request cards to fill in the bank (so players could buy them)
-    // every std::shared_ptr<CardInventory> somehow should know cardScrollWidget
-    // to which they should place their cards
-    const int mxBaseCards = 6;
-    for (int i = 0; i < mxBaseCards; ++i) {
-        emit requestCardData(4, 9, std::make_shared<BankCardsHandler>(m_bank));
-        emit requestCardData(13, 18, std::make_shared<BankCardsHandler>(m_bank));
-    }
-}
-
-void GameLogic::handleCreatePlayers(QList<QString> playerNames)
-{
-    for (int id = 0; id < playerNames.size(); ++id) {
-        auto player = std::make_shared<Player>(playerNames.at(id), id);
-        connect(player.get(), &Player::hasRailwayStation, this, &GameLogic::handlePlayerHasRailwayStation);
-        connect(player.get(), &Player::hasAmusementPark, this, &GameLogic::handlePlayerHasAmusementPark);
-        connect(player.get(), &Player::hasRadioTower, this, &GameLogic::handlePlayerHasRadioTower);
-        connect(player.get(), &Player::playerBalanceChanged, this, [this, player]() {
-            emit playerBalanceChanged(player->coins(), player->id());
-        });
-        connect(player.get(), &Player::playerGetsCard, this, [this](int playerId, std::shared_ptr<Card> card) {
-            emit playerGetsCard(playerId, card);
-        });
-        connect(player.get(), &Player::playerLoosesCard, this, [this](int playerId, std::shared_ptr<Card> card) {
-            emit playerLoosesCard(playerId, card);
-        });
-
-        emit requestCardData(10, 12, std::make_shared<BankCardsHandler>(m_bank));
-        emit requestCardData(4, 4, std::make_shared<InitialPlayerCardsHandler>(player)); // give to player a card with id 4
-        emit requestCardData(6, 6, std::make_shared<InitialPlayerCardsHandler>(player)); // give to player a card with id 6
-        m_players.push_back(player);
+    if (m_players[m_currentPlayerId]->hasCard(CardId::RailwayStation) && m_players[m_currentPlayerId]->canRollTwoDice()) {
+        m_players[m_currentPlayerId]->setCanRollTwoDice(false);
+        emit sendRollTwoDiceAvailable(m_currentPlayerId);
     }
 
-    emit requestCardData(0, 3, std::make_shared<BankCardsHandler>(m_bank));
+    emit finishWaitState(m_currentPlayerId);
 }
 
-void GameLogic::handlePlayerHasAmusementPark()
+void GameLogic::rollDice(int diceRollCount)
 {
-    emit playerHasAmusementPark();
-}
-
-void GameLogic::handlePlayerHasRadioTower()
-{
-    emit playerHasRadioTower();
-}
-
-void GameLogic::handlePlayerHasRailwayStation()
-{
-    emit playerHasRailwayStation();
-}
-
-void GameLogic::handleRollButtonClicked(uchar dice1, uchar dice2)
-{
-    playTurn(dice1, dice2);
-}
-
-void GameLogic::handleTryToBuyCard(uchar cardId)
-{
-    auto card = m_bank->findCardById(cardId);
-    if (!card) {
-        qDebug() << "Card isn't found!";
-        return; // no more cards of this type!
+    const int maxRollNumber = 2;
+    const int diceRollPerTryCount = 1;
+    QVector<int> rollResults(maxRollNumber, 0);
+    for (int i = 0; i < diceRollCount; ++i) {
+        rollResults[i] = DiceRoller{}.rollDice(diceRollPerTryCount);
     }
 
-    uchar cardPrice = card->price();
-    uchar playerBalance = m_players[m_currentPlayerId]->coins();
-    if (cardPrice <= playerBalance) {
-        m_players[m_currentPlayerId]->deductMoney(cardPrice);
+    emit sendDiceRollResult(rollResults);
 
-        if (card->hasActivationValue(0)) { // player builds Landmark
-            m_players[m_currentPlayerId]->addCard(card);
-            m_bank->removeCard(card);
-            emit playerBuildLandmark(card);
-        } else {
-            m_players[m_currentPlayerId]->addCard(card);
-            m_bank->removeCard(card);
-            emit playerBuildNewBuilding(card);
-        }
-
-    } else {
-        emit playerHasNotEnoughCoins("You have not enough coins to buy it.");
-    }
-}
-
-void GameLogic::moveToNextPlaer()
-{
-    m_currentPlayerId = (m_currentPlayerId + 1) % m_players.size();
-    emit buildStageFinished(m_currentPlayerId);
-}
-
-void GameLogic::prepateNextTurn()
-{
-    if (isGameIsFinished()) {
-        qDebug() << "Game isfinished";
-        emit gameIsFinished(m_currentPlayerId);
+    auto currentPlayer = m_players[m_currentPlayerId];
+    // if player has RadioTower, they can reroll the dice once (game rules)
+    if (currentPlayer->hasCard(CardId::RadioTower) && currentPlayer->canRerollDice()) {
+        currentPlayer->setCanRerollDice(false);
+        emit requestDiceRerollConfirmation(currentPlayer->id(), rollResults);
+        return;
     }
 
-    moveToNextPlaer();
+    emit finishIncomeState(m_currentPlayerId);
+
+    activatePlayersCards(rollResults);
+}
+
+void GameLogic::setupCurrentPlayerSpecialAbilities()
+{
+    // getting back all spent card abilities to use them again (game rules)
+    auto currentPlayer = m_players[m_currentPlayerId];
+    if (currentPlayer->hasCard(CardId::RadioTower)) {
+        currentPlayer->setCanRerollDice(true);
+    }
+    if (currentPlayer->hasCard(CardId::AmusementPark)) {
+        currentPlayer->setCanPurchaseTwice(true);
+    }
+    if (currentPlayer->hasCard(CardId::RailwayStation)) {
+        currentPlayer->setCanRollTwoDice(true);
+    }
 }

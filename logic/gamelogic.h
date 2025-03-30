@@ -31,7 +31,9 @@
 #include <QVector>
 #include <QDebug>
 
-class GameLogic : public QObject {
+// Make unable buttons invisible
+class GameLogic : public QObject
+{
     Q_OBJECT
 
 public:
@@ -39,81 +41,70 @@ public:
 
     ~GameLogic();
 
-    int currentPlayerId() const;
-
-    bool isGameIsFinished();
-
-    std::shared_ptr<Player> getPlayer(int id);
-
-    void playTurn(uchar dice1, uchar dice2);
-
 signals:
-    void buildStageFinished(int currentPlayerId);
+    void gameWon(int playerId);
 
-    void gameIsFinished(int playerId);
+    void requestCardData(CardId startCardId,
+                         CardId finishCardId,
+                         std::shared_ptr<CardDataHandler> handler);
 
-    void playerCardActivatedBefore(uchar dice1, uchar dice2);
+    void requestDiceRerollConfirmation(int playerId, QVector<int> rools);
 
-    void bankGetsCard(std::shared_ptr<Card> card);
+    void sendBankGetsCard(std::shared_ptr<Card> card);
 
-    void bankLoosesCard(std::shared_ptr<Card> card);
+    void sendBankLoosesCard(std::shared_ptr<Card> card);
 
-    void playerGetsCard(int playerId, std::shared_ptr<Card> card);
+    void sendCardPurchaseFailed(int playerId, CardId cardId, QString message);
 
-    void playerLoosesCard(int playerId, std::shared_ptr<Card> card);
+    void sendDiceRollResult(QVector<int> rolls);
 
-    void playerHasAmusementPark();
+    void sendPlayerBalanceChanged(int playerId, int balance);
 
-    void playerHasNotEnoughCoins(QString message);
+    void sendPlayerGetsCard(int playerId, std::shared_ptr<Card> card);
 
-    void playerHasRadioTower();
+    void sendPlayerLoosesCard(int playerId, std::shared_ptr<Card> card);
 
-    void playerHasRailwayStation();
+    void sendRollTwoDiceAvailable(int playerId);
 
-    void playerBalanceChanged(uchar balance, int playerId);
+    void switchToPlayerTurn(int playerId);
 
-    void playerBuildLandmark(std::shared_ptr<Card> card);
+    void finishIncomeState(int playerId);
 
-    void playerBuildNewBuilding(std::shared_ptr<Card> card);
+    void finishPurchaseState(int playerId);
 
-    void requestCardData(int begin, int end, std::shared_ptr<CardDataHandler> handler);
-
-    void requestReadFromRange(int begin, int end);
-
-    void tryToBuyCard(uchar cardId, uchar playerBalance);
+    void finishWaitState(int playerId);
 
 public slots:
-    void checkCoinBalanceForCard(uchar cardId);
+    void handleCardClickedForPurchase(CardId cardId);
 
-    void processCheckPlayerCards(uchar cardId, int playerId, uchar dice1, uchar dice2);
+    void handleConfigDataReadyToRead();
 
-    void giveCardToPlayer(std::shared_ptr<Card> card);
+    void handleCreatePlayers(int playerCount);
 
-    void handleCardDataReceived(QVector<std::shared_ptr<Card>> data);
+    void handleRollDiceButtonClicked(int diceRollCount);
 
-    void handleConfigDataReady();
+    void handleSkipButtonClicked();
 
-    void handleCreatePlayers(QList<QString> playerNames);
+    void receiveDiceRerollResponse(QVector<int> rollResults, bool confirmed);
 
-    void handlePlayerHasAmusementPark();
+private:
+    void activatePlayersCards(QVector<int> rollResults);
 
-    void handlePlayerHasRadioTower();
+    void checkWinCondition();
 
-    void handlePlayerHasRailwayStation();
+    void purchaseCard(std::shared_ptr<Card> card);
 
-    void handleRollButtonClicked(uchar dice1, uchar dice2);
+    void resetPlayerTurnState();
 
-    void handleTryToBuyCard(uchar cardId);
+    void rollDice(int diceRollCount);
 
-    void moveToNextPlaer();
-
-    void prepateNextTurn();
+    void setupCurrentPlayerSpecialAbilities();
 
 private:
     std::shared_ptr<Bank> m_bank;
-    QVector<std::shared_ptr<Card>> m_cardsToWin;
     QVector<std::shared_ptr<Player>> m_players;
-    DiceRoller m_roller;
+    DiceRoller m_diceRoller;
+    QVector<CardId> m_cardToWinIds;
     int m_currentPlayerId;
 };
 
