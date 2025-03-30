@@ -82,6 +82,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         logic/bankcardshandler.h logic/bankcardshandler.cpp
         logic/initialplayercardshandler.h logic/initialplayercardshandler.cpp
         logic/carddatahandler.h
+        ui/flowlayout.h ui/flowlayout.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"

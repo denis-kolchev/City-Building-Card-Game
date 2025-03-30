@@ -10,7 +10,9 @@
 #include <QtWidgets/qscrollarea.h>
 
 #include "../carddataconfigreader.h"
+#include "flowlayout.h"
 #include "playerpage.h"
+
 
 using CardsLayout = QHBoxLayout;
 
@@ -121,7 +123,6 @@ private:
     QVector<PlayerPage*> m_playerPages;
 
     QTabWidget *m_tabWidget;
-    //QLabel* m_diceResult;
 
     QColor m_activePlayerColor = QColor(72, 181, 163);
     QColor m_inactivePlayerColor = QColor(252, 169, 133);
