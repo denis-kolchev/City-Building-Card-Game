@@ -11,10 +11,16 @@ StartMenu::StartMenu(QWidget *parent)
     m_offlineTab(new QWidget()),
     m_onlineTab(new QWidget()),
     m_offlineLayout(new QVBoxLayout(m_offlineTab)),
+
     m_numPlayersLabel(new QLabel("Number of Players:", m_offlineTab)),
     m_numPlayersSpinBox(new QSpinBox(m_offlineTab)),
+
     m_startButton(new QPushButton("Start Offline Game", m_offlineTab)),
     m_onlineLayout(new QVBoxLayout(m_onlineTab)),
+
+    m_numPlayersOnlineLabel(new QLabel("Number of Players:", m_onlineTab)),
+    m_numPlayersOnlineSpinBox(new QSpinBox(m_onlineTab)),
+
     m_ipLabel(new QLabel("Server IP:", m_onlineTab)),
     m_ipInput(new QLineEdit(m_onlineTab)),
     m_portLabel(new QLabel("Server Port:", m_onlineTab)),
@@ -34,12 +40,14 @@ StartMenu::StartMenu(QWidget *parent)
     mainLayout->addWidget(m_tabWidget);
     setLayout(mainLayout);
 
-    setFixedSize(400, 250);
+    setFixedSize(350, 300);
     centerWindow();
 }
 
 void StartMenu::setupOfflineTab()
 {
+    m_offlineLayout->addStretch();
+
     m_numPlayersLabel->setAlignment(Qt::AlignCenter);
     m_offlineLayout->addWidget(m_numPlayersLabel);
 
@@ -60,6 +68,8 @@ void StartMenu::setupOfflineTab()
 
 void StartMenu::setupOnlineTab()
 {
+    m_onlineLayout->addStretch();
+
     // IP input setup
     m_ipLabel->setAlignment(Qt::AlignCenter);
     m_onlineLayout->addWidget(m_ipLabel);
@@ -74,6 +84,14 @@ void StartMenu::setupOnlineTab()
     m_portInput->setPlaceholderText("12345");
     m_portInput->setValidator(new QIntValidator(1, 65535, this));
     m_onlineLayout->addWidget(m_portInput);
+
+    // copy paste isn't great, but it works by far
+    m_numPlayersOnlineLabel->setAlignment(Qt::AlignCenter);
+    m_onlineLayout->addWidget(m_numPlayersOnlineLabel);
+
+    m_numPlayersOnlineSpinBox->setRange(2, 5);
+    m_numPlayersOnlineSpinBox->setValue(2);
+    m_onlineLayout->addWidget(m_numPlayersOnlineSpinBox);
 
     // Connect button
     m_connectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);

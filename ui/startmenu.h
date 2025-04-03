@@ -37,6 +37,9 @@ private:
 
     // Online tab widgets
     QVBoxLayout *m_onlineLayout;
+    QLabel *m_numPlayersOnlineLabel;
+    QSpinBox* m_numPlayersOnlineSpinBox;
+
     QLabel *m_ipLabel;
     QLineEdit *m_ipInput;
     QLabel *m_portLabel;

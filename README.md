@@ -304,8 +304,189 @@ Buy State
 13. while taking another player, reset to zero all grey cards abilities
 
 
+## Possible JSON Formats
+### Standardized JSON message format
+
+{
+  "type": "message_type",
+  "timestamp": "ISO8601_timestamp",
+  "sender": "component_name",
+  "data": {
+    // type-specific data
+  }
+}
+
+### 1. Game State Management
+
+// Game initialization
+{
+  "type": "game_init",
+  "data": {
+    "player_count": 4
+  }
+}
+
+// Player turn change
+{
+  "type": "player_turn_change",
+  "data": {
+    "player_id": 2
+  }
+}
+
+// Game over
+{
+  "type": "game_over",
+  "data": {
+    "winner_id": 3
+  }
+}
+
+### 2. Card Operations
+
+// Card transfer
+{
+  "type": "card_transfer",
+  "data": {
+    "from": "bank",
+    "to": "player_1",
+    "card": {
+      "id": 42,
+      "type": "property",
+      "name": "Boardwalk",
+      "value": 400
+    }
+  }
+}
+
+// Card purchase attempt
+{
+  "type": "card_purchase_attempt",
+  "data": {
+    "player_id": 1,
+    "card_id": 42
+  }
+}
+
+// Card purchase failure
+{
+  "type": "card_purchase_failed",
+  "data": {
+    "player_id": 1,
+    "card_id": 42,
+    "reason": "insufficient_funds"
+  }
+}
+
+### 3. Dice Operations
+
+// Dice roll request
+{
+  "type": "dice_roll_request",
+  "data": {
+    "player_id": 1,
+    "dice_count": 2
+  }
+}
+
+// Dice roll result
+{
+  "type": "dice_roll_result",
+  "data": {
+    "player_id": 1,
+    "results": [4, 5],
+    "total": 9
+  }
+}
+
+// Dice reroll confirmation
+{
+  "type": "dice_reroll_confirmation",
+  "data": {
+    "player_id": 1,
+    "original_roll": [1, 1],
+    "confirmed": true
+  }
+}
+
+### 4. Player Actions
+
+// Balance change
+{
+  "type": "balance_change",
+  "data": {
+    "player_id": 2,
+    "amount": 200,
+    "new_balance": 1200
+  }
+}
+
+// State transition
+{
+  "type": "player_state_change",
+  "data": {
+    "player_id": 3,
+    "new_state": "purchase"
+  }
+}
+
+### Create a Message Factory:
+
+class JsonMessageFactory {
+public:
+    static QJsonObject createGameInitMessage(int playerCount);
+    static QJsonObject createCardTransferMessage(const QString& from, const QString& to, std::shared_ptr<Card> card);
+    static QJsonObject createDiceRollMessage(int playerId, const QVector<int>& results);
+    // ... other message creation methods
+};
 
 
+### Message Parser:
+
+class JsonMessageParser {
+public:
+    static QString getMessageType(const QJsonObject& message);
+    static int parsePlayerTurnChange(const QJsonObject& message);
+    static std::tuple<QString, QString, std::shared_ptr<Card>> parseCardTransfer(const QJsonObject& message);
+    // ... other parsing methods
+};
+
+### Modify your components to use JSON:
+
+// In GameLogic:
+void GameLogic::handleJsonMessage(const QJsonObject& message) {
+    QString type = JsonMessageParser::getMessageType(message);
+    
+    if (type == "card_purchase_attempt") {
+        auto [playerId, cardId] = JsonMessageParser::parseCardPurchaseAttempt(message);
+        // Handle purchase
+        QJsonObject response;
+        if (purchaseSuccessful) {
+            response = JsonMessageFactory::createCardTransferMessage("bank", 
+                                                                   QString("player_%1").arg(playerId),
+                                                                   card);
+        } else {
+            response = JsonMessageFactory::createPurchaseFailedMessage(playerId, cardId, "insufficient_funds");
+        }
+        emit jsonMessageReady(response);
+    }
+    // ... other message types
+}
+
+### Network Integration (for future):
+
+// In your network handler:
+void NetworkManager::sendMessage(const QJsonObject& message) {
+    QJsonDocument doc(message);
+    socket->write(doc.toJson());
+}
+
+void NetworkManager::onDataReceived(const QByteArray& data) {
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isNull()) {
+        emit jsonMessageReceived(doc.object());
+    }
+}
 
 
 
