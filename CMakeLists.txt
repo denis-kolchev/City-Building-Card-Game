@@ -83,6 +83,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         logic/initialplayercardshandler.h logic/initialplayercardshandler.cpp
         logic/carddatahandler.h
         ui/flowlayout.h ui/flowlayout.cpp
+
+
+        network/networkmanager.h network/networkmanager.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"
