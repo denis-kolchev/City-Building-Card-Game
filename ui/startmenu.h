@@ -21,13 +21,15 @@ signals:
 
 private:
     void centerWindow();
+    void setupClientTab();
     void setupOfflineTab();
-    void setupOnlineTab();
+    void setupServerTab();
 
 private:
     QTabWidget *m_tabWidget;
     QWidget *m_offlineTab;
-    QWidget *m_onlineTab;
+    QWidget *m_serverTab;
+    QWidget *m_clientTab;
 
     // Offline tab widgets
     QVBoxLayout *m_offlineLayout;
@@ -35,16 +37,24 @@ private:
     QSpinBox* m_numPlayersSpinBox;
     QPushButton *m_startButton;
 
-    // Online tab widgets
-    QVBoxLayout *m_onlineLayout;
-    QLabel *m_numPlayersOnlineLabel;
-    QSpinBox* m_numPlayersOnlineSpinBox;
+    // Online tab widgets (Server)
+    QVBoxLayout *m_serverTabLayout;
+    QLabel *m_numPlayersServerTabLabel;
+    QSpinBox* m_numPlayersServerTabSpinBox;
 
-    QLabel *m_ipLabel;
-    QLineEdit *m_ipInput;
-    QLabel *m_portLabel;
-    QLineEdit *m_portInput;
-    QPushButton *m_connectButton;
+    QLabel *m_serverTabIpLabel;
+    QLineEdit *m_serverTabOpInput;
+    QLabel *m_serverTabPortLabel;
+    QLineEdit *m_serverTabPortInput;
+    QPushButton *m_serverTabConnectButton;
+
+    // Client Tab
+    QVBoxLayout *m_clientTabLayout;
+    QLabel *m_clientTabIpLabel;
+    QLineEdit *m_cleintTabIpInput;
+    QLabel *m_cleintTabPortLabel;
+    QLineEdit *m_cleintTabPortInput;
+    QPushButton *m_cleintTabConnectButton;
 };
 
 #endif // STARTMENU_H

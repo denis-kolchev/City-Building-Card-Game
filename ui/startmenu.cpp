@@ -9,39 +9,80 @@ StartMenu::StartMenu(QWidget *parent)
     : QWidget(parent),
     m_tabWidget(new QTabWidget(this)),
     m_offlineTab(new QWidget()),
-    m_onlineTab(new QWidget()),
-    m_offlineLayout(new QVBoxLayout(m_offlineTab)),
+    m_serverTab(new QWidget()),
+    m_clientTab(new QWidget()),
 
+    m_offlineLayout(new QVBoxLayout(m_offlineTab)),
     m_numPlayersLabel(new QLabel("Number of Players:", m_offlineTab)),
     m_numPlayersSpinBox(new QSpinBox(m_offlineTab)),
 
+    m_clientTabLayout(new QVBoxLayout(m_clientTab)),
+    m_clientTabIpLabel(new QLabel("Server IP:", m_clientTab)),
+    m_cleintTabIpInput(new QLineEdit(m_clientTab)),
+    m_cleintTabPortLabel(new QLabel("Server Port:", m_clientTab)),
+    m_cleintTabPortInput(new QLineEdit(m_clientTab)),
+    m_cleintTabConnectButton(new QPushButton("Connect to Server", m_serverTab)),
+
     m_startButton(new QPushButton("Start Offline Game", m_offlineTab)),
-    m_onlineLayout(new QVBoxLayout(m_onlineTab)),
+    m_serverTabLayout(new QVBoxLayout(m_serverTab)),
 
-    m_numPlayersOnlineLabel(new QLabel("Number of Players:", m_onlineTab)),
-    m_numPlayersOnlineSpinBox(new QSpinBox(m_onlineTab)),
+    m_numPlayersServerTabLabel(new QLabel("Number of Players:", m_serverTab)),
+    m_numPlayersServerTabSpinBox(new QSpinBox(m_serverTab)),
 
-    m_ipLabel(new QLabel("Server IP:", m_onlineTab)),
-    m_ipInput(new QLineEdit(m_onlineTab)),
-    m_portLabel(new QLabel("Server Port:", m_onlineTab)),
-    m_portInput(new QLineEdit(m_onlineTab)),
-    m_connectButton(new QPushButton("Connect to Server", m_onlineTab))
+    m_serverTabIpLabel(new QLabel("Server IP:", m_serverTab)),
+    m_serverTabOpInput(new QLineEdit(m_serverTab)),
+    m_serverTabPortLabel(new QLabel("Server Port:", m_serverTab)),
+    m_serverTabPortInput(new QLineEdit(m_serverTab)),
+    m_serverTabConnectButton(new QPushButton("Create Server", m_serverTab))
 {
     setWindowTitle("Game Start Menu");
 
     // Setup tabs
     setupOfflineTab();
-    setupOnlineTab();
+    setupServerTab();
+    setupClientTab();
 
-    m_tabWidget->addTab(m_offlineTab, "Offline Game");
-    m_tabWidget->addTab(m_onlineTab, "Online Game");
+    m_tabWidget->addTab(m_offlineTab, tr("Offline Game"));
+    m_tabWidget->addTab(m_serverTab, tr("Create Server"));
+    m_tabWidget->addTab(m_clientTab, tr("Connect to Server"));
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_tabWidget);
     setLayout(mainLayout);
 
-    setFixedSize(350, 300);
+    setFixedSize(450, 300);
     centerWindow();
+}
+
+void StartMenu::setupClientTab()
+{
+    m_clientTabLayout->addStretch(); // center layout elements
+
+    // IP input setup
+    m_clientTabIpLabel->setAlignment(Qt::AlignCenter);
+    m_clientTabLayout->addWidget(m_clientTabIpLabel);
+
+    m_cleintTabIpInput->setPlaceholderText("127.0.0.1");
+    m_clientTabLayout->addWidget(m_cleintTabIpInput);
+
+    // Port input setup
+    m_cleintTabPortLabel->setAlignment(Qt::AlignCenter);
+    m_clientTabLayout->addWidget(m_cleintTabPortLabel);
+
+    m_cleintTabPortInput->setPlaceholderText("12345");
+    m_cleintTabPortInput->setValidator(new QIntValidator(1, 65535, this));
+    m_clientTabLayout->addWidget(m_cleintTabPortInput);
+
+    m_cleintTabConnectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_clientTabLayout->addWidget(m_cleintTabConnectButton);
+
+    connect(m_cleintTabConnectButton, &QPushButton::clicked, this, [this]() {
+        QString ip = m_cleintTabIpInput->text().isEmpty() ? "127.0.0.1" : m_cleintTabIpInput->text();
+        int port = m_cleintTabPortInput->text().isEmpty() ? 12345 : m_cleintTabPortInput->text().toInt();
+        emit connectToServer(ip, port);
+    });
+
+    m_clientTabLayout->addStretch(); // center layout elements
 }
 
 void StartMenu::setupOfflineTab()
@@ -66,44 +107,44 @@ void StartMenu::setupOfflineTab()
     m_offlineLayout->addStretch();
 }
 
-void StartMenu::setupOnlineTab()
+void StartMenu::setupServerTab()
 {
-    m_onlineLayout->addStretch();
+    m_serverTabLayout->addStretch();
 
     // IP input setup
-    m_ipLabel->setAlignment(Qt::AlignCenter);
-    m_onlineLayout->addWidget(m_ipLabel);
+    m_serverTabIpLabel->setAlignment(Qt::AlignCenter);
+    m_serverTabLayout->addWidget(m_serverTabIpLabel);
 
-    m_ipInput->setPlaceholderText("127.0.0.1");
-    m_onlineLayout->addWidget(m_ipInput);
+    m_serverTabOpInput->setPlaceholderText("127.0.0.1");
+    m_serverTabLayout->addWidget(m_serverTabOpInput);
 
     // Port input setup
-    m_portLabel->setAlignment(Qt::AlignCenter);
-    m_onlineLayout->addWidget(m_portLabel);
+    m_serverTabPortLabel->setAlignment(Qt::AlignCenter);
+    m_serverTabLayout->addWidget(m_serverTabPortLabel);
 
-    m_portInput->setPlaceholderText("12345");
-    m_portInput->setValidator(new QIntValidator(1, 65535, this));
-    m_onlineLayout->addWidget(m_portInput);
+    m_serverTabPortInput->setPlaceholderText("12345");
+    m_serverTabPortInput->setValidator(new QIntValidator(1, 65535, this));
+    m_serverTabLayout->addWidget(m_serverTabPortInput);
 
     // copy paste isn't great, but it works by far
-    m_numPlayersOnlineLabel->setAlignment(Qt::AlignCenter);
-    m_onlineLayout->addWidget(m_numPlayersOnlineLabel);
+    m_numPlayersServerTabLabel->setAlignment(Qt::AlignCenter);
+    m_serverTabLayout->addWidget(m_numPlayersServerTabLabel);
 
-    m_numPlayersOnlineSpinBox->setRange(2, 5);
-    m_numPlayersOnlineSpinBox->setValue(2);
-    m_onlineLayout->addWidget(m_numPlayersOnlineSpinBox);
+    m_numPlayersServerTabSpinBox->setRange(2, 5);
+    m_numPlayersServerTabSpinBox->setValue(2);
+    m_serverTabLayout->addWidget(m_numPlayersServerTabSpinBox);
 
     // Connect button
-    m_connectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_onlineLayout->addWidget(m_connectButton);
+    m_serverTabConnectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_serverTabLayout->addWidget(m_serverTabConnectButton);
 
-    connect(m_connectButton, &QPushButton::clicked, this, [this]() {
-        QString ip = m_ipInput->text().isEmpty() ? "127.0.0.1" : m_ipInput->text();
-        int port = m_portInput->text().isEmpty() ? 12345 : m_portInput->text().toInt();
+    connect(m_serverTabConnectButton, &QPushButton::clicked, this, [this]() {
+        QString ip = m_serverTabOpInput->text().isEmpty() ? "127.0.0.1" : m_serverTabOpInput->text();
+        int port = m_serverTabPortInput->text().isEmpty() ? 12345 : m_serverTabPortInput->text().toInt();
         emit connectToServer(ip, port);
     });
 
-    m_onlineLayout->addStretch();
+    m_serverTabLayout->addStretch();
 }
 
 void StartMenu::centerWindow()
