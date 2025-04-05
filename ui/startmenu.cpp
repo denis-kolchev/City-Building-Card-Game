@@ -1,9 +1,12 @@
 #include "startmenu.h"
-#include <QPushButton>
+
+
 #include <QApplication>
+#include <QIntValidator>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QRect>
 #include <QScreen>
-#include <QIntValidator>
 
 StartMenu::StartMenu(QWidget *parent)
     : QWidget(parent),
@@ -54,6 +57,11 @@ StartMenu::StartMenu(QWidget *parent)
     centerWindow();
 }
 
+void StartMenu::showMessage(const QString &message)
+{
+    QMessageBox::information(this, "Information", message);
+}
+
 void StartMenu::setupClientTab()
 {
     m_clientTabLayout->addStretch(); // center layout elements
@@ -79,7 +87,7 @@ void StartMenu::setupClientTab()
     connect(m_cleintTabConnectButton, &QPushButton::clicked, this, [this]() {
         QString ip = m_cleintTabIpInput->text().isEmpty() ? "127.0.0.1" : m_cleintTabIpInput->text();
         int port = m_cleintTabPortInput->text().isEmpty() ? 12345 : m_cleintTabPortInput->text().toInt();
-        emit connectToServer(ip, port);
+        emit onCreateClient(ip, port);
     });
 
     m_clientTabLayout->addStretch(); // center layout elements
@@ -141,7 +149,7 @@ void StartMenu::setupServerTab()
     connect(m_serverTabConnectButton, &QPushButton::clicked, this, [this]() {
         QString ip = m_serverTabOpInput->text().isEmpty() ? "127.0.0.1" : m_serverTabOpInput->text();
         int port = m_serverTabPortInput->text().isEmpty() ? 12345 : m_serverTabPortInput->text().toInt();
-        emit connectToServer(ip, port);
+        emit onCreateServer(ip, port);
     });
 
     m_serverTabLayout->addStretch();

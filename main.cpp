@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
                                .withConfigReader()
                                .withGameLogic()
                                .withMainWindow()
+                               .withNetworkManager()
                                .withStartMenu()
                                .build();
 

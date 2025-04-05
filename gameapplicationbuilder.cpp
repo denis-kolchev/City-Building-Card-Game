@@ -18,6 +18,12 @@ GameApplicationBuilder& GameApplicationBuilder::withMainWindow()
     return *this;
 }
 
+GameApplicationBuilder& GameApplicationBuilder::withNetworkManager()
+{
+    m_network = std::make_shared<NetworkManager>();
+    return *this;
+}
+
 GameApplicationBuilder& GameApplicationBuilder::withStartMenu()
 {
     m_startMenu = std::make_shared<StartMenu>();
@@ -26,5 +32,9 @@ GameApplicationBuilder& GameApplicationBuilder::withStartMenu()
 
 std::shared_ptr<GameApplication> GameApplicationBuilder::build()
 {
-    return std::make_shared<GameApplication>(m_configReader, m_gameLogic, m_mainWindow, m_startMenu);
+    return std::make_shared<GameApplication>(m_configReader,
+                                             m_gameLogic,
+                                             m_mainWindow,
+                                             m_network,
+                                             m_startMenu);
 }

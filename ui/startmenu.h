@@ -15,9 +15,15 @@ class StartMenu : public QWidget {
 public:
     StartMenu(QWidget *parent = nullptr);
 
+public slots:
+    void showMessage(const QString &message);
+
 signals:
+    void onCreateServer(const QString& ip, quint16 port);
+
+    void onCreateClient(const QString& op, quint16 port);
+
     void showMainWindow(int numPlayers);
-    void connectToServer(const QString& ip, int port);  // New signal for online game
 
 private:
     void centerWindow();

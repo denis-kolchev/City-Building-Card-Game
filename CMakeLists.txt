@@ -86,6 +86,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
 
         network/networkmanager.h network/networkmanager.cpp
+        network/server.h network/server.cpp
+        network/client.h network/client.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"

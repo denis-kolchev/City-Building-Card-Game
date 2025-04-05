@@ -1,8 +1,8 @@
 #ifndef NETWORKMANAGER_H
 #define NETWORKMANAGER_H
 
-//#include "client.h"
-//#include "server.h"
+#include "client.h"
+#include "server.h"
 
 #include <QHostAddress>
 #include <QObject>
@@ -16,15 +16,21 @@ class NetworkManager : public QObject
 public:
     NetworkManager(QObject *parent = nullptr);
 
-    void extracted();
     ~NetworkManager();
 
+signals:
+    void notifyPlayerWithMessageBox(QString message);
+
 public slots:
-    void connectPlayer(int playerId, QHostAddress &host, quint16 port);
+    void createClient(const QString &host, quint16 port);
+
+    void createServer(const QString &host, quint16 port);
 
     void messageReceived(QString message);
 
 private slots:
+    void handleNewMessage(const QJsonObject &message);
+
     void onNewConnection();
 
     void onSocketDisconnected();
@@ -32,20 +38,17 @@ private slots:
     void onSocketReadyRead();
 
 private:
-    void createClient(int playerId, QHostAddress &host, quint16 port);
-
-    void createServer(int playerId, QHostAddress &host, quint16 port);
+    QJsonObject createMessage(const QString &text);
 
     void logMessage(const QString &message);
 
-private:
-    // Network
-    QTcpServer *m_server;
-    QList<QTcpSocket*> m_clientList;
-    QTcpSocket *m_clientSocket;
-    QList<int> m_playerIds;
+    void sendMessage(const QString& message);
 
+private:
+    Server *m_server;
+    Client *m_client;
     bool m_isHost;
+
 };
 
 #endif // NETWORKMANAGER_H

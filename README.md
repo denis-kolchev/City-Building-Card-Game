@@ -488,6 +488,8 @@ void NetworkManager::onDataReceived(const QByteArray& data) {
     }
 }
 
+MainWindow:
+startMenu -> Network
 
 
 

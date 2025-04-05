@@ -2,176 +2,114 @@
 
 #include <QDateTime>
 #include <QMessageBox>
+#include <QJsonObject>
 
 NetworkManager::NetworkManager(QObject *parent)
 {
-
+    logMessage("Application started");
 }
 
 NetworkManager::~NetworkManager()
 {
-    if (m_server) {
-        m_server->close();
-        delete m_server;
-    }
-
-    for (auto socket : std::as_const(m_clientList)) {
-        socket->close();
-        socket->deleteLater();
-    }
-
-    if (m_clientSocket) {
-        m_clientSocket->close();
-        m_clientSocket->deleteLater();
-    }
-}
-
-void NetworkManager::connectPlayer(int playerId,
-                                   QHostAddress &host,
-                                   quint16 port)
-{
-    if (m_server) {
-        createClient(playerId, host, port);
-        return;
-    }
-
-    createServer(playerId, host, port);
-
+    delete m_server;
+    delete m_client;
 }
 
 void NetworkManager::messageReceived(QString message)
+{
+
+}
+
+void NetworkManager::handleNewMessage(const QJsonObject &message)
+{
+    // emits here signals ether to logic or for UI
+}
+
+void NetworkManager::onNewConnection()
+{
+
+}
+
+void NetworkManager::onSocketDisconnected()
+{
+
+}
+
+void NetworkManager::onSocketReadyRead()
+{
+
+}
+
+void NetworkManager::createServer(const QString &host, quint16 port)
+{
+    if (host.isNull() || port == 0) {
+        logMessage("Invalid host or port number");
+        emit notifyPlayerWithMessageBox(tr("Invalid host or port."));
+    }
+
+    m_server = new Server(this);
+
+    connect(m_server, &Server::newMessage, this, &NetworkManager::handleNewMessage);
+    connect(m_server, &Server::logMessage, this, &NetworkManager::logMessage);
+
+    if (!m_server->startListening(port)) {
+        logMessage("Failed to start server: " + m_server->errorString());
+        delete m_server;
+        m_server = nullptr;
+        emit notifyPlayerWithMessageBox(tr("This port is already listened by another server."));
+        return;
+    }
+
+    logMessage("Server started listening port " + QString::number(port));
+
+    emit notifyPlayerWithMessageBox(tr("The server has made successfully. Wait for clients"));
+}
+
+void NetworkManager::createClient(const QString &host, quint16 port)
+{
+    if (m_client) {
+        logMessage("Invalid creation of client");
+        emit notifyPlayerWithMessageBox(tr("Unsuccessful attempt to connect the client."));
+        return;
+    }
+
+    m_client = new Client(this);
+    connect(m_client, &Client::newMessage, this, &NetworkManager::handleNewMessage);
+    connect(m_client, &Client::logMessage, this, &NetworkManager::logMessage);
+    connect(m_client, &Client::connected, [this]() { logMessage("New client is connected!"); });
+
+    m_client->connectToServer(QHostAddress(host), port);
+
+    emit notifyPlayerWithMessageBox(tr("The client has successfully connected to the server."));
+}
+
+QJsonObject NetworkManager::createMessage(const QString &text)
+{
+    QJsonObject message;
+    message["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    message["sender"] = m_isHost ? "Host" : "Client";
+    message["content"] = text;
+    return message;
+}
+
+void NetworkManager::logMessage(const QString &message)
+{
+    QString log = QString("[%1] %2")
+                      .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                      .arg(message);
+    qDebug() << log;
+}
+
+void NetworkManager::sendMessage(const QString& message)
 {
     if (message.isEmpty()) {
         return;
     }
 
-    QByteArray data = message.toUtf8();
-
-    if (m_isHost) {
-        // Broadcast to all clients
-        for (QTcpSocket *client : std::as_const(m_clientList)) {
-            client->write(data);
-        }
-        logMessage(QString("You (host): %1").arg(message));
-    } else {
-        if (m_clientSocket && m_clientSocket->state() == QAbstractSocket::ConnectedState) {
-            m_clientSocket->write(data);
-            logMessage(QString("You: %1").arg(message));
-        } else {
-            logMessage("Not connected to server!");
-        }
+    QJsonObject json = createMessage(message);
+    if (m_isHost && m_server) {
+        m_server->broadcast(json); // send to all clients
+    } else if (m_client && m_client->isConnected()) {
+        m_client->send(json);
     }
-}
-
-void NetworkManager::onNewConnection()
-{
-    while (m_server->hasPendingConnections()) {
-        QTcpSocket *socket = m_server->nextPendingConnection();
-        m_clientList.append(socket);
-
-        connect(socket, &QTcpSocket::readyRead, this, &NetworkManager::onSocketReadyRead);
-        connect(socket, &QTcpSocket::disconnected, this, &NetworkManager::onSocketDisconnected);
-
-        logMessage(QString("New client connected: %1:%2")
-                       .arg(socket->peerAddress().toString())
-                       .arg(socket->peerPort()));
-    }
-}
-
-void NetworkManager::onSocketDisconnected()
-{
-    QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
-    if (!socket) return;
-
-    if (m_isHost) {
-        m_clientList.removeOne(socket);
-        logMessage(QString("Client disconnected: %1:%2")
-                       .arg(socket->peerAddress().toString())
-                       .arg(socket->peerPort()));
-    } else {
-        logMessage("Disconnected from server");
-        m_clientSocket->deleteLater();
-        m_clientSocket = nullptr;
-    }
-
-    socket->deleteLater();
-}
-
-void NetworkManager::onSocketReadyRead()
-{
-    QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
-    if (!socket) return;
-
-    QByteArray data = socket->readAll();
-    QString message = QString::fromUtf8(data);
-
-    if (m_isHost) {
-        // Broadcast to all clients except the sender
-        for (QTcpSocket *client : std::as_const(m_clientList)) {
-            if (client != socket) {
-                client->write(data);
-            }
-        }
-        logMessage(QString("Client %1:%2: %3")
-                       .arg(socket->peerAddress().toString())
-                       .arg(socket->peerPort())
-                       .arg(message));
-    } else {
-        logMessage(QString("Server: %1").arg(message));
-    }
-}
-
-void NetworkManager::createClient(int playerId,
-                                  QHostAddress &host,
-                                  quint16 port)
-{
-    if (m_clientSocket) {
-        logMessage("Already connected to a server!");
-        return;
-    }
-
-    if (host.isNull()) {
-        logMessage("Invalid Host, please enter a valid host address");
-        return;
-    }
-
-    m_clientSocket = new QTcpSocket(this);
-    connect(m_clientSocket, &QTcpSocket::connected, this, [this]() {
-        logMessage("Connected to server!");
-    });
-    connect(m_clientSocket, &QTcpSocket::readyRead, this, &NetworkManager::onSocketReadyRead);
-    connect(m_clientSocket, &QTcpSocket::disconnected, this, &NetworkManager::onSocketDisconnected);
-    connect(m_clientSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::errorOccurred),
-            this, [this](QAbstractSocket::SocketError error) {
-                logMessage("Socket error: " + m_clientSocket->errorString());
-            });
-
-    m_clientSocket->connectToHost(host, port);
-    m_isHost = false;
-    logMessage(QString("Connecting to %1:%2...").arg(host.toString(), QString::number(port)));
-}
-
-void NetworkManager::createServer(int playerId,
-                                  QHostAddress &host,
-                                  quint16 port)
-{
-    m_server = new QTcpServer(this);
-    if (!m_server->listen(QHostAddress::Any, port)) {
-        logMessage("Failed to start server: " + m_server->errorString());
-        delete m_server;
-        m_server = nullptr;
-        return;
-    }
-
-    connect(m_server, &QTcpServer::newConnection, this, &NetworkManager::onNewConnection);
-
-    m_isHost = true;
-    logMessage(QString("Server started on port %1. Waiting for connections...").arg(port));
-}
-
-void NetworkManager::logMessage(const QString &message)
-{
-    qDebug() << QString("[%1] %2")
-                    .arg(QDateTime::currentDateTime().toString("hh:mm:ss")
-                    .arg(message));
 }

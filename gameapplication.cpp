@@ -3,10 +3,12 @@
 GameApplication::GameApplication(std::shared_ptr<CardDataConfigReader> configReader,
                                  std::shared_ptr<GameLogic> logic,
                                  std::shared_ptr<MainWindow> window,
+                                 std::shared_ptr<NetworkManager> network,
                                  std::shared_ptr<StartMenu> menu)
     : m_configReader(configReader)
     , m_gameLogic(logic)
     , m_mainWindow(window)
+    , m_network(network)
     , m_startMenu(menu)
 {
     setupConnections();
@@ -23,16 +25,30 @@ void GameApplication::run()
 
 void GameApplication::setupConnections()
 {
+    // startMenu -> NetworkManager
+    QObject::connect(m_startMenu.get(), &StartMenu::onCreateServer,
+                     m_network.get(), &NetworkManager::createServer);
 
+    QObject::connect(m_startMenu.get(), &StartMenu::onCreateClient,
+                     m_network.get(), &NetworkManager::createClient);
+
+    // NetworkManager -> startMenu
+    QObject::connect(m_network.get(), &NetworkManager::notifyPlayerWithMessageBox,
+                     m_startMenu.get(), &StartMenu::showMessage);
+
+    // startMenu -> mainWindow
     QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
                      m_mainWindow.get(), &MainWindow::handleShowMainWindow);
 
+    // configReader -> gameLogic
     QObject::connect(m_configReader.get(), &CardDataConfigReader::configDataReadyToRead,
                      m_gameLogic.get(), &GameLogic::handleConfigDataReadyToRead);
 
+    // gameLogic -> configReader
     QObject::connect(m_gameLogic.get(), &GameLogic::requestCardData,
                      m_configReader.get(), &CardDataConfigReader::handleRequestCardData);
 
+    // gameLogic -> mainWindow
     QObject::connect(m_gameLogic.get(), &GameLogic::gameWon,
                      m_mainWindow.get(), &MainWindow::handleGameWon);
 
@@ -75,7 +91,7 @@ void GameApplication::setupConnections()
     QObject::connect(m_gameLogic.get(), &GameLogic::finishWaitState,
                      m_mainWindow.get(), &MainWindow::handleFinishWaitState);
 
-    // mainWindow signals
+    // mainWindow -> gameLogic
     QObject::connect(m_mainWindow.get(), &MainWindow::cardClickedForPurchase,
                      m_gameLogic.get(), &GameLogic::handleCardClickedForPurchase);
 
