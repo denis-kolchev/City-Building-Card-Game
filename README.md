@@ -25,18 +25,56 @@ git https://gitlab.com/Den-One/city-building-card-game.git
 ## Gameplay Description
 ### Start Menu (Offline mode) - Choose Number of Players
 ![Start Menu](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/start_menu.jpg)
+
+* Select offline mode if you want to play from one device, controlling the moves of all players;
+* To start - click on Start Offline Game.
+
 ### Start Menu (Online mode) - Create Server or Connect Client
 ![Start Menu Online](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/start_menu_online.jpg)
+
+* Select offline mode if you want to play from diffrent devices in a local network;
+* First player should create a server and choose players number;
+* Click on "Create Server" button to run server in a local network;
+* Click on "Connect to Server" button to connect to local server;
+* A pop-up window will confirm the success or failure of the connection attempt.
+
 ### Income State
 ![Income State](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/income_state.jpg)
+
+* Press the button "roll 1 dice" or "roll 2 dice" (if you own a Train Station);
+* Wait for update for "Dice Result" label;
+* If the dice rolls the number shown on the top of the card, the card is activated and players receive income;
+* It leads to update of "Coins" label.
+
 ### Build State
 ![Build State](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/build_state.jpg)
+
+* Check the card price in the lower left corner of the card;
+* If you have enough coins:
+* Select a card from the bank (on the left side of the screen);
+* Or select a landmark (on the upper right side of the screen);
+* Or click the "skip" button;
+* Do it one more time, if the dice rolled a double and you own an amusement park.
+
 ### New Player's Card Stack
 ![New Player's Card Stack](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/display_new_card.jpg)
+
+* Each purchased card is moved to the player's building inventory, reducing the coin balance;
+* After buying or skipping a turn, the turn immediately passes to the next player.
+
 ### Switch to Another Player
 ![Switch to Another Player](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/go_to_next.jpg)
+
+* The new active player is displayed on top of the right tab with a green dot;
+* The player's tab with a green dot always has active buttons to press, the rest are inactive buttons;
+* Any player can at any time select another player's section to view his cards according to the game conditions.
+
 ### Unlock Landmark to Win
 ![Unlock Landmark to Win](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/unlock_landmark.jpg)
+
+* The main goal of the game is to buy all the attractions;
+* If you have enough coins to buy, buy the landmark; 
+* The purchased landmark is displayed in gold.
 
 ## Gameplay Rules
 ### Welcome to the game!
