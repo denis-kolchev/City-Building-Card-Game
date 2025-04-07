@@ -23,8 +23,10 @@ git https://gitlab.com/Den-One/city-building-card-game.git
 3. Build and run the project.
 
 ## Gameplay Description
-### Start Menu - Choose Number of Players
+### Start Menu (Offline mode) - Choose Number of Players
 ![Start Menu](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/start_menu.jpg)
+### Start Menu (Online mode) - Create Server or Connect Client
+![Start Menu Online](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/start_menu_online.jpg)
 ### Income State
 ![Income State](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/income_state.jpg)
 ### Build State
