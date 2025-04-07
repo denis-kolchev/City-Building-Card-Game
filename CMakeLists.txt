@@ -88,6 +88,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         network/networkmanager.h network/networkmanager.cpp
         network/server.h network/server.cpp
         network/client.h network/client.cpp
+        network/jsonmessagefactory.h network/jsonmessagefactory.cpp
+        network/jsons/abstractjsonstrategy.h
+        network/jsons/jsongameinit.h network/jsons/jsongameinit.cpp
+        network/jsons/jsongameover.h network/jsons/jsongameover.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"

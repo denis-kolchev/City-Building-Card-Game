@@ -14,12 +14,16 @@ public:
     void connectToServer(const QHostAddress &host, quint16 port);
     void send(const QJsonObject &message);
     bool isConnected() const;
+    void disconnectFromHost();
 
 signals:
     void newMessage(const QJsonObject &message);
     void logMessage(const QString &message);
     void connected();
     void disconnected();
+
+    // outside signals:
+    void networkGameInit(int playerCount);
 
 private slots:
     void readyRead();

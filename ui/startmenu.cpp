@@ -55,11 +55,20 @@ StartMenu::StartMenu(QWidget *parent)
 
     setFixedSize(450, 300);
     centerWindow();
+
+    connect(this, &StartMenu::showMainWindow, this, &StartMenu::closeWindow);
 }
 
 void StartMenu::showMessage(const QString &message)
 {
     QMessageBox::information(this, "Information", message);
+}
+
+void StartMenu::closeWindow()
+{
+    qDebug() << "---> is called to close window";
+    close();
+    hide();
 }
 
 void StartMenu::setupClientTab()
@@ -109,7 +118,6 @@ void StartMenu::setupOfflineTab()
 
     connect(m_startButton, &QPushButton::clicked, this, [this]() {
         emit showMainWindow(m_numPlayersSpinBox->value());
-        close();
     });
 
     m_offlineLayout->addStretch();
@@ -149,7 +157,7 @@ void StartMenu::setupServerTab()
     connect(m_serverTabConnectButton, &QPushButton::clicked, this, [this]() {
         QString ip = m_serverTabOpInput->text().isEmpty() ? "127.0.0.1" : m_serverTabOpInput->text();
         int port = m_serverTabPortInput->text().isEmpty() ? 12345 : m_serverTabPortInput->text().toInt();
-        emit onCreateServer(ip, port);
+        emit onCreateServer(ip, port, this->m_numPlayersServerTabSpinBox->value());
     });
 
     m_serverTabLayout->addStretch();

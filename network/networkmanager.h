@@ -2,6 +2,8 @@
 #define NETWORKMANAGER_H
 
 #include "client.h"
+#include "jsonmessagefactory.h"
+#include "jsons/abstractjsonstrategy.h"
 #include "server.h"
 
 #include <QHostAddress>
@@ -21,12 +23,17 @@ public:
 signals:
     void notifyPlayerWithMessageBox(QString message);
 
+    // outside signals:
+    void networkGameInit(int playerCount);
+
 public slots:
     void createClient(const QString &host, quint16 port);
 
-    void createServer(const QString &host, quint16 port);
+    void createServer(const QString &host, quint16 port, int playerCount);
 
-    void messageReceived(QString message);
+    void sendMessage(const QString& message);
+
+    void sendMessage(const AbstractJsonPtr& message);
 
 private slots:
     void handleNewMessage(const QJsonObject &message);
@@ -42,11 +49,10 @@ private:
 
     void logMessage(const QString &message);
 
-    void sendMessage(const QString& message);
-
 private:
     Server *m_server;
     Client *m_client;
+    JsonMessageFactory *m_jsonFactory;
     bool m_isHost;
 
 };

@@ -10,12 +10,11 @@ class Server : public QObject
     Q_OBJECT
 
 public:
-    explicit Server(QObject *parent = nullptr);
+    explicit Server(int playerCount, QObject *parent = nullptr);
     QString errorString();
     bool startListening(quint16 port);
     void stop();
     void broadcast(const QJsonObject &message);
-
 
 signals:
     void newMessage(const QJsonObject &message);
@@ -31,6 +30,7 @@ private:
     QList<QTcpSocket*> clients;
     QMap<QTcpSocket*, int> clientIds;
     int nextClientId = 1;
+    int m_playerCount;
 };
 
 #endif // SERVER_H

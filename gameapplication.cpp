@@ -36,6 +36,10 @@ void GameApplication::setupConnections()
     QObject::connect(m_network.get(), &NetworkManager::notifyPlayerWithMessageBox,
                      m_startMenu.get(), &StartMenu::showMessage);
 
+    // NetworkManager -> startMenu
+    QObject::connect(m_network.get(), &NetworkManager::networkGameInit,
+                     m_startMenu.get(), &StartMenu::showMainWindow);
+
     // startMenu -> mainWindow
     QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
                      m_mainWindow.get(), &MainWindow::handleShowMainWindow);
@@ -106,5 +110,9 @@ void GameApplication::setupConnections()
 
     QObject::connect(m_mainWindow.get(), &MainWindow::skipButtonClicked,
                      m_gameLogic.get(), &GameLogic::handleSkipButtonClicked);
+
+    // mainWindow -> NetworkManager
+    // QObject::connect(m_mainWindow.get(), &MainWindow::broadcastJson,
+    //                  m_network.get(), &NetworkManager::sendMessage);
 
 }

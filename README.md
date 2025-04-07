@@ -492,11 +492,19 @@ MainWindow:
 startMenu -> Network
 
 
+Connect Server:
+connect(&QTcpServer::newConnection, &NetworkApp::onNewConnection);
+connect(&QTcpSocket::readyRead, &NetworkApp::onSocketReadyRead);
+connect(&QTcpSocket::disconnected, &NetworkApp::onSocketDisconnected);
 
+Connect Client:
+connect(&QTcpSocket::connected, &MainWindow::IamConnected);
+connect(&QTcpSocket::readyRead, &NetworkApp::onSocketReadyRead);
 
+// MAYBE I WILL NEED THAT SOON!
 
-
-
+// Register meta types (in main.cpp)
+qRegisterMetaType<AbstractJsonPtr>("AbstractJsonPtr");
 
 
 

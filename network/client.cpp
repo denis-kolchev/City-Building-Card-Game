@@ -22,19 +22,47 @@ void Client::send(const QJsonObject &message)
     }
 }
 
+/* Handles all jsons sent from UI (or even from GameLogic I didn't get it by far)
+ * In the future this function should be replaced by strategy pattern to shorten it */
+
+/*
+ * Standardized JSON message format:
+ * {
+ *  "type": "message_type"
+ *  "timestamp": "ISO8601_timestamp"
+ * }
+ */
+
 void Client::readyRead()
 {
+    qDebug() << "is reade to read";
     QJsonDocument doc = QJsonDocument::fromJson(socket->readAll());
-    if (!doc.isNull()) {
-        QJsonObject obj = doc.object();
+    if (doc.isNull()) {
+        QByteArray data = socket->readAll();
+        qDebug() << "Raw data:" << data;
+        qDebug() << "Data length:" << data.length();
 
-        if (obj["type"] == "assign_id") {
-            int id = obj["player_id"].toInt();
-            emit logMessage(QString("Assigned player ID: %1").arg(id));
-            // Store the ID locally if needed
-        } else {
-            emit newMessage(obj);
-        }
+        qDebug() << "doc is null";
+        return;
+    }
+
+    qDebug() << "json doc is not null";
+
+    QJsonObject obj = doc.object();
+
+    if (obj["type"] == "assign_id") {
+        qDebug() << "------ type == assign_id";
+        int id = obj["player_id"].toInt();
+        emit logMessage(QString("Assigned player ID: %1").arg(id));
+        // Store the ID locally if needed
+    } else if (obj["type"] == "game_init") {
+        qDebug() << "------ type == game_init";
+        auto jsonData = obj["data"].toObject();
+        int playerCount = jsonData["player_count"].toInt();
+        emit networkGameInit(playerCount);
+        emit logMessage(QString("networkGameInit: playerCount: %1").arg(playerCount));
+    } else {
+        emit newMessage(obj);
     }
 }
 
@@ -47,4 +75,9 @@ void Client::socketDisconnected()
 bool Client::isConnected() const
 {
     return socket->state() == QTcpSocket::ConnectedState;
+}
+
+void Client::disconnectFromHost()
+{
+    socket->disconnectFromHost();
 }

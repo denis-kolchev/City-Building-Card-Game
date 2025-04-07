@@ -43,10 +43,6 @@ void CardDataConfigReader::handleRequestCardData(CardId begin,
     auto cards = readFromRange(begin, end);
 
     handler->handleCardData(cards);
-    // for (auto card : cards) {
-    //     //handler->addCard(card); // Use the handler to process the data (Strategy Pattern)
-
-    // }
 }
 
 QVector<std::shared_ptr<Card>> CardDataConfigReader::readFromRange(CardId begin, CardId end)

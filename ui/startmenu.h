@@ -18,8 +18,10 @@ public:
 public slots:
     void showMessage(const QString &message);
 
+    void closeWindow();
+
 signals:
-    void onCreateServer(const QString& ip, quint16 port);
+    void onCreateServer(const QString& ip, quint16 port, int playerCount);
 
     void onCreateClient(const QString& op, quint16 port);
 

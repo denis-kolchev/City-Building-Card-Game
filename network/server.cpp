@@ -1,9 +1,15 @@
 #include "server.h"
-#include <QTcpSocket>
+#include "jsons/jsongameinit.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTcpSocket>
+#include <QTimer>
 
-Server::Server(QObject *parent) : QObject(parent), tcpServer(new QTcpServer(this)) {}
+Server::Server(int playerCount, QObject *parent)
+    : m_playerCount(playerCount)
+    , QObject(parent)
+    , tcpServer(new QTcpServer(this)) {}
 
 bool Server::startListening(quint16 port)
 {
@@ -41,6 +47,22 @@ void Server::newConnection()
         idMessage["type"] = "assign_id";
         idMessage["player_id"] = assignedId;
         socket->write(QJsonDocument(idMessage).toJson());
+        socket->waitForBytesWritten();
+
+        // if server is listened by needed amount of pleayers
+        if (clientIds.size() == m_playerCount) {
+            QTimer::singleShot(100, this, [this]() {  // 100ms delay
+                JsonGameInit gameInit(m_playerCount);
+                QJsonObject gameInitMessage = gameInit.json();
+                emit logMessage(QString("Server broadcasts: %1").arg(gameInit.type()));
+                broadcast(gameInitMessage);
+            });
+
+            // JsonGameInit gameInit(m_playerCount);
+            // QJsonObject gameInitMessage = gameInit.json();
+            // emit logMessage(QString("Server broadcasts: %1").arg(gameInit.type()));
+            // broadcast(gameInitMessage);
+        }
     }
 }
 
@@ -61,6 +83,7 @@ void Server::broadcast(const QJsonObject &message)
     for (QTcpSocket *client : clients) {
         if (client->state() == QTcpSocket::ConnectedState) {
             client->write(data);
+            client->waitForBytesWritten();
         }
     }
 }
