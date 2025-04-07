@@ -52,6 +52,8 @@ private:
 
     void logMessage(const QString &message);
 
+    void setupClient(const QString &connectedMessage);
+
 private:
     Server *m_server;
     Client *m_client;

@@ -47,26 +47,7 @@ void NetworkManager::createClient(const QString &host, quint16 port)
         return;
     }
 
-    m_client = new Client(this);
-    connect(m_client, &Client::newMessage, this, &NetworkManager::handleNewMessage);
-    connect(m_client, &Client::logMessage, this, &NetworkManager::logMessage);
-    connect(m_client, &Client::connected, [this]() { logMessage("New client is connected!"); });
-
-    // outside signals:
-    connect(m_client, &Client::networkGameInit, this, [this](int playerCount) {
-        qDebug() << tr("client:networkGameInit: playerCount = %1").arg(playerCount);
-        emit this->networkGameInit(playerCount);
-    });
-
-    connect(m_client, &Client::networkDiceRollResult, this, [this](int playerId, QVector<int> rollResult) {
-        qDebug() << tr("client:networkDiceRollResult: playerId - %1, roll [%2, %3]")
-                        .arg(playerId)
-                        .arg(rollResult[0])
-                        .arg(rollResult[1]);
-
-        emit this->networkDiceRollResult(playerId, rollResult);
-    });
-
+    setupClient(tr("New client is connected!"));
     m_client->connectToServer(QHostAddress(host), port);
     m_isHost = false;
 
@@ -107,14 +88,7 @@ void NetworkManager::createServer(const QString &host, quint16 port, int playerC
         m_client = nullptr;
     }
 
-    // Create and connect the host's own client
-    m_client = new Client(this);
-    connect(m_client, &Client::newMessage, this, &NetworkManager::handleNewMessage);
-    connect(m_client, &Client::logMessage, this, &NetworkManager::logMessage);
-    connect(m_client, &Client::networkGameInit, this, &NetworkManager::networkGameInit);
-    connect(m_client, &Client::connected, [this]() {
-        logMessage("Host client connected to local server");
-    });
+    setupClient(tr("Host client connected to local server"));
 
     m_client->connectToServer(QHostAddress::LocalHost, port);
 
@@ -179,4 +153,33 @@ void NetworkManager::logMessage(const QString &message)
                       .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                       .arg(message);
     qDebug() << log;
+}
+
+void NetworkManager::setupClient(const QString &connectedMessage)
+{
+    if (m_client) {
+        logMessage("Client already exists, setup aborted.");
+        return;
+    }
+
+    m_client = new Client(this);
+    connect(m_client, &Client::newMessage, this, &NetworkManager::handleNewMessage);
+    connect(m_client, &Client::logMessage, this, &NetworkManager::logMessage);
+    connect(m_client, &Client::connected, [this, connectedMessage]() {
+        logMessage(connectedMessage);
+    });
+
+    // Connect network signals with debug logging
+    connect(m_client, &Client::networkGameInit, this, [this](int playerCount) {
+        qDebug() << tr("client:networkGameInit: playerCount = %1").arg(playerCount);
+        emit networkGameInit(playerCount);
+    });
+
+    connect(m_client, &Client::networkDiceRollResult, this, [this](int playerId, QVector<int> rollResult) {
+        qDebug() << tr("client:networkDiceRollResult: playerId - %1, roll [%2, %3]")
+        .arg(playerId)
+            .arg(rollResult[0])
+            .arg(rollResult[1]);
+        emit networkDiceRollResult(playerId, rollResult);
+    });
 }
