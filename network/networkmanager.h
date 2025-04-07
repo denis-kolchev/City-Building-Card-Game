@@ -25,11 +25,14 @@ signals:
 
     // outside signals:
     void networkGameInit(int playerCount);
+    void networkDiceRollResult(int playerId, QVector<int> rollResult);
 
 public slots:
     void createClient(const QString &host, quint16 port);
 
     void createServer(const QString &host, quint16 port, int playerCount);
+
+    void receiveDiceRollResult(int playerId, QVector<int> rolls);
 
     void sendMessage(const QString& message);
 

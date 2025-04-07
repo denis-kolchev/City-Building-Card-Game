@@ -2,6 +2,7 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 
 Client::Client(QObject *parent) : QObject(parent), socket(new QTcpSocket(this))
 {
@@ -61,6 +62,23 @@ void Client::readyRead()
         int playerCount = jsonData["player_count"].toInt();
         emit networkGameInit(playerCount);
         emit logMessage(QString("networkGameInit: playerCount: %1").arg(playerCount));
+    } else if (obj["type"] == "dice_roll_result") {
+        qDebug() << "------ type == dice_roll_result";
+        auto jsonData = obj["data"].toObject();
+        int playerId = jsonData["player_id"].toInt();
+        auto array = jsonData["results"].toArray();
+        QVector<int> rollResult;
+        for (const QJsonValue& value : array) {
+            if (value.isDouble()) { // JSON numbers are always double
+                rollResult.append(value.toInt());
+            }
+        }
+        qDebug() << tr("Client: networkDiceRollResult << %1 << %2 << %3")
+                   .arg(playerId)
+                   .arg(rollResult[0])
+                   .arg(rollResult[1]);
+
+        emit networkDiceRollResult(playerId, rollResult);
     } else {
         emit newMessage(obj);
     }

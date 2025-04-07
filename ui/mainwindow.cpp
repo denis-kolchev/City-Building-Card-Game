@@ -191,7 +191,7 @@ void MainWindow::receiveCardPurchaseFailed(int playerId, CardId cardId, QString 
     msgBox.exec();
 }
 
-void MainWindow::receiveDiceRollResult(QVector<int> rolls)
+void MainWindow::receiveDiceRollResult(int playerId, QVector<int> rolls)
 {
     for (auto playePage : m_playerPages) {
         playePage->setDiceResult(rolls[0], rolls[1]);

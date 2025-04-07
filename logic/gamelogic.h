@@ -56,7 +56,7 @@ signals:
 
     void sendCardPurchaseFailed(int playerId, CardId cardId, QString message);
 
-    void sendDiceRollResult(QVector<int> rolls);
+    void sendDiceRollResult(int playerId, QVector<int> rolls);
 
     void sendPlayerBalanceChanged(int playerId, int balance);
 

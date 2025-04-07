@@ -1,4 +1,5 @@
 #include "networkmanager.h"
+#include "jsons/jsondicerollresult.h"
 
 #include <QDateTime>
 #include <QMessageBox>
@@ -52,7 +53,19 @@ void NetworkManager::createClient(const QString &host, quint16 port)
     connect(m_client, &Client::connected, [this]() { logMessage("New client is connected!"); });
 
     // outside signals:
-    connect(m_client, &Client::networkGameInit, this, &NetworkManager::networkGameInit);
+    connect(m_client, &Client::networkGameInit, this, [this](int playerCount) {
+        qDebug() << tr("client:networkGameInit: playerCount = %1").arg(playerCount);
+        emit this->networkGameInit(playerCount);
+    });
+
+    connect(m_client, &Client::networkDiceRollResult, this, [this](int playerId, QVector<int> rollResult) {
+        qDebug() << tr("client:networkDiceRollResult: playerId - %1, roll [%2, %3]")
+                        .arg(playerId)
+                        .arg(rollResult[0])
+                        .arg(rollResult[1]);
+
+        emit this->networkDiceRollResult(playerId, rollResult);
+    });
 
     m_client->connectToServer(QHostAddress(host), port);
     m_isHost = false;
@@ -109,6 +122,12 @@ void NetworkManager::createServer(const QString &host, quint16 port, int playerC
     logMessage("Server started listening port " + QString::number(port));
 
     emit notifyPlayerWithMessageBox(tr("The server has made successfully. Wait for clients"));
+}
+
+void NetworkManager::receiveDiceRollResult(int playerId, QVector<int> rolls)
+{
+    JsonDiceRollResult diceRollResult(playerId, rolls);
+    m_client->send(diceRollResult.json());
 }
 
 void NetworkManager::sendMessage(const QString& message)

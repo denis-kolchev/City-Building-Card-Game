@@ -24,6 +24,7 @@ signals:
 
     // outside signals:
     void networkGameInit(int playerCount);
+    void networkDiceRollResult(int playerId, QVector<int> rollResult);
 
 private slots:
     void readyRead();

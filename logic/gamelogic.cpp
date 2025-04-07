@@ -177,7 +177,7 @@ void GameLogic::rollDice(int diceRollCount)
         rollResults[i] = DiceRoller{}.rollDice(diceRollPerTryCount);
     }
 
-    emit sendDiceRollResult(rollResults);
+    emit sendDiceRollResult(m_currentPlayerId, rollResults);
 
     auto currentPlayer = m_players[m_currentPlayerId];
     // if player has RadioTower, they can reroll the dice once (game rules)

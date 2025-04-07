@@ -57,7 +57,7 @@ public slots:
 
     void receiveCardPurchaseFailed(int playerId, CardId cardId, QString message);
 
-    void receiveDiceRollResult(QVector<int> rolls);
+    void receiveDiceRollResult(int playerId, QVector<int> rolls);
 
     void receivePlayerBalanceChanged(int playerId, int balance);
 
