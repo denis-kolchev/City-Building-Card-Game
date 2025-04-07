@@ -44,6 +44,9 @@ void GameApplication::setupConnections()
     QObject::connect(m_network.get(), &NetworkManager::networkDiceRollResult,
                      m_mainWindow.get(), &MainWindow::receiveDiceRollResult);
 
+    QObject::connect(m_network.get(), &NetworkManager::networkFinishIncomeState,
+                     m_mainWindow.get(), &MainWindow::handleFinishIncomeState);
+
     // startMenu -> mainWindow
     QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
                      m_mainWindow.get(), &MainWindow::handleShowMainWindow);
@@ -101,7 +104,10 @@ void GameApplication::setupConnections()
 
     // GameLogic -> NetworkManager
     QObject::connect(m_gameLogic.get(), &GameLogic::sendDiceRollResult,
-                     m_network.get(), &NetworkManager::receiveDiceRollResult);
+                     m_network.get(), &NetworkManager::broadcastDiceRollResult);
+
+    QObject::connect(m_gameLogic.get(), &GameLogic::finishIncomeState,
+                     m_network.get(), &NetworkManager::broadcastFinishIncomeState);
 
     // mainWindow -> gameLogic
     QObject::connect(m_mainWindow.get(), &MainWindow::cardClickedForPurchase,

@@ -79,6 +79,11 @@ void Client::readyRead()
                    .arg(rollResult[1]);
 
         emit networkDiceRollResult(playerId, rollResult);
+    } else if (obj["type"] == "finish_income_state") {
+        auto jsonData = obj["data"].toObject();
+        int playerId = jsonData["player_id"].toInt();
+        qDebug() << tr("Client: finish_income_state << %1") << playerId;
+        emit networkFinishIncomeState(playerId);
     } else {
         emit newMessage(obj);
     }

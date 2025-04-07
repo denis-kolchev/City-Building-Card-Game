@@ -6,6 +6,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QMetaMethod>
+#include <QTimer>
 
 GameLogic::GameLogic(QObject *parent)
     : m_bank(std::make_shared<Bank>())
@@ -187,7 +188,9 @@ void GameLogic::rollDice(int diceRollCount)
         return;
     }
 
-    emit finishIncomeState(m_currentPlayerId);
+    QTimer::singleShot(200, this, [this]() {  // 100ms delay
+        emit finishIncomeState(m_currentPlayerId);
+    });
 
     activatePlayersCards(rollResults);
 }

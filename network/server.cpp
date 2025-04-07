@@ -80,7 +80,7 @@ void Server::readData()
 void Server::broadcast(const QJsonObject &message)
 {
     QByteArray data = QJsonDocument(message).toJson();
-    for (QTcpSocket *client : clients) {
+    for (QTcpSocket *client : std::as_const(clients)) {
         if (client->state() == QTcpSocket::ConnectedState) {
             client->write(data);
             client->waitForBytesWritten();

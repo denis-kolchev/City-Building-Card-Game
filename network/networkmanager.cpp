@@ -1,5 +1,6 @@
 #include "networkmanager.h"
 #include "jsons/jsondicerollresult.h"
+#include "jsons/jsonfinishincomestate.h"
 
 #include <QDateTime>
 #include <QMessageBox>
@@ -98,10 +99,16 @@ void NetworkManager::createServer(const QString &host, quint16 port, int playerC
     emit notifyPlayerWithMessageBox(tr("The server has made successfully. Wait for clients"));
 }
 
-void NetworkManager::receiveDiceRollResult(int playerId, QVector<int> rolls)
+void NetworkManager::broadcastDiceRollResult(int playerId, QVector<int> rolls)
 {
     JsonDiceRollResult diceRollResult(playerId, rolls);
     m_client->send(diceRollResult.json());
+}
+
+void NetworkManager::broadcastFinishIncomeState(int playerId)
+{
+    JsonFinishIncomeState finishIncomeState(playerId);
+    m_client->send(finishIncomeState.json());
 }
 
 void NetworkManager::sendMessage(const QString& message)
@@ -182,4 +189,6 @@ void NetworkManager::setupClient(const QString &connectedMessage)
             .arg(rollResult[1]);
         emit networkDiceRollResult(playerId, rollResult);
     });
+
+    connect(m_client, &Client::networkFinishIncomeState, this, &NetworkManager::networkFinishIncomeState);
 }

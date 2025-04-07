@@ -42,6 +42,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::handleFinishIncomeState(int playerId)
 {
+    qDebug() << tr("It's time to finish income state for this player: %1").arg(playerId);
     if (playerId >= 0 && playerId < m_playerPages.size()) {
         auto& page = m_playerPages[playerId];
         page->getOneDiceButton().setEnabled(false);

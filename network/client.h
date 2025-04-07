@@ -23,6 +23,7 @@ signals:
     void disconnected();
 
     // outside signals:
+    void networkFinishIncomeState(int playerCount);
     void networkGameInit(int playerCount);
     void networkDiceRollResult(int playerId, QVector<int> rollResult);
 

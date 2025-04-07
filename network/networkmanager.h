@@ -24,6 +24,7 @@ signals:
     void notifyPlayerWithMessageBox(QString message);
 
     // outside signals:
+    void networkFinishIncomeState(int playerCount);
     void networkGameInit(int playerCount);
     void networkDiceRollResult(int playerId, QVector<int> rollResult);
 
@@ -32,7 +33,9 @@ public slots:
 
     void createServer(const QString &host, quint16 port, int playerCount);
 
-    void receiveDiceRollResult(int playerId, QVector<int> rolls);
+    void broadcastDiceRollResult(int playerId, QVector<int> rolls);
+
+    void broadcastFinishIncomeState(int playerId);
 
     void sendMessage(const QString& message);
 
