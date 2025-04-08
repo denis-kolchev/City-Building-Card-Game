@@ -6,6 +6,9 @@ Machi Koro.
 Machi Koro is a fast-paced, card-based city-building game. For more information, check out
 the [Machi Koro Wikipedia page](https://en.wikipedia.org/wiki/Machi_Koro).
 
+## Download Latest Release
+[Download Latest Release](https://gitlab.com/Den-One/city-building-card-game/-/archive/release-2025-04-08/city-building-card-game-release-2025-04-08.zip)
+
 ## Features
 
 - Interactive UI made with Qt 6.8 framework and C++17.
