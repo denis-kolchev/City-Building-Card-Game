@@ -130,6 +130,7 @@ from their enterprises that match the dice roll. Each enterprise has an activati
 number. If the dice result matches this number, the enterprise’s effect is triggered 
 immediately.
 
+
 There are 4 types of enterprises, each generating income differently:
 * Restaurants (Red Cards)
 * Small Enterprises (Blue Cards)
@@ -157,409 +158,64 @@ side in your city.
 This turn structure ensures a dynamic and engaging gameplay experience, balancing 
 strategy, resource management, and competition!
 
-**All Signals Structure**
-
-The whole list of all player signals from mainWindow
-ui signals:
-0 somebody clicked Dice 1 roll - 1
-0 somebody clicked Dice 2 roll - 2
-0 somebody clicked skip - 3
-0 somebody clicked cardwiget - 4
-
-ui slots:
-7 wait a response in small window
-if yes - sendIsUsed radio tower 10
-if no - 9
-12 update player balance 13
-
-Logic slots:
-1, 2 roll the dice, if no double - 5
-1, 2, if park and double - 14
-5 - check if current palyer has RadioTower
-5- if has, ask to reroll - 6
- activate all palyers all cards if possible -
-5. 8 if no, incometime 9
-10 setRadioTowerIsUsedup
-9 activatecards 11, 12
-15 activate second roll 16
-
-logic signals:
-6 askToRerollCurrentPlayer - 7
-11 sendplayernewvalance 12
-14 send activate second buy 15
-
----------- application level ----------
-
-connect(m_mainWindow.get(), &MainWindow::rollDiceButtonClicked, m_gameLogic.get(), &GameLogic::handleRollOneDiceButtonClicked);
-connect(m_mainWindow.get(), &MainWindow::skipButtonClicked, m_gameLogic.get(), &GameLogic::handleSkipButtonClicked);
-connect(m_mainWindow.get(), &MainWindow::cardWigetClicked, m_gameLogic.get(), &GameLogic::handleCardWigetClicked);
-
-connect(m_gameLogic.get(), &GameLogic::updatePlayerBalance, m_mainWindow.get(), &MainWindow::handleUpdatePlayerBalance);
-connect(m_gameLogic.get(), &GameLogic::updateDiceResult, m_mainWindow.get(), &MainWindow::handleUpdateDiceResult);
-connect(m_gameLogic.get(), &GameLogic::incomeStateFinished, m_mainWindow.get(), &MainWindow::handleIncomeStateFinished);
-connect(m_gameLogic.get(), &GameLogic::buyTwice, m_mainWindow.get(), &MainWindow::handleBuyTwice);
-
-
-class Player
-{
-bool isAskedToReroll();
-bool containsCard(CardId);
-
-private:
-    bool m_askedToReroll;
-    bool m_decisionToReroll;
-};
-
----------- MainWindow: ----------
-
-signals:
-connect(diceOneButton, &QPushButton::clicked, [this]() {
-    enum rollOneDiceButtonClicked(); // 1
-});
-
-connect(diceTwoButton, &QPushButton::clicked, [this]() {
-    enum rollTwoDiceButtonClicked(); // 2
-});
-
-connect(skipButton, &QPushButton::clicked, [this]() {
-    enum skipButtonClicked(); // 3
-});
-
-connect(cardWidget, &QScrollWidget::cardWigetClicked, [this](int cardId) {
-    enum cardWigetClicked(cardWidgetId); // 4
-});
-
-
-public slots:
-void handleUpdatePlayerBalance(int playerId, int balance);
-
-void handleUpdateDiceResult(int diceResult);
-
-
----------- GameLogic: ----------
-
-signals:
-void updatePlayerBalance(int playerId, int balance);
-
-void updateDiceResult(int diceResult);
-
-void buyTwice(int playerId);
-
-slots:
-void GameLogic::rollDiceButtonClicked(int rollsNumber)
-{
-    auto currentPlayer = m_players[m_currentPlayer];
-    if (currentPlayer.contains(CardId::RadioTower) && currentPlayer.askedToReroll()) {
-        currentPlayer->setAsckedToReroll(true);
-        emit askToReroll(currentPlayer);
-        return;
-    }
-    
-    int const maxRollNumber = 2;
-    vector<int> rollResults(maxRollNumber, 0);
-    for (int i = 0; i < rollsNumber; ++i) {
-        rollResults[i] = DiceRoller{}.rollDice(1);
-    }
-    
-    emit updateRollResult(vector<int> rollResults);
-    
-    startIncomeState(vector<int> rollResults);
-}
-
-void GameLogic::startIncomeState(vector<int> rollresults)
-{
-    if (rollResults[0] == rollResults[1] && currentPlayer.contains(CardId::AmusmentPark) && !currentPlayer.buyTwice()) {
-        currentPlayer->setBuyTwice(true);
-    }
-
-    activateCards(vector<int> rollResults) {
-        for (int i = 0; i < m_players.size(); ++i) {
-            m_players[i].activateCards() {
-                emit balanceChanged(i);
-            };            
-        }
-    };
-    
-    emit incomeStateFinished();
-}
-
-void GameLogic::handleSkipButtonClicked()
-{
-    if (currentPlayer.buyTWice()) {
-        currentPlayer->setBuyTwice(false);
-        emit buyTwice(currentPlayer->id());
-        return;
-    }
-    
-    setNextPlayerTurn() {
-        m_currentPlayerId = (m_currentPlayerId + 1 >= m_players.size()) ? 0 : m_currentPlayerId + 1;
-        emit setPlayerTurn(m_currentPlayerId);
-    }
-}
-
-void GameLogic::handleCardWigetClicked(int cardId)
-{
-    auto currentPlayer = m_players[m_currentPlayerId];
-    auto card = m_bank.find(cardId);
-    if (currentPlayer.balance() >= card.price()) {
-        currentPlayer.addCard(card);
-        m_bank.removeCard(card);
-    }
-}
-
-
-Income is written
-
--3. Before the start, wait from configData to read all data to partialy initialize the bank
--2. Before start, wait from startMenu signal about players count.
--1. For some players count, initialize all connections and data about players
-
-0. Ini all solutions with specific cards to false.
-
-Income State
-1. Click on button "dice 1 roll" or "dice 2 rolls"
-2. Check currentPlayer has RadioTower & wasn't asked before, if has ask to reroll.
-3. MainWindow shows the window and send a signal with the answer of reroll.
-4. Handler of result decies what to call, rollDiceButtonClicked to repeat or startIncomeState.
-5. incomeState checks do player need to have buy twice ability
-6. income state activates cards and after their work for each player, they update each player result, taking their id
-7. signal to MainWindow income state is finished, so rewdraw it all.
-
-Buy State
-8 Click on card widget or skip button.
-9.1. If clicked skip button, checks buyTwice, and if so, sets it not to buy and do nothing.
-9.2. if clicked skip button and it wasn't set to buy twice, so just setNextPlayerTurn, so send a signal with new palyer id
-9.3. If clicked card Widget, send id of that widget from mainWindow.
-10.0. checks if current player can buy that card with that id, if so, BuyCard or sendSignal cantByCard to MainWindow
-10.1. gameLogic puts that card by id to player and takes it from bank, emiting 2 signals about these changes with that id.
-10.2. checks if all cards to win are bought, and if so, send a signal about it!
-11. checks if player can buy twice, if so, puts it false for another time and call singal incomestate is finished, or emit buyStateFinished
-12. Handle buy state finished as internal signal and send startNextPlayerTurn(m_playerId)
-13. while taking another player, reset to zero all grey cards abilities
-
-
-## Possible JSON Formats
-### Standardized JSON message format
-
-{
-  "type": "message_type",
-  "timestamp": "ISO8601_timestamp",
-  "sender": "component_name",
-  "data": {
-    // type-specific data
-  }
-}
-
-### 1. Game State Management
-
-// Game initialization
-{
-  "type": "game_init",
-  "data": {
-    "player_count": 4
-  }
-}
-
-// Player turn change
-{
-  "type": "player_turn_change",
-  "data": {
-    "player_id": 2
-  }
-}
-
-// Game over
-{
-  "type": "game_over",
-  "data": {
-    "winner_id": 3
-  }
-}
-
-### 2. Card Operations
-
-// Card transfer
-{
-  "type": "card_transfer",
-  "data": {
-    "from": "bank",
-    "to": "player_1",
-    "card": {
-      "id": 42,
-      "type": "property",
-      "name": "Boardwalk",
-      "value": 400
-    }
-  }
-}
-
-// Card purchase attempt
-{
-  "type": "card_purchase_attempt",
-  "data": {
-    "player_id": 1,
-    "card_id": 42
-  }
-}
-
-// Card purchase failure
-{
-  "type": "card_purchase_failed",
-  "data": {
-    "player_id": 1,
-    "card_id": 42,
-    "reason": "insufficient_funds"
-  }
-}
-
-### 3. Dice Operations
-
-// Dice roll request
-{
-  "type": "dice_roll_request",
-  "data": {
-    "player_id": 1,
-    "dice_count": 2
-  }
-}
-
-// Dice roll result
-{
-  "type": "dice_roll_result",
-  "data": {
-    "player_id": 1,
-    "results": [4, 5],
-    "total": 9
-  }
-}
-
-// Dice reroll confirmation
-{
-  "type": "dice_reroll_confirmation",
-  "data": {
-    "player_id": 1,
-    "original_roll": [1, 1],
-    "confirmed": true
-  }
-}
-
-### 4. Player Actions
-
-// Balance change
-{
-  "type": "balance_change",
-  "data": {
-    "player_id": 2,
-    "amount": 200,
-    "new_balance": 1200
-  }
-}
-
-// State transition
-{
-  "type": "player_state_change",
-  "data": {
-    "player_id": 3,
-    "new_state": "purchase"
-  }
-}
-
-### Create a Message Factory:
-
-class JsonMessageFactory {
-public:
-    static QJsonObject createGameInitMessage(int playerCount);
-    static QJsonObject createCardTransferMessage(const QString& from, const QString& to, std::shared_ptr<Card> card);
-    static QJsonObject createDiceRollMessage(int playerId, const QVector<int>& results);
-    // ... other message creation methods
-};
-
-
-### Message Parser:
-
-class JsonMessageParser {
-public:
-    static QString getMessageType(const QJsonObject& message);
-    static int parsePlayerTurnChange(const QJsonObject& message);
-    static std::tuple<QString, QString, std::shared_ptr<Card>> parseCardTransfer(const QJsonObject& message);
-    // ... other parsing methods
-};
-
-### Modify your components to use JSON:
-
-// In GameLogic:
-void GameLogic::handleJsonMessage(const QJsonObject& message) {
-    QString type = JsonMessageParser::getMessageType(message);
-    
-    if (type == "card_purchase_attempt") {
-        auto [playerId, cardId] = JsonMessageParser::parseCardPurchaseAttempt(message);
-        // Handle purchase
-        QJsonObject response;
-        if (purchaseSuccessful) {
-            response = JsonMessageFactory::createCardTransferMessage("bank", 
-                                                                   QString("player_%1").arg(playerId),
-                                                                   card);
-        } else {
-            response = JsonMessageFactory::createPurchaseFailedMessage(playerId, cardId, "insufficient_funds");
-        }
-        emit jsonMessageReady(response);
-    }
-    // ... other message types
-}
-
-### Network Integration (for future):
-
-// In your network handler:
-void NetworkManager::sendMessage(const QJsonObject& message) {
-    QJsonDocument doc(message);
-    socket->write(doc.toJson());
-}
-
-void NetworkManager::onDataReceived(const QByteArray& data) {
-    QJsonDocument doc = QJsonDocument::fromJson(data);
-    if (!doc.isNull()) {
-        emit jsonMessageReceived(doc.object());
-    }
-}
-
-MainWindow:
-startMenu -> Network
-
-
-Connect Server:
-connect(&QTcpServer::newConnection, &NetworkApp::onNewConnection);
-connect(&QTcpSocket::readyRead, &NetworkApp::onSocketReadyRead);
-connect(&QTcpSocket::disconnected, &NetworkApp::onSocketDisconnected);
-
-Connect Client:
-connect(&QTcpSocket::connected, &MainWindow::IamConnected);
-connect(&QTcpSocket::readyRead, &NetworkApp::onSocketReadyRead);
-
-// MAYBE I WILL NEED THAT SOON!
-
-// Register meta types (in main.cpp)
-qRegisterMetaType<AbstractJsonPtr>("AbstractJsonPtr");
+### Payments Between Players
 
+If a player can't fully repay another player due to insufficient coins, they 
+must pay whatever they have. The bank does not cover the remaining debt. If 
+the debtor has no coins at all, the owed player receives nothing.
 
 
+The order of business activations must be **strictly followed**. **Cafés and 
+restaurants** are activated first. If a player owes coins to another 
+(due to their restaurants), this payment is settled before they collect 
+income from their other businesses.
 
+### Example of One Player Turn
 
+1. The dice result is "3".
+2. The dice activates the effect of opponent red cards.
+3. The debtor does not have enough coins to pay the debt of opponent's card effect,
+so opponent doesn't get any coins.
+4. The player receives one coin for each of his groceries.
 
+### Sequence of Build Activations
 
+When a single die roll triggers multiple types of businesses, they must be activated 
+in this specific order:
 
+1. **Cafés & Restaurants (Red cards)**
+2. **Medium Businesses (Green cards)**
+3. **Small Businesses (Blue cards)**
+4. **Large Businesses (Purple cards)**
 
+**Important**: If you own multiple copies of the same business card, each one is 
+activated separately whenever the corresponding number is rolled.
 
+### Multiple Payments
 
+If a player owes coins to multiple opponents simultaneously, the payments are 
+resolved in reverse turn order **(counterclockwise)**. 
 
 
+The debtor must fully settle the debt with the first opponent before paying 
+the next one. If they lack sufficient funds, they pay what they can to each 
+creditor in sequence, with no compensation from the bank for any remaining 
+unpaid amounts.
 
+### Explanation of the Effects of the Card
 
+**SHOPPING MALL** - This establishment doesn’t produce income on its own but 
+boosts earnings from your shop or cafe-type cards. **The Shopping Mall** enhances 
+all your cards of these types. For example, if you own two **Bakeries**, 
+rolling a **2** or **3** will now grant you **4** coins in total 
+(instead of the usual 2).
 
+**BUSINESS CENTER** - When activated, the current player can swap one of 
+their business cards with an opponent's. They decide which card to offer 
+and which one to request in return. However, the player has the option to 
+decline the exchange and keep their cards as they are.
 
+(Key points: The active player controls the trade, choosing both the card 
+to give and the one to take—or they may choose not to trade at all.)
 
-
-
-
-
-
-
+*Business Center feature is currently in development and not yet available. Stay tuned for updates!*
