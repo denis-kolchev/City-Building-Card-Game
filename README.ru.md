@@ -15,17 +15,6 @@ Machi Koro — это динамичная карточная игра про с
 - Interactive UI made with Qt 6.8 framework and C++17.
 - Multiplayer support [in development]
 
-## Getting Started
-
-To get started with the project, follow these steps:
-
-1. Clone the repository:
-```bash
-git https://gitlab.com/Den-One/city-building-card-game.git
-```
-2. Install dependencies.
-3. Build and run the project.
-
 ## Gameplay Description
 ### Start Menu (Offline mode) - Choose Number of Players
 ![Start Menu](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/documents/start_menu.jpg)

@@ -9,23 +9,12 @@ Machi Koro is a fast-paced, card-based city-building game. For more information,
 the [Machi Koro Wikipedia page](https://en.wikipedia.org/wiki/Machi_Koro).
 
 ## Download Latest Release
-[Download Latest Release](https://gitlab.com/Den-One/city-building-card-game/-/archive/release-2025-04-08/city-building-card-game-release-2025-04-08.zip)
+[Download 2025-04-08 Release for MacOS/Windows](https://gitlab.com/Den-One/city-building-card-game/-/archive/release-2025-04-08/city-building-card-game-release-2025-04-08.zip)
 
 ## Features
 
 - Interactive UI made with Qt 6.8 framework and C++17.
 - Multiplayer support [in development]
-
-## Getting Started
-
-To get started with the project, follow these steps:
-
-1. Clone the repository:
-```bash
-git https://gitlab.com/Den-One/city-building-card-game.git
-```
-2. Install dependencies.
-3. Build and run the project.
 
 ## Gameplay Description
 ### Start Menu (Offline mode) - Choose Number of Players
