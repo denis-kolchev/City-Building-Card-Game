@@ -4,6 +4,30 @@ Machi Koro.
 
 **Read in:** [English](#) | [Русский (Russian)](README.ru.md)
 
+## Table of Contents
+- [About Machi Koro](#about-machi-koro)
+- [Download Latest Release](#download-latest-release)
+- [Features](#features)
+- [Gameplay Description](#gameplay-description)
+  - [Start Menu (Offline)](#start-menu-offline-mode---choose-number-of-players)
+  - [Start Menu (Online)](#start-menu-online-mode---create-server-or-connect-client)
+  - [Income State](#income-state)
+  - [Build State](#build-state)
+  - [New Player's Card Stack](#new-players-card-stack)
+  - [Switch Player](#switch-to-another-player)
+  - [Win Condition](#unlock-landmark-to-win)
+- [Gameplay Rules](#gameplay-rules)
+  - [Preparation](#prepation-to-the-game)
+  - [Winning](#winning)
+  - [Turn Structure](#turn-structure)
+    - [Roll Dice](#1-roll-the-dice)
+    - [Collect Income](#2-collect-income)
+    - [Build Phase](#3build)
+  - [Payments](#payments-between-players)
+  - [Activation Order](#sequence-of-build-activations)
+  - [Multiple Payments](#multiple-payments)
+  - [Card Effects](#explanation-of-the-effects-of-the-card)
+
 ## About Machi Koro
 Machi Koro is a fast-paced, card-based city-building game. For more information, check out
 the [Machi Koro Wikipedia page](https://en.wikipedia.org/wiki/Machi_Koro).
