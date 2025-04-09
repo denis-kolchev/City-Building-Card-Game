@@ -8,7 +8,7 @@ Machi Koro — это динамичная карточная игра про с
 [Machi Koro Wikipedia page](https://en.wikipedia.org/wiki/Machi_Koro).
 
 ## Скачать последнюю версию
-[Download 2025-04-08 Release for MacOS/Windows](https://gitlab.com/Den-One/city-building-card-game/-/archive/release-2025-04-08/city-building-card-game-release-2025-04-08.zip)
+[2025-04-08 Release for Windows](https://gitlab.com/Den-One/city-building-card-game/-/archive/release-2025-04-08/city-building-card-game-release-2025-04-08.zip)
 
 ## Функциональные особенности
 
