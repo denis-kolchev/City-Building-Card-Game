@@ -1,8 +1,7 @@
-# City Building Card Game
-Welcome to city-building card game! This project is inspired by the popular board game
-Machi Koro.
+# Карточная игра про строительство города
+Добро пожаловать в карточную игру по строительству городов! Этот проект вдохновлен популярной настольной игрой Machi Koro.
 
-**Read in:** [English](#) | [Русский (Russian)](README.ru.md)
+**Читать на:** [Английский (English)](README.md) | [Русский](#)
 
 ## About Machi Koro
 Machi Koro is a fast-paced, card-based city-building game. For more information, check out

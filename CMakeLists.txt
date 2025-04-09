@@ -94,6 +94,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         network/jsons/jsongameover.h network/jsons/jsongameover.cpp
         network/jsons/jsondicerollresult.h network/jsons/jsondicerollresult.cpp
         network/jsons/jsonfinishincomestate.h network/jsons/jsonfinishincomestate.cpp
+        README.ru.md
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"
