@@ -34,6 +34,8 @@ the [Machi Koro Wikipedia page](https://en.wikipedia.org/wiki/Machi_Koro).
 
 ## Download Latest Release
 [2025-04-08 Release for Windows](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/release/Machi%20Koro%20Inspired.rar?ref_type=heads&inline=false)
+
+
 [2025-04-10 Release for MacOS](https://gitlab.com/Den-One/city-building-card-game/-/raw/main/release/Machi%20Koro%20Inspired.dmg?ref_type=heads&inline=false)
 
 ## Features
