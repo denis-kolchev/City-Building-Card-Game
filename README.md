@@ -33,7 +33,8 @@ Machi Koro is a fast-paced, card-based city-building game. For more information,
 the [Machi Koro Wikipedia page](https://en.wikipedia.org/wiki/Machi_Koro).
 
 ## Download Latest Release
-[2025-04-08 Release for Windows](https://gitlab.com/Den-One/city-building-card-game/-/archive/release-2025-04-08/city-building-card-game-release-2025-04-08.zip)
+[2025-04-08 Release for Windows](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/release/Machi%20Koro%20Inspired.rar)
+[2025-04-10 Release for MacOS](https://gitlab.com/Den-One/city-building-card-game/-/blob/main/release/Machi%20Koro%20Inspired.dmg)
 
 ## Features
 
