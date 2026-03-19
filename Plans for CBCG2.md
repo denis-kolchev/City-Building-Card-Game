@@ -3,8 +3,6 @@
 ## Main Goal
 Improve and clarify the user experience.
 
----
-
 ## 1. The main screen should be dockedWidget.
 * The main screen should use a dock widget system.
 * The current tab-based approach (when other players’ fields are hidden) is a bad idea and should be removed.
@@ -19,42 +17,44 @@ Improve and clarify the user experience.
 * The shop is a separate area, likely positioned above or centrally.
 * In some cases, it may also make sense to allow separate windows.
 
-### 2 Players Case
+
+2 Players Case
 --------------------------|
 |                         |
 |          Shop           |
 |                         |
 |-------------------------|
 |            |            |
-|   Play 1   |   Play 2   |
+|  Player 1  |  Player 2  |
 |            |            |
 --------------------------|
 
-### 3 Players Case
+
+3 Players Case
 --------------------------|
 |            |            |
-|    Shop    |   Play 3   |
+|    Shop    |  Player 3  |
 |            |            |
 |-------------------------|
 |            |            |
-|   Play 1   |   Play 2   |
+|  Player 1  |  Player 2  |
 |            |            |
 --------------------------|
 
-### 4 Players Case
+
+4 Players Case
 --------------------------|
-|           Shop          |
+|          Shop           |
 |-------------------------|
 |            |            |
-|   Play 4   |   Play 3   |
+|  Player 4  |  Player 3  |
 |            |            |
 |-------------------------|
 |            |            |
-|   Play 1   |   Play 2   |
+|  Player 1  |  Player 2  |
 |            |            |
 --------------------------|
 
----
 
 ## 2. Scalability
 * The UI should be fully scalable.
@@ -63,8 +63,6 @@ Improve and clarify the user experience.
     * Become smaller
     * Be arranged into multiple rows
 
----
-
 ## 3. Separated Architecture
 * Game data (logic layer) is one independent part.
 * UI (widgets) is another independent part.
@@ -72,8 +70,6 @@ Improve and clarify the user experience.
 ## Communication
 * Widgets should emit signals describing user actions and state changes.
 * These signals can be sent to other application instances (for multiplayer interaction).
-
----
 
 ## 4. Interaction Details
 * The interaction should feel similar to classic solitaire:
@@ -88,8 +84,6 @@ Improve and clarify the user experience.
     * Placement preview before confirming an action
     * Snappy and responsive placement behavior
 
----
-
 ## 5. Dice Roll System
 * Dice rolling should be implemented as a popup dialog with animation.
 
@@ -98,20 +92,14 @@ Improve and clarify the user experience.
 * Then display a short animation
 * Use multiple animation variations to avoid the feeling that the result is predetermined.
 
----
-
 ## 6. Zoom Behavior
 * Zooming out may hide non-essential details:
     * Card descriptions can be hidden
 * Important gameplay information must always remain visible
 
----
-
 ## 7. Multi-Instance Development
 * The system should be designed from the beginning to support multiple application instances (one per player).
 * Inter-application communication must be considered early in development.
-
----
 
 ## 8. Development Strategy
 * Do not build the entire system at once.
