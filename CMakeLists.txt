@@ -95,6 +95,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         network/jsons/jsondicerollresult.h network/jsons/jsondicerollresult.cpp
         network/jsons/jsonfinishincomestate.h network/jsons/jsonfinishincomestate.cpp
         README.ru.md
+
+
+        ui/gameconfig.h ui/gameconfig.cpp
+        ui/gamemainwindow.h ui/gamemainwindow.cpp
     )
 
     # Make CardsDataConfig.ini visible in IDEs under "Configuration Files"

@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include <QObject>
+#include <QMap>
 #include <QTcpServer>
 #include <QJsonDocument>
 

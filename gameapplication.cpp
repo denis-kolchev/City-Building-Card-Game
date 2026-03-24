@@ -16,11 +16,12 @@ GameApplication::GameApplication(std::shared_ptr<CardDataConfigReader> configRea
 
 void GameApplication::run()
 {
-    if (m_configReader->isConfigDataReady()) {
-        emit m_configReader->configDataReadyToRead();
-    }
+    m_mainWindow->show();
+    // if (m_configReader->isConfigDataReady()) {
+    //     emit m_configReader->configDataReadyToRead();
+    // }
 
-    m_startMenu->show();
+    // m_startMenu->show();
 }
 
 void GameApplication::setupConnections()

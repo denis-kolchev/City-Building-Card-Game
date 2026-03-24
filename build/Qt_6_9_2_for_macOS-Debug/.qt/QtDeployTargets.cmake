@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_CityBuildingCardGame_FILE /Users/deniskolchev/Documents/City Building Card Game/build/Qt_6_9_2_for_macOS-Debug/CityBuildingCardGame.app/Contents/MacOS/CityBuildingCardGame)
+set(__QT_DEPLOY_TARGET_CityBuildingCardGame_TYPE EXECUTABLE)
