@@ -13,7 +13,8 @@ public:
                     std::shared_ptr<GameLogic> logic,
                     std::shared_ptr<MainWindow> window,
                     std::shared_ptr<NetworkManager> network,
-                    std::shared_ptr<StartMenu> menu);
+                    std::shared_ptr<StartMenu> menu,
+                    int offlinePlayerCount);
 
     void run();
 
@@ -26,6 +27,7 @@ private:
     std::shared_ptr<MainWindow>           m_mainWindow;
     std::shared_ptr<NetworkManager>       m_network;
     std::shared_ptr<StartMenu>            m_startMenu;
+    int                                   m_offlinePlayerCount = 2;
 
 };
 #endif // GAMEAPPLICATION_H

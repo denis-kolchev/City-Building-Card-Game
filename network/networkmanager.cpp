@@ -101,12 +101,18 @@ void NetworkManager::createServer(const QString &host, quint16 port, int playerC
 
 void NetworkManager::broadcastDiceRollResult(int playerId, QVector<int> rolls)
 {
+    if (!m_client || !m_client->isConnected()) {
+        return;
+    }
     JsonDiceRollResult diceRollResult(playerId, rolls);
     m_client->send(diceRollResult.json());
 }
 
 void NetworkManager::broadcastFinishIncomeState(int playerId)
 {
+    if (!m_client || !m_client->isConnected()) {
+        return;
+    }
     JsonFinishIncomeState finishIncomeState(playerId);
     m_client->send(finishIncomeState.json());
 }

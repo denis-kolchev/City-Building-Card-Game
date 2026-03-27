@@ -31,6 +31,13 @@ bool CardDataConfigReader::isConfigDataReady()
     return m_isConfigDataReady;
 }
 
+void CardDataConfigReader::notifyConfigReady()
+{
+    if (m_isConfigDataReady) {
+        emit configDataReadyToRead();
+    }
+}
+
 void CardDataConfigReader::handleReadFromRange(CardId begin, CardId end)
 {
     emit sendCardData(readFromRange(begin, end));

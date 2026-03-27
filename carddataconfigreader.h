@@ -17,6 +17,10 @@ public:
 
     bool isConfigDataReady();
 
+    /// Emits configDataReadyToRead when the INI was found; call once after connections are wired
+    /// so GameLogic can fill the bank before players are created.
+    void notifyConfigReady();
+
 signals:
     // Signal emitted when config data is ready
     void configDataReadyToRead();
