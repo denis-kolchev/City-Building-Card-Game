@@ -4,11 +4,20 @@
 CardStackWidget::CardStackWidget(QWidget *parent)
     : QWidget(parent)
 {
-    // These calculations should be fixed in the future and made binamic
-    int w = 150, h = 250;
-    w += 10; // outline
-    h += 10; // otline
-    h += 60; // offset * 6
+    updateStackGeometry();
+}
+
+void CardStackWidget::updateStackGeometry()
+{
+    // CardWidget uses 150×250; reserve width for outline padding, height for card + vertical stack overlap.
+    constexpr int cardW = 150;
+    constexpr int cardH = 250;
+    constexpr int outlinePad = 10;
+
+    const int n = static_cast<int>(m_cards.size());
+    const int stackExtra = n > 1 ? (n - 1) * m_cardOverlap : 0;
+    const int w = cardW + outlinePad;
+    const int h = cardH + outlinePad + stackExtra;
     setFixedSize(w, h);
 }
 
@@ -17,7 +26,7 @@ void CardStackWidget::addCard(CardWidget *card)
     m_cards.append(card);
     card->setParent(this); // Set this widget as the parent
     card->show();
-    //qDebug() << "Card added. Total cards:" << m_cards.size();
+    updateStackGeometry();
     updateGeometry();
     update(); // Trigger a repaint
 }
@@ -54,6 +63,7 @@ void CardStackWidget::removeCard()
         card->hide();
         card->deleteLater();
         qDebug() << "Card removed. Total cards:" << m_cards.size();
+        updateStackGeometry();
         updateGeometry();
         update(); // Trigger a repaint
     }

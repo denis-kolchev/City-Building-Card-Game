@@ -2,6 +2,7 @@
 #include "basecardwidget.h"
 
 #include <QTimer>
+#include <QWidget>
 #include <QVBoxLayout>
 #include <QGraphicsScene>
 #include <QPainter>
@@ -310,7 +311,21 @@ void CardView::layoutItems()
 
     const int N = static_cast<int>(m_items.size());
 
+    // Match embedded QWidget size (e.g. 150×250 for CardWidget / DemoCardWidget). A fixed 120×160
+    // here scaled the proxy wrong and looked vertically “indented” vs the layout band.
     QSizeF baseSize(120, 160);
+    for (const CardItem *item : m_items) {
+        QWidget *w = item->widget();
+        if (!w)
+            continue;
+        QSizeF sz(w->width(), w->height());
+        if (sz.width() <= 0 || sz.height() <= 0)
+            sz = QSizeF(w->sizeHint());
+        if (sz.width() > 0 && sz.height() > 0) {
+            baseSize.setWidth(qMax(baseSize.width(), sz.width()));
+            baseSize.setHeight(qMax(baseSize.height(), sz.height()));
+        }
+    }
 
     const qreal maxScale = 2.0;
     const qreal minScale = 0.5;

@@ -1,5 +1,5 @@
 // #include "ui/cardview.h"
-// #include "ui/democardwidget.h"
+// #include "ui/democardstackwidget.h"
 
 // #include <QApplication>
 
@@ -20,8 +20,13 @@
 //         QStringLiteral(":/images/cardStadium.jpeg"),
 //     };
 
+//     const int stackDepths[] = { 3, 2, 4, 1, 2, 3 };
+
 //     for (int i = 0; i < 6; ++i) {
-//         view.addCard(new DemoCardWidget(QStringLiteral("Card %1").arg(i), demoImages[i]));
+//         view.addWidget(new DemoCardStackWidget(
+//             QStringLiteral("Card %1").arg(i),
+//             demoImages[i],
+//             stackDepths[i]));
 //     }
 
 //     view.setOrientation(Orientation::Horizontal);

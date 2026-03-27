@@ -39,6 +39,8 @@ signals:
     void clicked(QString cardTitle);
 
 private:
+    void updateStackGeometry();
+
     QList<CardWidget*> m_cards;
     int m_cardOverlap = 10; // Horizontal overlap between cards
     CardWidget* m_lastHighlighted;
