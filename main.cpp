@@ -1,42 +1,73 @@
+// #include "ui/cardview.h"
+// #include "ui/democardwidget.h"
+
+// #include <QApplication>
+
+// int main(int argc, char *argv[])
+// {
+//     QApplication app(argc, argv);
+
+//     CardView view;
+//     view.resize(900, 400);
+//     view.setOrthogonalLineCount(1);
+
+//     const QString demoImages[] = {
+//         QStringLiteral(":/images/cardWheatField.jpeg"),
+//         QStringLiteral(":/images/cardBakery.jpeg"),
+//         QStringLiteral(":/images/cardCafe.jpeg"),
+//         QStringLiteral(":/images/cardForest.jpeg"),
+//         QStringLiteral(":/images/cardShop.jpeg"),
+//         QStringLiteral(":/images/cardStadium.jpeg"),
+//     };
+
+//     for (int i = 0; i < 6; ++i) {
+//         view.addCard(new DemoCardWidget(QStringLiteral("Card %1").arg(i), demoImages[i]));
+//     }
+
+//     view.setOrientation(Orientation::Horizontal);
+//     view.setPopLiftDirection(PopLiftDirection::Up, PopLiftDirection::Right);
+
+//     view.show();
+
+//     return app.exec();
+// }
+
 #include "gameapplicationbuilder.h"
 
-#include "ui/gameconfig.h"
-#include "ui/gamemainwindow.h"
 #include <QApplication>
-
-QJsonDocument example()
-{
-    QJsonArray playersArray;
-    playersArray.append("Mark");
-    playersArray.append("Lena");
-
-    QJsonObject jsonObject;
-    jsonObject["players"] = playersArray;
-    jsonObject["playersCount"] = 2;
-
-    QJsonDocument jsonDoc(jsonObject);
-    return jsonDoc;
-}
-
+#include <QString>
 
 int main(int argc, char *argv[]) {
     QApplication eventLoop(argc, argv);
 
-    //  Factory/Builder Pattern
-    // auto gameApplication = GameApplicationBuilder()
-    //                            .withConfigReader()
-    //                            .withGameLogic()
-    //                            .withMainWindow()
-    //                            .withNetworkManager()
-    //                            .withStartMenu()
-    //                            .build();
+    // Default: local 2-player game, no start menu, no network required.
+    // Pass --start-menu to use the Offline / Create Server / Connect tabs (multiplayer over network).
+    // Optional: --players N (2–5) when not using --start-menu.
+    bool useStartMenu = false;
+    int offlinePlayers = 2;
+    for (int i = 1; i < argc; ++i) {
+        const QString arg = QString::fromLocal8Bit(argv[i]);
+        if (arg == QLatin1String("--start-menu")) {
+            useStartMenu = true;
+        } else if (arg == QLatin1String("--players") && i + 1 < argc) {
+            offlinePlayers = QString::fromLocal8Bit(argv[++i]).toInt();
+        }
+    }
 
-    // gameApplication->run();
+    GameApplicationBuilder builder;
+    builder.withConfigReader()
+        .withGameLogic()
+        .withMainWindow()
+        .withNetworkManager()
+        .withOfflinePlayerCount(offlinePlayers);
 
-    QJsonDocument document = example();
-    GameConfig config(document);
-    GameMainWindow window(&config);
-    window.show();
+    if (useStartMenu) {
+        builder.withStartMenu();
+    }
+
+    auto gameApplication = builder.build();
+
+    gameApplication->run();
 
     return eventLoop.exec();
 }

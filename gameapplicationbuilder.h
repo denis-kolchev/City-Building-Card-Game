@@ -19,6 +19,9 @@ public:
 
     GameApplicationBuilder& withStartMenu();
 
+    /// Used when the start menu is omitted: local game with this many players (2–5).
+    GameApplicationBuilder& withOfflinePlayerCount(int count);
+
     std::shared_ptr<GameApplication> build();
 
 private:
@@ -27,6 +30,7 @@ private:
     std::shared_ptr<MainWindow>             m_mainWindow;
     std::shared_ptr<NetworkManager>         m_network;
     std::shared_ptr<StartMenu>              m_startMenu;
+    int                                     m_offlinePlayerCount = 2;
 };
 
 #endif // GAMEAPPLICATIONBUILDER_H

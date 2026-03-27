@@ -58,8 +58,8 @@ private:
     void setupClient(const QString &connectedMessage);
 
 private:
-    Server *m_server;
-    Client *m_client;
+    Server *m_server = nullptr;
+    Client *m_client = nullptr;
     JsonMessageFactory *m_jsonFactory;
     bool m_isHost;
 

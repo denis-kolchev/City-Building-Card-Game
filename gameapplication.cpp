@@ -4,42 +4,55 @@ GameApplication::GameApplication(std::shared_ptr<CardDataConfigReader> configRea
                                  std::shared_ptr<GameLogic> logic,
                                  std::shared_ptr<MainWindow> window,
                                  std::shared_ptr<NetworkManager> network,
-                                 std::shared_ptr<StartMenu> menu)
+                                 std::shared_ptr<StartMenu> menu,
+                                 int offlinePlayerCount)
     : m_configReader(configReader)
     , m_gameLogic(logic)
     , m_mainWindow(window)
     , m_network(network)
     , m_startMenu(menu)
+    , m_offlinePlayerCount(offlinePlayerCount)
 {
     setupConnections();
 }
 
 void GameApplication::run()
 {
-    m_mainWindow->show();
-    // if (m_configReader->isConfigDataReady()) {
-    //     emit m_configReader->configDataReadyToRead();
-    // }
+    // Stock the bank from INI before any handleShowMainWindow → createPlayers (same as the old
+    // commented emit in run(); the signal was never fired from CardDataConfigReader itself).
+    m_configReader->notifyConfigReady();
 
-    // m_startMenu->show();
+    if (m_startMenu) {
+        m_startMenu->show();
+    } else {
+        m_mainWindow->handleShowMainWindow(m_offlinePlayerCount);
+    }
 }
 
 void GameApplication::setupConnections()
 {
-    // startMenu -> NetworkManager
-    QObject::connect(m_startMenu.get(), &StartMenu::onCreateServer,
-                     m_network.get(), &NetworkManager::createServer);
+    if (m_startMenu) {
+        // startMenu -> NetworkManager
+        QObject::connect(m_startMenu.get(), &StartMenu::onCreateServer,
+                         m_network.get(), &NetworkManager::createServer);
 
-    QObject::connect(m_startMenu.get(), &StartMenu::onCreateClient,
-                     m_network.get(), &NetworkManager::createClient);
+        QObject::connect(m_startMenu.get(), &StartMenu::onCreateClient,
+                         m_network.get(), &NetworkManager::createClient);
 
-    // NetworkManager -> startMenu
-    QObject::connect(m_network.get(), &NetworkManager::notifyPlayerWithMessageBox,
-                     m_startMenu.get(), &StartMenu::showMessage);
+        // NetworkManager -> startMenu
+        QObject::connect(m_network.get(), &NetworkManager::notifyPlayerWithMessageBox,
+                         m_startMenu.get(), &StartMenu::showMessage);
 
-    // NetworkManager -> startMenu
-    QObject::connect(m_network.get(), &NetworkManager::networkGameInit,
-                     m_startMenu.get(), &StartMenu::showMainWindow);
+        QObject::connect(m_network.get(), &NetworkManager::networkGameInit,
+                         m_startMenu.get(), &StartMenu::showMainWindow);
+
+        // startMenu -> mainWindow
+        QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
+                         m_mainWindow.get(), &MainWindow::handleShowMainWindow);
+    } else {
+        QObject::connect(m_network.get(), &NetworkManager::networkGameInit,
+                         m_mainWindow.get(), &MainWindow::handleShowMainWindow);
+    }
 
     // NetworkManager -> mainWindow
     QObject::connect(m_network.get(), &NetworkManager::networkDiceRollResult,
@@ -47,10 +60,6 @@ void GameApplication::setupConnections()
 
     QObject::connect(m_network.get(), &NetworkManager::networkFinishIncomeState,
                      m_mainWindow.get(), &MainWindow::handleFinishIncomeState);
-
-    // startMenu -> mainWindow
-    QObject::connect(m_startMenu.get(), &StartMenu::showMainWindow,
-                     m_mainWindow.get(), &MainWindow::handleShowMainWindow);
 
     // configReader -> gameLogic
     QObject::connect(m_configReader.get(), &CardDataConfigReader::configDataReadyToRead,
