@@ -1,6 +1,9 @@
 #include "cardview.h"
 #include "basecardwidget.h"
+#include "carddragoverlay.h"
 
+#include <QApplication>
+#include <QCursor>
 #include <QTimer>
 #include <QWidget>
 #include <QVBoxLayout>
@@ -14,9 +17,67 @@
 #include <QGraphicsItem>
 #include <QGraphicsPixmapItem>
 #include <QImage>
+#include <QUuid>
 #include <algorithm>
+#include <limits>
 #include <utility>
 #include <vector>
+
+static CardView *g_dragActiveView = nullptr;
+static CardView *g_dragMouseGrabView = nullptr;
+
+/**
+ * Resolves which CardView contains globalPos. The drag overlay is a top-level window on top of the
+ * stack, so QApplication::widgetAt often hits it and never reaches a CardView; when that happens we
+ * fall back to geometry tests against all CardViews under the same top-level window.
+ */
+static CardView *cardViewAtGlobal(const QPoint &globalPos)
+{
+    QWidget *w = QApplication::widgetAt(globalPos);
+    while (w) {
+        if (auto *cv = dynamic_cast<CardView *>(w))
+            return cv;
+        w = w->parentWidget();
+    }
+
+    QWidget *win = nullptr;
+    if (g_dragMouseGrabView)
+        win = g_dragMouseGrabView->window();
+    else if (g_dragActiveView)
+        win = g_dragActiveView->window();
+    if (!win)
+        return nullptr;
+
+    CardView *best = nullptr;
+    int bestArea = std::numeric_limits<int>::max();
+    const QList<QWidget *> candidates = win->findChildren<QWidget *>(QString(), Qt::FindChildrenRecursively);
+    for (QWidget *qw : candidates) {
+        auto *cv = dynamic_cast<CardView *>(qw);
+        if (!cv)
+            continue;
+        if (!cv->isVisible())
+            continue;
+        const QPoint p = cv->mapFromGlobal(globalPos);
+        if (!cv->rect().contains(p))
+            continue;
+        const int a = cv->width() * cv->height();
+        if (a < bestArea) {
+            bestArea = a;
+            best = cv;
+        }
+    }
+    return best;
+}
+
+/**
+ * Global pixel for a scene point as this view draws it. Prefer this over QWidget::mapToGlobal on
+ * widgets embedded in QGraphicsProxyWidget — that path is often wrong across views / during moves.
+ */
+static QPoint mapScenePointToGlobal(const CardView *view, const QPointF &scenePt)
+{
+    const QPointF vp = view->mapFromScene(scenePt);
+    return view->viewport()->mapToGlobal(QPoint(qRound(vp.x()), qRound(vp.y())));
+}
 
 namespace {
 
@@ -56,7 +117,7 @@ QRect boundsForOpaquePixels(const QImage &img, int alphaThreshold = 18)
     return QRect(minX, minY, maxX - minX + 1, maxY - minY + 1);
 }
 
-QPixmap phantomPixmapFromWidget(QWidget *w, QPoint *outCropTopLeftInWidget = nullptr)
+QPixmap phantomPixmapFromWidget(QWidget *w, QPoint *outCropTopLeftInWidget = nullptr, bool tint = true)
 {
     if (!w)
         return {};
@@ -79,20 +140,22 @@ QPixmap phantomPixmapFromWidget(QWidget *w, QPoint *outCropTopLeftInWidget = nul
     if (outCropTopLeftInWidget)
         *outCropTopLeftInWidget = cropTL;
 
-    for (int y = 0; y < img.height(); ++y) {
-        QRgb *line = reinterpret_cast<QRgb *>(img.scanLine(y));
-        for (int x = 0; x < img.width(); ++x) {
-            const QRgb px = line[x];
-            const int a = qAlpha(px);
-            if (a < 12) {
-                line[x] = qRgba(0, 0, 0, 0);
-                continue;
+    if (tint) {
+        for (int y = 0; y < img.height(); ++y) {
+            QRgb *line = reinterpret_cast<QRgb *>(img.scanLine(y));
+            for (int x = 0; x < img.width(); ++x) {
+                const QRgb px = line[x];
+                const int a = qAlpha(px);
+                if (a < 12) {
+                    line[x] = qRgba(0, 0, 0, 0);
+                    continue;
+                }
+                const int r = qRed(px) * 72 / 100;
+                const int g = qGreen(px) * 72 / 100;
+                const int b = qBlue(px) * 80 / 100;
+                const int na = qMin(255, a * 200 / 255);
+                line[x] = qRgba(r, g, b, na);
             }
-            const int r = qRed(px) * 72 / 100;
-            const int g = qGreen(px) * 72 / 100;
-            const int b = qBlue(px) * 80 / 100;
-            const int na = qMin(255, a * 200 / 255);
-            line[x] = qRgba(r, g, b, na);
         }
     }
 
@@ -121,7 +184,11 @@ int mapCoordToNearestSlot(qreal coord, qreal axisOrigin, qreal offsetMain, qreal
 
 void reorderSpanLocals(std::vector<CardItem *> &items, int spanStart, int spanLen, int fromLocal, int toLocal)
 {
-    if (fromLocal == toLocal || spanLen <= 0)
+    if (spanLen <= 0 || spanStart < 0 || spanStart + spanLen > static_cast<int>(items.size()))
+        return;
+    fromLocal = qBound(0, fromLocal, spanLen - 1);
+    toLocal = qBound(0, toLocal, spanLen - 1);
+    if (fromLocal == toLocal)
         return;
     std::vector<CardItem *> span;
     span.reserve(static_cast<size_t>(spanLen));
@@ -132,6 +199,25 @@ void reorderSpanLocals(std::vector<CardItem *> &items, int spanStart, int spanLe
     span.insert(span.begin() + toLocal, moved);
     for (int i = 0; i < spanLen; ++i)
         items[static_cast<size_t>(spanStart + i)] = span[static_cast<size_t>(i)];
+}
+
+void reorderSpanIds(std::vector<QUuid> &ids, int spanStart, int spanLen, int fromLocal, int toLocal)
+{
+    if (spanLen <= 0 || spanStart < 0 || spanStart + spanLen > static_cast<int>(ids.size()))
+        return;
+    fromLocal = qBound(0, fromLocal, spanLen - 1);
+    toLocal = qBound(0, toLocal, spanLen - 1);
+    if (fromLocal == toLocal)
+        return;
+    std::vector<QUuid> span;
+    span.reserve(static_cast<size_t>(spanLen));
+    for (int i = 0; i < spanLen; ++i)
+        span.push_back(ids[static_cast<size_t>(spanStart + i)]);
+    QUuid moved = span[static_cast<size_t>(fromLocal)];
+    span.erase(span.begin() + fromLocal);
+    span.insert(span.begin() + toLocal, moved);
+    for (int i = 0; i < spanLen; ++i)
+        ids[static_cast<size_t>(spanStart + i)] = span[static_cast<size_t>(i)];
 }
 
 std::pair<int, int> horizontalRowSpanForIndex(int globalIndex, int totalCount, int rowCount)
@@ -228,6 +314,30 @@ std::vector<CardItem *> permuteDragToSpanSlot(
         return items;
     std::vector<CardItem *> perm = items;
     CardItem *d = perm[static_cast<size_t>(dragIdx)];
+    perm.erase(perm.begin() + dragIdx);
+    perm.insert(perm.begin() + to, d);
+    return perm;
+}
+
+std::vector<QUuid> permuteIdsToSpanSlot(
+    const std::vector<QUuid> &ids,
+    int dragIdx,
+    int previewSpan,
+    int previewLocal,
+    const std::vector<int> &spanSizes)
+{
+    const int spanCount = static_cast<int>(spanSizes.size());
+    if (dragIdx < 0 || dragIdx >= static_cast<int>(ids.size()) || previewSpan < 0 || previewSpan >= spanCount)
+        return ids;
+    const int nInSpan = spanSizes[static_cast<size_t>(previewSpan)];
+    if (nInSpan <= 0)
+        return ids;
+    const int slot = qBound(0, previewLocal, nInSpan - 1);
+    const int to = flatIndexInSpans(spanSizes, previewSpan, slot);
+    if (dragIdx == to)
+        return ids;
+    std::vector<QUuid> perm = ids;
+    QUuid d = perm[static_cast<size_t>(dragIdx)];
     perm.erase(perm.begin() + dragIdx);
     perm.insert(perm.begin() + to, d);
     return perm;
@@ -829,6 +939,7 @@ void CardView::addWidget(QWidget *w)
     auto *item = new CardItem(w);
     m_scene->addItem(item);
     m_items.push_back(item);
+    m_cardIds.push_back(QUuid::createUuid());
     scheduleLayout();
 }
 
@@ -868,7 +979,7 @@ bool CardView::eventFilter(QObject *watched, QEvent *event)
         switch (event->type()) {
         case QEvent::MouseButtonPress: {
             auto *me = static_cast<QMouseEvent *>(event);
-            if (me->button() == Qt::LeftButton) {
+            if (me->button() == Qt::LeftButton && me->modifiers().testFlag(Qt::ShiftModifier)) {
                 const QPointF scenePos = mapToScene(me->position().toPoint());
                 const int hit = cardIndexAtScenePoint(scenePos);
                 if (hit >= 0) {
@@ -879,19 +990,20 @@ bool CardView::eventFilter(QObject *watched, QEvent *event)
             break;
         }
         case QEvent::MouseMove:
-            if (m_draggingCardIndex >= 0) {
-                const QPointF scenePos = mapToScene(static_cast<QMouseEvent *>(event)->position().toPoint());
+            if (g_dragActiveView != nullptr) {
+                auto *me = static_cast<QMouseEvent *>(event);
+                const QPointF scenePos = mapToScene(me->position().toPoint());
                 m_lastSceneHoverPos = scenePos;
                 m_hasLastSceneHoverPos = true;
-                updateCardDrag(scenePos);
+                g_dragActiveView->updateCardDragGlobal(me->globalPosition().toPoint());
                 return true;
             }
             break;
         case QEvent::MouseButtonRelease:
-            if (m_draggingCardIndex >= 0) {
+            if (g_dragActiveView != nullptr) {
                 auto *me = static_cast<QMouseEvent *>(event);
                 if (me->button() == Qt::LeftButton) {
-                    endCardDrag();
+                    g_dragActiveView->endCardDrag();
                     return true;
                 }
             }
@@ -921,12 +1033,8 @@ int CardView::cardIndexAtScenePoint(const QPointF &scenePoint) const
     return -1;
 }
 
-void CardView::beginCardDrag(int index, const QPointF &scenePos)
+void CardView::initDragSpanStateForIndex(int index)
 {
-    m_draggingCardIndex = index;
-    m_dragStartScene = scenePos;
-    m_dragMouseScene = scenePos;
-
     const int N = static_cast<int>(m_items.size());
     if (m_orientation == Orientation::Horizontal) {
         const std::pair<int, int> span = horizontalRowSpanForIndex(index, N, std::max(1, m_horizontalRowCount));
@@ -945,7 +1053,29 @@ void CardView::beginCardDrag(int index, const QPointF &scenePos)
         m_dragPreviewOrtho = horizontalRowIndexForGlobal(index, N, std::max(1, m_horizontalRowCount));
     else
         m_dragPreviewOrtho = verticalColIndexForGlobal(index, N, std::max(1, m_verticalColumnCount));
+}
+
+int CardView::insertIndexForDropAt(const QPointF &scenePoint) const
+{
+    const int hit = cardIndexAtScenePoint(scenePoint);
+    if (hit >= 0)
+        return hit;
+    return static_cast<int>(m_items.size());
+}
+
+void CardView::beginCardDrag(int index, const QPointF &scenePos)
+{
+    if (g_dragActiveView != nullptr)
+        return;
+
+    m_draggingCardIndex = index;
+    m_dragStartScene = scenePos;
+    m_dragMouseScene = scenePos;
+
+    initDragSpanStateForIndex(index);
     m_dragFollowReady = false;
+
+    const int N = static_cast<int>(m_items.size());
 
     // Clear hover on other stacks only. Keep hover lift on the dragged stack; drag offset is then
     // computed as mouse − grab − slot − hoverLift so the pile stays visually where it was (e.g. y+1).
@@ -961,6 +1091,9 @@ void CardView::beginCardDrag(int index, const QPointF &scenePos)
     QGuiApplication::setOverrideCursor(Qt::ClosedHandCursor);
     viewport()->grabMouse();
 
+    g_dragActiveView = this;
+    g_dragMouseGrabView = this;
+
     layoutItems();
 
     m_dragGrabSceneOffset = scenePos - it->scenePos();
@@ -972,6 +1105,11 @@ void CardView::beginCardDrag(int index, const QPointF &scenePos)
     it->setDragOffset(m_dragSmoothedFollowOffset);
 
     createDragPhantom(m_dragPhantomLayoutScale);
+    m_dragOverlayHotspotInitialized = false;
+    refreshDragOverlay(QCursor::pos());
+    CardDragOverlayWidget::instance()->show();
+    CardDragOverlayWidget::instance()->raise();
+    setDraggedCardOpaque(false);
     m_dragSmoothTimer->start();
 }
 
@@ -984,13 +1122,103 @@ void CardView::updateCardDrag(const QPointF &scenePos)
     layoutItems();
 }
 
-void CardView::endCardDrag()
+void CardView::updateCardDragGlobal(const QPoint &globalPos)
 {
-    if (m_draggingCardIndex < 0)
+    if (g_dragActiveView != this)
+        return;
+
+    CardView *under = cardViewAtGlobal(globalPos);
+    if (under != nullptr && under != this) {
+        transferActiveDragTo(under, globalPos);
+        return;
+    }
+
+    const QPointF scenePos = mapToScene(viewport()->mapFromGlobal(globalPos));
+    updateCardDrag(scenePos);
+    updateDragOverlayScreenFrame();
+}
+
+void CardView::transferActiveDragTo(CardView *target, const QPoint &globalPos)
+{
+    if (this != g_dragActiveView || target == nullptr || target == this || m_draggingCardIndex < 0)
+        return;
+
+    const QPoint savedOverlayHotspot = m_dragOverlayHotspot;
+    const bool savedOverlayHotspotInit = m_dragOverlayHotspotInitialized;
+
+    const int oldDragIdx = m_draggingCardIndex;
+    if (oldDragIdx < 0 || oldDragIdx >= static_cast<int>(m_items.size()))
         return;
 
     m_dragSmoothTimer->stop();
     removeDragPhantom();
+    m_dragFollowReady = false;
+
+    // Move exactly one pile (one CardItem). Same-view drag still uses full row/column span for
+    // reordering; moving that entire span to another view would relocate 3+ stacks at once (e.g. 6+6
+    // becomes 9+3 when one row of three crosses views).
+    CardItem *item = m_items[static_cast<size_t>(oldDragIdx)];
+    const QUuid id = m_cardIds[static_cast<size_t>(oldDragIdx)];
+
+    m_items.erase(m_items.begin() + oldDragIdx);
+    m_cardIds.erase(m_cardIds.begin() + oldDragIdx);
+    m_scene->removeItem(item);
+
+    const QPointF targetScene = target->mapToScene(target->viewport()->mapFromGlobal(globalPos));
+    int insertIdx = target->insertIndexForDropAt(targetScene);
+    insertIdx = qBound(0, insertIdx, static_cast<int>(target->m_items.size()));
+
+    target->m_items.insert(target->m_items.begin() + insertIdx, item);
+    target->m_cardIds.insert(target->m_cardIds.begin() + insertIdx, id);
+    target->m_scene->addItem(item);
+
+    m_draggingCardIndex = -1;
+    m_lastDragLayoutPreviewLocal = -1;
+    m_dragLastLayoutPreviewOrtho = -1;
+    layoutItems();
+
+    const int newDragIdx = insertIdx;
+    g_dragActiveView = target;
+    target->m_draggingCardIndex = newDragIdx;
+    target->m_dragStartScene = targetScene;
+    target->m_dragMouseScene = targetScene;
+    target->initDragSpanStateForSinglePile(newDragIdx);
+    target->m_dragFollowReady = false;
+
+    target->layoutItems();
+
+    CardItem *lead = target->m_items[static_cast<size_t>(newDragIdx)];
+    target->m_dragGrabSceneOffset = targetScene - lead->scenePos();
+    target->m_dragFollowReady = true;
+    target->m_dragSmoothedFollowOffset =
+        target->m_dragMouseScene - target->m_dragGrabSceneOffset - target->m_dragSlotTopLeftScene
+        - lead->hoverLiftSceneOffset();
+    target->m_dragLastSmoothSlotP = target->m_dragPreviewLocal;
+    target->m_dragLastSmoothOrtho = target->m_dragPreviewOrtho;
+    lead->setDragOffset(target->m_dragSmoothedFollowOffset);
+
+    target->createDragPhantom(target->m_dragPhantomLayoutScale);
+    target->m_dragOverlayHotspot = savedOverlayHotspot;
+    target->m_dragOverlayHotspotInitialized = savedOverlayHotspotInit;
+    target->refreshDragOverlay(globalPos);
+    CardDragOverlayWidget::instance()->show();
+    CardDragOverlayWidget::instance()->raise();
+    target->setDraggedCardOpaque(false);
+    target->m_dragSmoothTimer->start();
+}
+
+void CardView::endCardDrag()
+{
+    if (g_dragActiveView != this || m_draggingCardIndex < 0)
+        return;
+
+    m_dragSmoothTimer->stop();
+    removeDragPhantom();
+    CardDragOverlayWidget::instance()->clearAndHide();
+    m_dragOverlayPixmapSize = QSize();
+    m_dragOverlayScreenFrameSize = QSize();
+    m_dragOverlayHotspotInitialized = false;
+    setDraggedCardOpaque(true);
     m_dragFollowReady = false;
 
     CardItem *dragged = m_items[static_cast<size_t>(m_draggingCardIndex)];
@@ -1007,6 +1235,7 @@ void CardView::endCardDrag()
         const int nTarget = rowSizes[static_cast<size_t>(qBound(0, pr, rowCount - 1))];
         const int slot = qBound(0, pl, qMax(0, nTarget - 1));
         m_items = permuteDragToSpanSlot(m_items, dragIdx, qBound(0, pr, rowCount - 1), slot, rowSizes);
+        m_cardIds = permuteIdsToSpanSlot(m_cardIds, dragIdx, qBound(0, pr, rowCount - 1), slot, rowSizes);
     } else if (m_orientation == Orientation::Vertical && m_verticalColumnCount > 1) {
         const int colCount = std::max(1, m_verticalColumnCount);
         const std::vector<int> colSizes = cardsPerSpanDistribution(N, colCount);
@@ -1015,8 +1244,28 @@ void CardView::endCardDrag()
         const int nTarget = colSizes[static_cast<size_t>(qBound(0, pc, colCount - 1))];
         const int slot = qBound(0, pl, qMax(0, nTarget - 1));
         m_items = permuteDragToSpanSlot(m_items, dragIdx, qBound(0, pc, colCount - 1), slot, colSizes);
+        m_cardIds = permuteIdsToSpanSlot(m_cardIds, dragIdx, qBound(0, pc, colCount - 1), slot, colSizes);
     } else {
-        reorderSpanLocals(m_items, m_dragSpanStart, m_dragSpanLength, m_dragFromLocal, m_dragPreviewLocal);
+        // Single-row / single-column layout: preview slot is always 0..N-1 along that line.
+        // After cross-view transfer initDragSpanStateForSinglePile leaves spanLen==1 while layout
+        // still updates m_dragPreviewLocal for the full row — reorder must use the full span.
+        int spanStart = m_dragSpanStart;
+        int spanLen = m_dragSpanLength;
+        int fromLocal = m_dragFromLocal;
+        int toLocal = m_dragPreviewLocal;
+        if (m_orientation == Orientation::Horizontal && m_horizontalRowCount <= 1) {
+            spanStart = 0;
+            spanLen = N;
+            fromLocal = dragIdx;
+            toLocal = qBound(0, m_dragPreviewLocal, qMax(0, N - 1));
+        } else if (m_orientation == Orientation::Vertical && m_verticalColumnCount <= 1) {
+            spanStart = 0;
+            spanLen = N;
+            fromLocal = dragIdx;
+            toLocal = qBound(0, m_dragPreviewLocal, qMax(0, N - 1));
+        }
+        reorderSpanLocals(m_items, spanStart, spanLen, fromLocal, toLocal);
+        reorderSpanIds(m_cardIds, spanStart, spanLen, fromLocal, toLocal);
     }
 
     m_draggingCardIndex = -1;
@@ -1024,7 +1273,10 @@ void CardView::endCardDrag()
     m_dragLastLayoutPreviewOrtho = -1;
 
     QGuiApplication::restoreOverrideCursor();
-    viewport()->releaseMouse();
+    if (g_dragMouseGrabView != nullptr)
+        g_dragMouseGrabView->viewport()->releaseMouse();
+    g_dragMouseGrabView = nullptr;
+    g_dragActiveView = nullptr;
 
     layoutItems();
 
@@ -1037,7 +1289,7 @@ void CardView::endCardDrag()
 
 void CardView::tickDragFollowSmoothing()
 {
-    if (m_draggingCardIndex < 0 || !m_dragFollowReady)
+    if (g_dragActiveView != this || m_draggingCardIndex < 0 || !m_dragFollowReady)
         return;
 
     CardItem *it = m_items[static_cast<size_t>(m_draggingCardIndex)];
@@ -1046,6 +1298,79 @@ void CardView::tickDragFollowSmoothing()
     constexpr qreal k = 0.29;
     m_dragSmoothedFollowOffset += (target - m_dragSmoothedFollowOffset) * k;
     it->setDragOffset(m_dragSmoothedFollowOffset);
+    updateDragOverlayScreenFrame();
+}
+
+void CardView::initDragSpanStateForSinglePile(int index)
+{
+    const int N = static_cast<int>(m_items.size());
+    m_dragSpanStart = index;
+    m_dragSpanLength = 1;
+    m_dragFromLocal = 0;
+    m_dragPreviewLocal = 0;
+    m_lastDragLayoutPreviewLocal = -1;
+    m_dragLastLayoutPreviewOrtho = -1;
+    if (m_orientation == Orientation::Horizontal)
+        m_dragPreviewOrtho = horizontalRowIndexForGlobal(index, N, std::max(1, m_horizontalRowCount));
+    else
+        m_dragPreviewOrtho = verticalColIndexForGlobal(index, N, std::max(1, m_verticalColumnCount));
+}
+
+void CardView::updateDragOverlayScreenFrame()
+{
+    positionDragOverlayAtCursor(QCursor::pos());
+}
+
+void CardView::updateDragOverlayScreenFrameSize()
+{
+    m_dragOverlayScreenFrameSize = QSize();
+    if (m_draggingCardIndex < 0 || m_dragOverlayPixmapSize.isEmpty())
+        return;
+    CardItem *item = m_items[static_cast<size_t>(m_draggingCardIndex)];
+    if (!item)
+        return;
+    const QPointF localTL = QPointF(m_dragPhantomAlignOffset);
+    const QPointF localBR =
+        localTL + QPointF(m_dragOverlayPixmapSize.width(), m_dragOverlayPixmapSize.height());
+    const QPointF vpTL = mapFromScene(item->mapToScene(localTL));
+    const QPointF vpBR = mapFromScene(item->mapToScene(localBR));
+    m_dragOverlayScreenFrameSize =
+        QSize(qMax(1, qRound(qAbs(vpBR.x() - vpTL.x()))), qMax(1, qRound(qAbs(vpBR.y() - vpTL.y()))));
+}
+
+void CardView::positionDragOverlayAtCursor(const QPoint &globalPos)
+{
+    if (m_draggingCardIndex < 0 || !m_dragOverlayHotspotInitialized || m_dragOverlayPixmapSize.isEmpty())
+        return;
+    updateDragOverlayScreenFrameSize();
+    if (m_dragOverlayScreenFrameSize.isEmpty())
+        return;
+    const QPoint gTL = globalPos - m_dragOverlayHotspot;
+    CardDragOverlayWidget::instance()->setOverlayScreenFrame(gTL, m_dragOverlayScreenFrameSize);
+}
+
+void CardView::refreshDragOverlay(const QPoint &globalPos)
+{
+    if (m_draggingCardIndex < 0)
+        return;
+    QWidget *w = m_items[static_cast<size_t>(m_draggingCardIndex)]->widget();
+    if (!w)
+        return;
+    QPixmap pm = phantomPixmapFromWidget(w, &m_dragPhantomAlignOffset, false);
+    m_dragOverlayPixmapSize = pm.size();
+    CardDragOverlayWidget *ov = CardDragOverlayWidget::instance();
+    ov->setDragPixmap(pm);
+
+    if (!m_dragOverlayHotspotInitialized) {
+        CardItem *item = m_items[static_cast<size_t>(m_draggingCardIndex)];
+        if (item && !m_dragOverlayPixmapSize.isEmpty()) {
+            const QPointF localTL = QPointF(m_dragPhantomAlignOffset);
+            const QPoint gTL = mapScenePointToGlobal(this, item->mapToScene(localTL));
+            m_dragOverlayHotspot = globalPos - gTL;
+            m_dragOverlayHotspotInitialized = true;
+        }
+    }
+    positionDragOverlayAtCursor(globalPos);
 }
 
 void CardView::createDragPhantom(qreal layoutScale)
@@ -1081,6 +1406,14 @@ void CardView::syncDragPhantom(qreal layoutScale)
     const QPointF align = QPointF(m_dragPhantomAlignOffset) * layoutScale;
     m_dragPhantom->setPos(m_dragSlotTopLeftScene + align);
     m_dragPhantom->setScale(layoutScale);
+}
+
+void CardView::setDraggedCardOpaque(bool opaque)
+{
+    if (m_draggingCardIndex < 0)
+        return;
+    const qreal a = opaque ? 1.0 : 0.0;
+    m_items[static_cast<size_t>(m_draggingCardIndex)]->setOpacity(a);
 }
 
 bool CardView::viewportEvent(QEvent *event)

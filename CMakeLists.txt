@@ -63,6 +63,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ui/cardstackwidget.h ui/cardstackwidget.cpp
         ui/carditem.h ui/carditem.cpp
         ui/cardview.h ui/cardview.cpp
+        ui/carddragoverlay.h ui/carddragoverlay.cpp
         ui/gamesceneboardwidget.h ui/gamesceneboardwidget.cpp
         ui/basecardwidget.h ui/basecardwidget.cpp
         ui/democardwidget.h ui/democardwidget.cpp

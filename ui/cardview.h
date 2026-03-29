@@ -7,7 +7,9 @@
 #include <QPoint>
 #include <QPointF>
 #include <QRectF>
+#include <QSize>
 #include <QString>
+#include <QUuid>
 #include <vector>
 
 enum class Orientation {
@@ -71,6 +73,12 @@ public:
     /** Runs layout immediately (deferred timer may lag behind embedded widget resize). */
     void relayoutNow();
 
+    /**
+     * Stable id per card slot, in current visual / layout order (index aligns with embedded widgets).
+     * Updated when drag-and-drop completes (including cross-CardView transfer).
+     */
+    const std::vector<QUuid> &cardOrderIds() const { return m_cardIds; }
+
 protected:
     /** Horizontal flow: how many rows (equal height). */
     void setHorizontalRowCount(int rows);
@@ -108,15 +116,41 @@ private:
 
     void updateCardDrag(const QPointF &scenePos);
 
+    /** Cursor mapped with global coords; may move the drag to another CardView. */
+    void updateCardDragGlobal(const QPoint &globalPos);
+
+    void transferActiveDragTo(CardView *target, const QPoint &globalPos);
+
+    void initDragSpanStateForIndex(int index);
+
+    /** One pile only (used after cross-view transfer; avoids full-row span confusing layout math). */
+    void initDragSpanStateForSinglePile(int index);
+
+    void updateDragOverlayScreenFrame();
+
+    /** Places the top-level drag pixmap so globalPos − hotspot stays aligned with the grab point. */
+    void positionDragOverlayAtCursor(const QPoint &globalPos);
+
+    void updateDragOverlayScreenFrameSize();
+
+    /** Row/column-major index to insert before hit card, or append if scene point misses items. */
+    int insertIndexForDropAt(const QPointF &scenePoint) const;
+
     void endCardDrag();
 
     void tickDragFollowSmoothing();
+
+    /** Full-color pixmap for the top-level overlay; position via positionDragOverlayAtCursor. */
+    void refreshDragOverlay(const QPoint &globalPos);
 
     void createDragPhantom(qreal layoutScale);
 
     void removeDragPhantom();
 
     void syncDragPhantom(qreal layoutScale);
+
+    /** Opacity 0 on the dragged card only so only the global overlay shows it (siblings in the row stay visible). */
+    void setDraggedCardOpaque(bool opaque);
 
     /** Scene top-left of the preview drop slot (grid), updated each layout while dragging. */
     QPointF m_dragSlotTopLeftScene;
@@ -131,9 +165,21 @@ private:
 
     qreal m_dragPhantomLayoutScale = 1.0;
 
-    /** Top-left of cropped phantom pixmap in widget pixels; positions ghost under scaled stack. */
+    /** Top-left of cropped drag pixmap in widget pixels (same crop as overlay snapshot). */
     QPoint m_dragPhantomAlignOffset;
 
+    /** Cropped drag pixmap size in widget pixels (intrinsic). */
+    QSize m_dragOverlayPixmapSize;
+
+    /** Overlay window size in screen/viewport pixels (matches scaled card on the board). */
+    QSize m_dragOverlayScreenFrameSize;
+
+    /** globalPos − overlay top-left; initialized from first frame vs card so the grab stays under cursor. */
+    QPoint m_dragOverlayHotspot;
+
+    bool m_dragOverlayHotspotInitialized = false;
+
+    /** Tinted ghost at the preview slot (scene); overlay follows the cursor globally. */
     QGraphicsPixmapItem *m_dragPhantom = nullptr;
 
     QTimer *m_dragSmoothTimer = nullptr;
@@ -173,6 +219,8 @@ private:
 
     QGraphicsScene *m_scene = nullptr;
     std::vector<CardItem *> m_items;
+    /** Parallel to m_items: identity for each card position (survives reorder / transfer). */
+    std::vector<QUuid> m_cardIds;
     std::vector<QRectF> m_slotSceneRects;
     Orientation m_orientation = Orientation::Horizontal;
     bool m_layoutScheduled = false;

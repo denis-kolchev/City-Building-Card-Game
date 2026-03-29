@@ -5,6 +5,8 @@
 
 #include <QApplication>
 #include <QString>
+#include <QVBoxLayout>
+#include <QWidget>
 
 namespace {
 
@@ -54,9 +56,11 @@ LaunchTarget parseLaunchTarget(int argc, char **argv, int &outOfflinePlayers, bo
 
 int runCardViewDemo(QApplication &app)
 {
-    CardView view;
-    view.resize(900, 400);
-    view.setOrthogonalLineCount(2);
+    /** How many independent CardView instances are stacked vertically in the demo window. */
+    const int cardViewCount = 2;
+
+    QWidget window;
+    auto *mainLayout = new QVBoxLayout(&window);
 
     const QString demoImages[] = {
         QStringLiteral(":/images/cardWheatField.jpeg"),
@@ -78,20 +82,27 @@ int runCardViewDemo(QApplication &app)
         StackDirection::HorizontalRight,
     };
 
-    for (int i = 0; i < 6; ++i) {
-        auto *pile = new DemoCardStackWidget(
-            QStringLiteral("Card %1").arg(i),
-            demoImages[i]);
-        pile->setCardCount(stackDepths[i]);
-        pile->setStackDirection(pileDirs[i]);
-        view.addWidget(pile);
+    for (int v = 0; v < cardViewCount; ++v) {
+        auto *view = new CardView(&window);
+        view->setOrthogonalLineCount(1);
+
+        for (int i = 0; i < 6; ++i) {
+            auto *pile = new DemoCardStackWidget(
+                QStringLiteral("View %1 · Card %2").arg(v).arg(i),
+                demoImages[i]);
+            pile->setCardCount(stackDepths[i]);
+            pile->setStackDirection(pileDirs[i]);
+            view->addWidget(pile);
+        }
+
+        view->setOrientation(Orientation::Horizontal);
+        view->setPopLiftDirection(PopLiftDirection::Up, PopLiftDirection::Right);
+        mainLayout->addWidget(view, 1);
     }
 
-    view.setOrientation(Orientation::Horizontal);
-    view.setPopLiftDirection(PopLiftDirection::Up, PopLiftDirection::Right);
-
-    view.setWindowTitle(QStringLiteral("CardView demo"));
-    view.show();
+    window.setWindowTitle(QStringLiteral("CardView demo (%1 views)").arg(cardViewCount));
+    window.resize(900, 80 + cardViewCount * 360);
+    window.show();
     return app.exec();
 }
 
@@ -138,7 +149,7 @@ int main(int argc, char *argv[])
 
     int offlinePlayers = 4;
     bool useStartMenu = false;
-    const LaunchTarget target = LaunchTarget::FullGame;
+    const LaunchTarget target = LaunchTarget::CardViewDemo;
 
     switch (target) {
     case LaunchTarget::CardViewDemo:
