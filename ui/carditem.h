@@ -22,6 +22,9 @@ public:
 
     void setBaseScenePos(const QPointF &scenePos);
 
+    /** Smooth move for layout reflow (cancels any in-flight base animation). */
+    void setBaseScenePosAnimated(const QPointF &scenePos, int durationMs = 180);
+
     void setStackZ(qreal z);
 
     QPointF baseScenePos() const { return m_baseScenePos; }
@@ -31,7 +34,16 @@ public:
 
     QPointF popLiftUnit() const { return m_popLiftUnit; }
 
-    void setPopped(bool popped);
+    /** Scene delta from hover peek (popLiftUnit × current lift). Drag math subtracts this from slot + dragOffset. */
+    QPointF hoverLiftSceneOffset() const;
+
+    /** Hover “peek” lift. Use animateHoverLift=false when starting a drag so stacks don’t tween down under the cursor. */
+    void setPopped(bool popped, bool animateHoverLift = true);
+
+    /** Extra scene translation while the user drags the card (applied on top of base + pop lift). */
+    void setDragOffset(const QPointF &sceneDelta);
+
+    QPointF dragOffset() const { return m_dragOffset; }
 
     QPainterPath shape() const override;
 
@@ -41,11 +53,13 @@ private:
     void applyLiftGeometry();
 
     QPointF m_baseScenePos;
+    QPointF m_dragOffset;
     qreal m_stackZ = 0;
     qreal m_currentLift = 0;
     bool m_popped = false;
     QPointF m_popLiftUnit{0, -1};
     QVariantAnimation *m_liftAnimation = nullptr;
+    QVariantAnimation *m_basePosAnimation = nullptr;
 };
 
 #endif // CARDITEM_H

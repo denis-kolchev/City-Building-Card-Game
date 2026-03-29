@@ -18,52 +18,59 @@ void applyStackContainerSurface(QWidget *w)
 
 } // namespace
 
-DemoCardStackWidget::DemoCardStackWidget(std::shared_ptr<Card> card, int stackDepth, QWidget *parent)
+DemoCardStackWidget::DemoCardStackWidget(std::shared_ptr<Card> card, QWidget *parent)
     : QWidget(parent)
     , m_card(std::move(card))
     , m_useGameCard(true)
-    , m_stackDepth(qMax(1, stackDepth))
 {
     applyStackContainerSurface(this);
-    appendFaceCards(m_stackDepth);
+    appendFaceCards(m_cardCount);
     updateStackGeometry();
 }
 
 DemoCardStackWidget::DemoCardStackWidget(const QString &title,
                                          const QString &imageResourcePath,
-                                         int stackDepth,
                                          QWidget *parent)
     : QWidget(parent)
     , m_title(title)
     , m_imageResourcePath(imageResourcePath)
     , m_useGameCard(false)
-    , m_stackDepth(qMax(1, stackDepth))
 {
     applyStackContainerSurface(this);
-    appendFaceCards(m_stackDepth);
+    appendFaceCards(m_cardCount);
     updateStackGeometry();
 }
 
-void DemoCardStackWidget::setStackDepth(int depth)
+void DemoCardStackWidget::setCardCount(int count)
 {
-    const int d = qMax(1, depth);
-    if (d == m_stackDepth && static_cast<int>(m_cards.size()) == d)
+    const int n = qMax(1, count);
+    if (n == m_cardCount && static_cast<int>(m_cards.size()) == n)
         return;
 
-    m_stackDepth = d;
+    m_cardCount = n;
     clearCards();
-    appendFaceCards(m_stackDepth);
+    appendFaceCards(m_cardCount);
     updateStackGeometry();
     updateGeometry();
     update();
 }
 
-void DemoCardStackWidget::setVerticalOverlap(int pixels)
+void DemoCardStackWidget::setStackOverlap(int pixels)
 {
     const int p = qMax(0, pixels);
-    if (p == m_verticalOverlap)
+    if (p == m_stackOverlap)
         return;
-    m_verticalOverlap = p;
+    m_stackOverlap = p;
+    updateStackGeometry();
+    updateGeometry();
+    update();
+}
+
+void DemoCardStackWidget::setStackDirection(StackDirection d)
+{
+    if (d == m_stackDirection)
+        return;
+    m_stackDirection = d;
     updateStackGeometry();
     updateGeometry();
     update();
@@ -106,24 +113,68 @@ void DemoCardStackWidget::updateStackGeometry()
         setFixedSize(cardW, cardH);
         return;
     }
-    const int stackExtra = (n > 1) ? (n - 1) * m_verticalOverlap : 0;
-    // Tight bounds: front card bottom is (n-1)*overlap + cardH (same as CardStackWidget
-    // footprint without unused padding that drew as solid strips in the scene).
-    const int w = cardW;
-    const int h = cardH + stackExtra;
-    setFixedSize(w, h);
+    const int stackExtra = (n > 1) ? (n - 1) * m_stackOverlap : 0;
+    const bool vertical = (m_stackDirection == StackDirection::VerticalDown
+                           || m_stackDirection == StackDirection::VerticalUp);
+    if (vertical) {
+        setFixedSize(cardW, cardH + stackExtra);
+    } else {
+        setFixedSize(cardW + stackExtra, cardH);
+    }
 }
 
 void DemoCardStackWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
-    int yOffset = 0;
-    for (DemoCardWidget *card : m_cards) {
-        card->move(0, yOffset);
-        card->raise();
-        card->updateGeometry();
-        card->setVisible(true);
-        yOffset += m_verticalOverlap;
+    switch (m_stackDirection) {
+    case StackDirection::VerticalDown: {
+        int y = 0;
+        for (DemoCardWidget *card : m_cards) {
+            card->move(0, y);
+            card->raise();
+            card->updateGeometry();
+            card->setVisible(true);
+            y += m_stackOverlap;
+        }
+        break;
+    }
+    case StackDirection::VerticalUp: {
+        const int n = static_cast<int>(m_cards.size());
+        const int stackExtra = (n > 1) ? (n - 1) * m_stackOverlap : 0;
+        int y = stackExtra;
+        for (DemoCardWidget *card : m_cards) {
+            card->move(0, y);
+            card->raise();
+            card->updateGeometry();
+            card->setVisible(true);
+            y -= m_stackOverlap;
+        }
+        break;
+    }
+    case StackDirection::HorizontalRight: {
+        int x = 0;
+        for (DemoCardWidget *card : m_cards) {
+            card->move(x, 0);
+            card->raise();
+            card->updateGeometry();
+            card->setVisible(true);
+            x += m_stackOverlap;
+        }
+        break;
+    }
+    case StackDirection::HorizontalLeft: {
+        const int n = static_cast<int>(m_cards.size());
+        const int stackExtra = (n > 1) ? (n - 1) * m_stackOverlap : 0;
+        int x = stackExtra;
+        for (DemoCardWidget *card : m_cards) {
+            card->move(x, 0);
+            card->raise();
+            card->updateGeometry();
+            card->setVisible(true);
+            x -= m_stackOverlap;
+        }
+        break;
+    }
     }
 }

@@ -4,6 +4,7 @@
 #include "carditem.h"
 
 #include <QGraphicsView>
+#include <QPoint>
 #include <QPointF>
 #include <QRectF>
 #include <QString>
@@ -28,8 +29,10 @@ enum class PopLiftDirection {
 };
 
 class QGraphicsScene;
+class QGraphicsPixmapItem;
 class QMouseEvent;
 class QEvent;
+class QTimer;
 class BaseCardWidget;
 
 class CardView : public QGraphicsView
@@ -63,6 +66,11 @@ public:
     /** Convenience for BaseCardWidget-derived cards; same as addWidget. */
     void addCard(BaseCardWidget *card);
 
+    Orientation flowOrientation() const { return m_orientation; }
+
+    /** Runs layout immediately (deferred timer may lag behind embedded widget resize). */
+    void relayoutNow();
+
 protected:
     /** Horizontal flow: how many rows (equal height). */
     void setHorizontalRowCount(int rows);
@@ -82,6 +90,8 @@ protected:
 
     bool viewportEvent(QEvent *event) override;
 
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     void scheduleLayout();
 
@@ -89,7 +99,73 @@ private:
 
     void updateHoverState(const QPointF &scenePoint);
 
-    void setHoveredIndex(int index);
+    void setHoveredIndex(int index, bool animateHoverLift = true);
+
+    /** Topmost card under point, or -1. Uses slot rects and pop-lift bands (same as hover). */
+    int cardIndexAtScenePoint(const QPointF &scenePoint) const;
+
+    void beginCardDrag(int index, const QPointF &scenePos);
+
+    void updateCardDrag(const QPointF &scenePos);
+
+    void endCardDrag();
+
+    void tickDragFollowSmoothing();
+
+    void createDragPhantom(qreal layoutScale);
+
+    void removeDragPhantom();
+
+    void syncDragPhantom(qreal layoutScale);
+
+    /** Scene top-left of the preview drop slot (grid), updated each layout while dragging. */
+    QPointF m_dragSlotTopLeftScene;
+
+    /** Cursor minus dragged item top-left at press (scene space). */
+    QPointF m_dragGrabSceneOffset;
+
+    /** Smoothed offset from preview slot toward cursor. */
+    QPointF m_dragSmoothedFollowOffset;
+
+    int m_dragLastSmoothSlotP = -1000000;
+
+    qreal m_dragPhantomLayoutScale = 1.0;
+
+    /** Top-left of cropped phantom pixmap in widget pixels; positions ghost under scaled stack. */
+    QPoint m_dragPhantomAlignOffset;
+
+    QGraphicsPixmapItem *m_dragPhantom = nullptr;
+
+    QTimer *m_dragSmoothTimer = nullptr;
+
+    /** False until m_dragGrabSceneOffset is set after the first layout pass of a drag. */
+    bool m_dragFollowReady = false;
+
+    /** Grid drag: span of items in the active row (horizontal flow) or column (vertical flow). */
+    int m_dragSpanStart = 0;
+
+    int m_dragSpanLength = 0;
+
+    /** Local index within span at press; drop target is m_dragPreviewLocal. */
+    int m_dragFromLocal = 0;
+
+    int m_dragPreviewLocal = 0;
+
+    /** Last preview slot applied in layout (for sibling reflow animation). */
+    int m_lastDragLayoutPreviewLocal = -1;
+
+    /** Preview row (horizontal flow) or column (vertical flow) for cross-span drag. */
+    int m_dragPreviewOrtho = 0;
+
+    int m_dragLastLayoutPreviewOrtho = -1;
+
+    int m_dragLastSmoothOrtho = -1000000;
+
+    QPointF m_dragMouseScene;
+
+    int m_draggingCardIndex = -1;
+
+    QPointF m_dragStartScene;
 
     QPointF popUnitFromHorizontalFlow() const;
 

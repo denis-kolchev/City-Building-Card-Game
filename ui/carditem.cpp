@@ -17,6 +17,11 @@ CardItem::CardItem(QWidget *w)
     setCacheMode(QGraphicsItem::NoCache);
 }
 
+QPointF CardItem::hoverLiftSceneOffset() const
+{
+    return QPointF(m_popLiftUnit.x() * m_currentLift, m_popLiftUnit.y() * m_currentLift);
+}
+
 void CardItem::setPopLiftVector(qreal unitX, qreal unitY)
 {
     const QPointF u(unitX, unitY);
@@ -29,14 +34,62 @@ void CardItem::setPopLiftVector(qreal unitX, qreal unitY)
 
 void CardItem::applyLiftGeometry()
 {
-    QGraphicsProxyWidget::setPos(m_baseScenePos
+    QGraphicsProxyWidget::setPos(m_baseScenePos + m_dragOffset
         + QPointF(m_popLiftUnit.x() * m_currentLift, m_popLiftUnit.y() * m_currentLift));
+}
+
+void CardItem::setDragOffset(const QPointF &sceneDelta)
+{
+    if (m_dragOffset == sceneDelta)
+        return;
+    prepareGeometryChange();
+    m_dragOffset = sceneDelta;
+    applyLiftGeometry();
 }
 
 void CardItem::setBaseScenePos(const QPointF &scenePos)
 {
+    if (m_basePosAnimation) {
+        m_basePosAnimation->stop();
+        disconnect(m_basePosAnimation, nullptr, this, nullptr);
+        m_basePosAnimation->deleteLater();
+        m_basePosAnimation = nullptr;
+    }
     m_baseScenePos = scenePos;
     applyLiftGeometry();
+}
+
+void CardItem::setBaseScenePosAnimated(const QPointF &scenePos, int durationMs)
+{
+    if (QPointF(scenePos - m_baseScenePos).manhattanLength() < 0.5)
+        return;
+
+    if (m_basePosAnimation) {
+        m_basePosAnimation->stop();
+        disconnect(m_basePosAnimation, nullptr, this, nullptr);
+        m_basePosAnimation->deleteLater();
+        m_basePosAnimation = nullptr;
+    }
+
+    auto *anim = new QVariantAnimation(this);
+    m_basePosAnimation = anim;
+    anim->setDuration(durationMs);
+    anim->setStartValue(m_baseScenePos);
+    anim->setEndValue(scenePos);
+    anim->setEasingCurve(QEasingCurve::OutCubic);
+
+    connect(anim, &QVariantAnimation::valueChanged, this, [this](const QVariant &v) {
+        prepareGeometryChange();
+        m_baseScenePos = v.toPointF();
+        applyLiftGeometry();
+    });
+    connect(anim, &QVariantAnimation::finished, this, [this, anim]() {
+        if (m_basePosAnimation == anim)
+            m_basePosAnimation = nullptr;
+        anim->deleteLater();
+    });
+
+    anim->start();
 }
 
 void CardItem::setStackZ(qreal z)
@@ -46,11 +99,32 @@ void CardItem::setStackZ(qreal z)
         setZValue(m_stackZ);
 }
 
-void CardItem::setPopped(bool popped)
+void CardItem::setPopped(bool popped, bool animateHoverLift)
 {
+    const qreal target = popped ? hoverLift() : 0;
+
+    if (!animateHoverLift) {
+        if (m_liftAnimation) {
+            disconnect(m_liftAnimation, nullptr, this, nullptr);
+            m_liftAnimation->stop();
+            m_liftAnimation->deleteLater();
+            m_liftAnimation = nullptr;
+        }
+        if (m_popped == popped && qFuzzyCompare(m_currentLift, target))
+            return;
+        m_popped = popped;
+        m_currentLift = target;
+        prepareGeometryChange();
+        if (m_popped)
+            setZValue(poppedZValue());
+        else
+            setZValue(m_stackZ);
+        applyLiftGeometry();
+        return;
+    }
+
     if (m_popped == popped) {
         if (!m_liftAnimation) {
-            const qreal target = popped ? hoverLift() : 0;
             if (qFuzzyCompare(m_currentLift, target))
                 return;
         } else {
@@ -58,7 +132,6 @@ void CardItem::setPopped(bool popped)
         }
     }
     m_popped = popped;
-    const qreal target = m_popped ? hoverLift() : 0;
 
     if (m_popped)
         setZValue(poppedZValue());
